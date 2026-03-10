@@ -19,7 +19,7 @@ export default function AdminPage() {
   // Coupon form
   const [couponForm, setCouponForm] = useState({
     store_id: '', title: '', code: '', discount_value: '', discount_type: 'percent',
-    type: 'code', expiry_date: '', is_best: false, is_exclusive: false, is_verified: true,
+    type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true,
   });
 
   // Store form
@@ -88,6 +88,7 @@ export default function AdminPage() {
       discount_type: couponForm.discount_type,
       type: couponForm.type,
       expiry_date: couponForm.expiry_date || null,
+      affiliate_url: couponForm.affiliate_url || null,
       is_best: couponForm.is_best,
       is_exclusive: couponForm.is_exclusive,
       is_verified: couponForm.is_verified,
@@ -98,7 +99,7 @@ export default function AdminPage() {
       showMsg('Coupon ajouté !', 'success');
       setCouponForm({
         store_id: couponForm.store_id, title: '', code: '', discount_value: '', discount_type: 'percent',
-        type: 'code', expiry_date: '', is_best: false, is_exclusive: false, is_verified: true,
+        type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true,
       });
       loadData();
     }
@@ -276,6 +277,15 @@ export default function AdminPage() {
                     type="date"
                     value={couponForm.expiry_date}
                     onChange={(e) => setCouponForm({ ...couponForm, expiry_date: e.target.value })}
+                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-[13px] font-semibold text-text-main mb-1">🔗 Lien d&apos;affiliation</label>
+                  <input
+                    value={couponForm.affiliate_url}
+                    onChange={(e) => setCouponForm({ ...couponForm, affiliate_url: e.target.value })}
+                    placeholder="https://www.exemple.com/?ref=votre-id"
                     className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
                   />
                 </div>

@@ -97,7 +97,7 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
 
           {/* Go to site button */}
           <a
-            href="#"
+            href={coupon.affiliate_url || '#'}
             target="_blank"
             rel="noopener noreferrer"
             className="block w-full bg-primary hover:bg-primary-dark text-white text-center font-bold text-[15px] py-3.5 rounded-lg transition-colors"
