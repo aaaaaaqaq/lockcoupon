@@ -62,7 +62,7 @@ export default async function HomePage() {
       {/* Footer */}
       <footer className="border-t border-border bg-white mt-10">
         <div className="max-w-[1200px] mx-auto px-4 py-8 text-center text-muted text-[13px]">
-          © {new Date().getFullYear()} BonPlan.ma — Tous droits réservés.
+          © {new Date().getFullYear()} LockCoupon.com — Tous droits réservés.
         </div>
       </footer>
     </>

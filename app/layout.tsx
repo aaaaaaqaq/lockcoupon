@@ -2,17 +2,17 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'BonPlan.ma — Codes Promo & Réductions Vérifiées',
+  title: 'LockCoupon — Codes Promo & Réductions Vérifiées',
   description:
-    'Trouvez les meilleurs codes promo, coupons et réductions vérifiés pour vos boutiques préférées au Maroc et à l\'international.',
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://bonplan.ma'),
+    'Trouvez les meilleurs codes promo, coupons et réductions vérifiés pour vos boutiques préférées.',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://lockcoupon.com'),
   openGraph: {
-    title: 'BonPlan.ma — Codes Promo & Réductions Vérifiées',
+    title: 'LockCoupon — Codes Promo & Réductions Vérifiées',
     description:
       'Trouvez les meilleurs codes promo, coupons et réductions vérifiés.',
     url: '/',
-    siteName: 'BonPlan.ma',
-    locale: 'fr_MA',
+    siteName: 'LockCoupon',
+    locale: 'fr_FR',
     type: 'website',
   },
   robots: {
