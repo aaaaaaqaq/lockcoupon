@@ -7,6 +7,7 @@ import FilterTabs from '@/components/FilterTabs';
 import CouponCard from '@/components/CouponCard';
 import CouponPopup from '@/components/CouponPopup';
 import Toast from '@/components/Toast';
+import Footer from '@/components/Footer';
 import { Store, Coupon } from '@/lib/supabase';
 
 interface StorePageClientProps {
@@ -65,12 +66,7 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
         )}
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-white mt-10">
-        <div className="max-w-[1200px] mx-auto px-4 py-8 text-center text-muted text-[13px]">
-          © {new Date().getFullYear()} LockCoupon.com — Tous droits réservés.
-        </div>
-      </footer>
+      <Footer />
 
       {/* Popup */}
       <CouponPopup

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 import { getAllStores } from '@/lib/supabase';
 
 export const revalidate = 60;
@@ -11,7 +12,6 @@ export default async function HomePage() {
     <>
       <Navbar />
 
-      {/* Hero — compact, search-focused */}
       <section className="bg-[#1a1a1a] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent pointer-events-none" />
         <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-16 text-center">
@@ -21,28 +21,17 @@ export default async function HomePage() {
           <p className="text-white/50 text-[14px] md:text-[16px] max-w-lg mx-auto mb-6">
             Codes promo vérifiés &amp; mis à jour chaque jour. 100% gratuit.
           </p>
-
-          {/* Stats pills */}
           <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap">
-            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">
-              🏪 {stores.length}+ boutiques
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">
-              🔥 Mis à jour aujourd&apos;hui
-            </div>
-            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">
-              ✅ 98% taux de succès
-            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">🏪 {stores.length}+ boutiques</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">🔥 Mis à jour aujourd&apos;hui</div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">✅ 98% taux de succès</div>
           </div>
         </div>
       </section>
 
-      {/* Store grid */}
       <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-10">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold">
-            Boutiques populaires
-          </h2>
+          <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold">Boutiques populaires</h2>
           <span className="text-muted text-[13px]">{stores.length} boutiques</span>
         </div>
 
@@ -59,12 +48,20 @@ export default async function HomePage() {
                 href={`/codes-promo/${store.slug}`}
                 className="bg-white border border-border rounded-xl p-4 flex flex-col items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 transition-all group"
               >
-                <div
-                  className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-white text-[20px] md:text-[24px] font-bold group-hover:scale-105 transition-transform shadow-sm"
-                  style={{ backgroundColor: store.logo_color || '#C0392B' }}
-                >
-                  {store.logo_letter || store.name[0]}
-                </div>
+                {store.logo_url ? (
+                  <img
+                    src={store.logo_url}
+                    alt={store.name}
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-xl object-contain group-hover:scale-105 transition-transform"
+                  />
+                ) : (
+                  <div
+                    className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-white text-[20px] md:text-[24px] font-bold group-hover:scale-105 transition-transform shadow-sm"
+                    style={{ backgroundColor: store.logo_color || '#C0392B' }}
+                  >
+                    {store.logo_letter || store.name[0]}
+                  </div>
+                )}
                 <span className="text-text-main text-[12px] md:text-[14px] font-semibold text-center leading-tight">
                   {store.name}
                 </span>
@@ -74,29 +71,7 @@ export default async function HomePage() {
         )}
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border bg-white mt-10">
-        <div className="max-w-[1200px] mx-auto px-4 py-6 md:py-8">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-6 h-6 bg-primary rounded-md flex items-center justify-center">
-                <svg width="12" height="12" viewBox="0 0 16 16" fill="none">
-                  <rect x="5" y="1" width="6" height="4" rx="2" stroke="white" strokeWidth="1.5" fill="none"/>
-                  <rect x="3" y="5" width="10" height="10" rx="2" fill="white"/>
-                  <rect x="7" y="8" width="2" height="4" rx="1" fill="#C0392B"/>
-                </svg>
-              </div>
-              <span className="text-[14px] font-bold">
-                <span className="text-text-main">lock</span>
-                <span className="text-primary">coupon</span>
-              </span>
-            </div>
-            <p className="text-muted text-[12px] md:text-[13px]">
-              © {new Date().getFullYear()} LockCoupon.com — Tous droits réservés.
-            </p>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </>
   );
 }

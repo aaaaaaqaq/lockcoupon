@@ -48,12 +48,16 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
 
               {/* Store logo */}
               <div className="relative">
-                <div
-                  className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-white text-[32px] font-bold shadow-lg"
-                  style={{ backgroundColor: store.logo_color || '#E87A2A' }}
-                >
-                  {store.logo_letter || store.name[0]}
-                </div>
+                {store.logo_url ? (
+                  <img src={store.logo_url} alt={store.name} className="w-[72px] h-[72px] rounded-2xl object-contain shadow-lg bg-white" />
+                ) : (
+                  <div
+                    className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-white text-[32px] font-bold shadow-lg"
+                    style={{ backgroundColor: store.logo_color || '#E87A2A' }}
+                  >
+                    {store.logo_letter || store.name[0]}
+                  </div>
+                )}
                 <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center border-2 border-[#1a1a1a]">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
                     <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>

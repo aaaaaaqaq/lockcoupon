@@ -16,15 +16,13 @@ export default function AdminPage() {
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState<'success' | 'error'>('success');
 
-  // Coupon form
   const [couponForm, setCouponForm] = useState({
     store_id: '', title: '', code: '', discount_value: '', discount_type: 'percent',
     type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true,
   });
 
-  // Store form
   const [storeForm, setStoreForm] = useState({
-    name: '', slug: '', logo_color: '#C0392B', logo_letter: '', description: '',
+    name: '', slug: '', logo_url: '', logo_color: '#C0392B', logo_letter: '', description: '',
   });
 
   const showMsg = (text: string, type: 'success' | 'error') => {
@@ -42,65 +40,44 @@ export default function AdminPage() {
     if (sub) setSubscribers(sub);
   }, []);
 
-  useEffect(() => {
-    if (authed) loadData();
-  }, [authed, loadData]);
+  useEffect(() => { if (authed) loadData(); }, [authed, loadData]);
 
   const handleLogin = () => {
-    if (password === ADMIN_PASSWORD) {
-      setAuthed(true);
-    } else {
-      showMsg('Mot de passe incorrect', 'error');
-    }
+    if (password === ADMIN_PASSWORD) setAuthed(true);
+    else showMsg('Mot de passe incorrect', 'error');
   };
 
   const addStore = async () => {
-    if (!storeForm.name || !storeForm.slug) {
-      showMsg('Nom et slug sont requis', 'error');
-      return;
-    }
+    if (!storeForm.name || !storeForm.slug) { showMsg('Nom et slug sont requis', 'error'); return; }
     const { error } = await supabase.from('stores').insert({
       name: storeForm.name,
       slug: storeForm.slug.toLowerCase().replace(/\s+/g, '-'),
+      logo_url: storeForm.logo_url || null,
       logo_color: storeForm.logo_color,
       logo_letter: storeForm.logo_letter || storeForm.name[0].toUpperCase(),
       description: storeForm.description,
     });
-    if (error) {
-      showMsg('Erreur: ' + error.message, 'error');
-    } else {
+    if (error) showMsg('Erreur: ' + error.message, 'error');
+    else {
       showMsg('Boutique ajoutée !', 'success');
-      setStoreForm({ name: '', slug: '', logo_color: '#C0392B', logo_letter: '', description: '' });
+      setStoreForm({ name: '', slug: '', logo_url: '', logo_color: '#C0392B', logo_letter: '', description: '' });
       loadData();
     }
   };
 
   const addCoupon = async () => {
-    if (!couponForm.store_id || !couponForm.title) {
-      showMsg('Boutique et titre sont requis', 'error');
-      return;
-    }
+    if (!couponForm.store_id || !couponForm.title) { showMsg('Boutique et titre sont requis', 'error'); return; }
     const { error } = await supabase.from('coupons').insert({
-      store_id: couponForm.store_id,
-      title: couponForm.title,
-      code: couponForm.code || null,
-      discount_value: couponForm.discount_value || null,
-      discount_type: couponForm.discount_type,
-      type: couponForm.type,
-      expiry_date: couponForm.expiry_date || null,
+      store_id: couponForm.store_id, title: couponForm.title, code: couponForm.code || null,
+      discount_value: couponForm.discount_value || null, discount_type: couponForm.discount_type,
+      type: couponForm.type, expiry_date: couponForm.expiry_date || null,
       affiliate_url: couponForm.affiliate_url || null,
-      is_best: couponForm.is_best,
-      is_exclusive: couponForm.is_exclusive,
-      is_verified: couponForm.is_verified,
+      is_best: couponForm.is_best, is_exclusive: couponForm.is_exclusive, is_verified: couponForm.is_verified,
     });
-    if (error) {
-      showMsg('Erreur: ' + error.message, 'error');
-    } else {
+    if (error) showMsg('Erreur: ' + error.message, 'error');
+    else {
       showMsg('Coupon ajouté !', 'success');
-      setCouponForm({
-        store_id: couponForm.store_id, title: '', code: '', discount_value: '', discount_type: 'percent',
-        type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true,
-      });
+      setCouponForm({ store_id: couponForm.store_id, title: '', code: '', discount_value: '', discount_type: 'percent', type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true });
       loadData();
     }
   };
@@ -108,46 +85,31 @@ export default function AdminPage() {
   const deleteCoupon = async (id: string) => {
     if (!confirm('Supprimer ce coupon ?')) return;
     await supabase.from('coupons').delete().eq('id', id);
-    showMsg('Coupon supprimé', 'success');
-    loadData();
+    showMsg('Coupon supprimé', 'success'); loadData();
   };
 
   const deleteStore = async (id: string) => {
     if (!confirm('Supprimer cette boutique et tous ses coupons ?')) return;
     await supabase.from('coupons').delete().eq('store_id', id);
     await supabase.from('stores').delete().eq('id', id);
-    showMsg('Boutique supprimée', 'success');
-    loadData();
+    showMsg('Boutique supprimée', 'success'); loadData();
   };
 
-  // ─── Login Screen ──────────────────────────────
+  // ─── Login ─────────────────────────────────────
   if (!authed) {
     return (
       <div className="min-h-screen bg-bg flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg w-full max-w-[380px] overflow-hidden">
           <div className="bg-[#1a1a1a] px-6 py-8 text-center">
             <div className="text-[28px] font-extrabold">
-              <span className="text-white">Lock</span>
-              <span className="text-primary">Coupon</span>
+              <span className="text-white">lock</span><span className="text-primary">coupon</span>
             </div>
             <p className="text-white/50 text-[14px] mt-2">Panneau d&apos;administration</p>
           </div>
           <div className="p-6">
             <label className="block text-text-main text-[13px] font-semibold mb-1.5">Mot de passe</label>
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-              placeholder="Entrez le mot de passe"
-              className="w-full border border-border rounded-lg px-4 py-3 text-[15px] outline-none focus:border-primary mb-4"
-            />
-            <button
-              onClick={handleLogin}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-[15px] py-3 rounded-lg transition-colors"
-            >
-              Connexion
-            </button>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && handleLogin()} placeholder="Entrez le mot de passe" className="w-full border border-border rounded-lg px-4 py-3 text-[15px] outline-none focus:border-primary mb-4" />
+            <button onClick={handleLogin} className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-[15px] py-3 rounded-lg transition-colors">Connexion</button>
             {msg && <p className={`text-[13px] mt-3 text-center ${msgType === 'error' ? 'text-red-500' : 'text-green-600'}`}>{msg}</p>}
           </div>
         </div>
@@ -155,104 +117,62 @@ export default function AdminPage() {
     );
   }
 
-  // ─── Admin Dashboard ───────────────────────────
+  // ─── Dashboard ─────────────────────────────────
   return (
     <div className="min-h-screen bg-bg">
-      {/* Top bar */}
       <div className="bg-[#1a1a1a] sticky top-0 z-50">
         <div className="max-w-[1000px] mx-auto px-4 h-[56px] flex items-center justify-between">
           <div className="text-[20px] font-extrabold">
-            <span className="text-white">Lock</span>
-            <span className="text-primary">Coupon</span>
+            <span className="text-white">lock</span><span className="text-primary">coupon</span>
             <span className="text-white/40 text-[14px] ml-2 font-normal">Admin</span>
           </div>
-          <button onClick={() => setAuthed(false)} className="text-white/50 hover:text-white text-[13px] transition-colors">
-            Déconnexion
-          </button>
+          <button onClick={() => setAuthed(false)} className="text-white/50 hover:text-white text-[13px]">Déconnexion</button>
         </div>
       </div>
 
-      {/* Toast */}
       {msg && (
         <div className="fixed top-4 right-4 z-[200] animate-slide-up">
-          <div className={`px-5 py-3 rounded-xl shadow-lg text-white text-[14px] font-medium ${msgType === 'error' ? 'bg-red-500' : 'bg-green-600'}`}>
-            {msg}
-          </div>
+          <div className={`px-5 py-3 rounded-xl shadow-lg text-white text-[14px] font-medium ${msgType === 'error' ? 'bg-red-500' : 'bg-green-600'}`}>{msg}</div>
         </div>
       )}
 
       <div className="max-w-[1000px] mx-auto px-4 py-6">
-        {/* Tabs */}
         <div className="flex gap-2 mb-6">
-          {[
-            { key: 'coupons' as const, label: '🏷️ Coupons', count: coupons.length },
-            { key: 'stores' as const, label: '🏪 Boutiques', count: stores.length },
-            { key: 'subscribers' as const, label: '📬 Abonnés', count: subscribers.length },
-          ].map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`px-4 py-2 rounded-lg text-[14px] font-semibold transition-all ${
-                tab === t.key ? 'bg-primary text-white' : 'bg-white text-muted hover:bg-gray-100'
-              }`}
-            >
-              {t.label} ({t.count})
+          {([['coupons', '🏷️ Coupons', coupons.length], ['stores', '🏪 Boutiques', stores.length], ['subscribers', '📬 Abonnés', subscribers.length]] as const).map(([key, label, count]) => (
+            <button key={key} onClick={() => setTab(key as any)} className={`px-4 py-2 rounded-lg text-[14px] font-semibold transition-all ${tab === key ? 'bg-primary text-white' : 'bg-white text-muted hover:bg-gray-100'}`}>
+              {label} ({count})
             </button>
           ))}
         </div>
 
-        {/* ─── COUPONS TAB ─────────────────────── */}
+        {/* ─── COUPONS ─────────────────────────── */}
         {tab === 'coupons' && (
           <div className="space-y-6">
-            {/* Add form */}
             <div className="bg-white rounded-xl border border-border p-6">
               <h2 className="text-text-main text-[18px] font-bold mb-5">➕ Ajouter un coupon</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Boutique *</label>
-                  <select
-                    value={couponForm.store_id}
-                    onChange={(e) => setCouponForm({ ...couponForm, store_id: e.target.value })}
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  >
+                  <select value={couponForm.store_id} onChange={(e) => setCouponForm({ ...couponForm, store_id: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary">
                     <option value="">Sélectionner...</option>
                     {stores.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Code promo</label>
-                  <input
-                    value={couponForm.code}
-                    onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value })}
-                    placeholder="ex: SAVE20"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={couponForm.code} onChange={(e) => setCouponForm({ ...couponForm, code: e.target.value })} placeholder="ex: SAVE20" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Titre *</label>
-                  <input
-                    value={couponForm.title}
-                    onChange={(e) => setCouponForm({ ...couponForm, title: e.target.value })}
-                    placeholder="ex: 30% de réduction sur tout le site"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={couponForm.title} onChange={(e) => setCouponForm({ ...couponForm, title: e.target.value })} placeholder="ex: 30% de réduction sur tout le site" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Valeur</label>
-                  <input
-                    value={couponForm.discount_value}
-                    onChange={(e) => setCouponForm({ ...couponForm, discount_value: e.target.value })}
-                    placeholder="ex: 30"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={couponForm.discount_value} onChange={(e) => setCouponForm({ ...couponForm, discount_value: e.target.value })} placeholder="ex: 30" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Type de réduction</label>
-                  <select
-                    value={couponForm.discount_type}
-                    onChange={(e) => setCouponForm({ ...couponForm, discount_type: e.target.value })}
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  >
+                  <select value={couponForm.discount_type} onChange={(e) => setCouponForm({ ...couponForm, discount_type: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary">
                     <option value="percent">Pourcentage (%)</option>
                     <option value="euro">Euro (€)</option>
                     <option value="free">Gratuit / Free</option>
@@ -261,11 +181,7 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Catégorie</label>
-                  <select
-                    value={couponForm.type}
-                    onChange={(e) => setCouponForm({ ...couponForm, type: e.target.value })}
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  >
+                  <select value={couponForm.type} onChange={(e) => setCouponForm({ ...couponForm, type: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary">
                     <option value="code">Code Promo</option>
                     <option value="cashback">Cashback</option>
                     <option value="bon">Bon Plan</option>
@@ -273,47 +189,23 @@ export default function AdminPage() {
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Date d&apos;expiration</label>
-                  <input
-                    type="date"
-                    value={couponForm.expiry_date}
-                    onChange={(e) => setCouponForm({ ...couponForm, expiry_date: e.target.value })}
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input type="date" value={couponForm.expiry_date} onChange={(e) => setCouponForm({ ...couponForm, expiry_date: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[13px] font-semibold text-text-main mb-1">🔗 Lien d&apos;affiliation</label>
-                  <input
-                    value={couponForm.affiliate_url}
-                    onChange={(e) => setCouponForm({ ...couponForm, affiliate_url: e.target.value })}
-                    placeholder="https://www.exemple.com/?ref=votre-id"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={couponForm.affiliate_url} onChange={(e) => setCouponForm({ ...couponForm, affiliate_url: e.target.value })} placeholder="https://www.exemple.com/?ref=votre-id" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div className="md:col-span-2 flex flex-wrap gap-5">
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={couponForm.is_best} onChange={(e) => setCouponForm({ ...couponForm, is_best: e.target.checked })} className="w-4 h-4 accent-primary" />
-                    <span className="text-[13px] font-medium">⭐ Meilleure offre</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={couponForm.is_exclusive} onChange={(e) => setCouponForm({ ...couponForm, is_exclusive: e.target.checked })} className="w-4 h-4 accent-primary" />
-                    <span className="text-[13px] font-medium">🔒 Exclusif</span>
-                  </label>
-                  <label className="flex items-center gap-2 cursor-pointer">
-                    <input type="checkbox" checked={couponForm.is_verified} onChange={(e) => setCouponForm({ ...couponForm, is_verified: e.target.checked })} className="w-4 h-4 accent-primary" />
-                    <span className="text-[13px] font-medium">✅ Vérifié</span>
-                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={couponForm.is_best} onChange={(e) => setCouponForm({ ...couponForm, is_best: e.target.checked })} className="w-4 h-4 accent-primary" /><span className="text-[13px] font-medium">⭐ Meilleure offre</span></label>
+                  <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={couponForm.is_exclusive} onChange={(e) => setCouponForm({ ...couponForm, is_exclusive: e.target.checked })} className="w-4 h-4 accent-primary" /><span className="text-[13px] font-medium">🔒 Exclusif</span></label>
+                  <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={couponForm.is_verified} onChange={(e) => setCouponForm({ ...couponForm, is_verified: e.target.checked })} className="w-4 h-4 accent-primary" /><span className="text-[13px] font-medium">✅ Vérifié</span></label>
                 </div>
               </div>
-              <button onClick={addCoupon} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
-                Ajouter le coupon
-              </button>
+              <button onClick={addCoupon} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">Ajouter le coupon</button>
             </div>
 
-            {/* Coupons list */}
             <div className="bg-white rounded-xl border border-border overflow-hidden">
-              <div className="px-6 py-4 border-b border-border">
-                <h2 className="text-text-main text-[16px] font-bold">Coupons existants ({coupons.length})</h2>
-              </div>
+              <div className="px-6 py-4 border-b border-border"><h2 className="text-text-main text-[16px] font-bold">Coupons existants ({coupons.length})</h2></div>
               <div className="divide-y divide-border">
                 {coupons.map((c) => {
                   const store = stores.find((s) => s.id === c.store_id);
@@ -328,22 +220,18 @@ export default function AdminPage() {
                         </div>
                         <p className="text-text-main text-[14px] font-medium truncate">{c.title}</p>
                       </div>
-                      <span className="text-primary font-bold text-[16px] shrink-0">
-                        {c.discount_value}{c.discount_type === 'percent' ? '%' : c.discount_type === 'euro' ? '€' : ''}
-                      </span>
+                      <span className="text-primary font-bold text-[16px] shrink-0">{c.discount_value}{c.discount_type === 'percent' ? '%' : c.discount_type === 'euro' ? '€' : ''}</span>
                       <button onClick={() => deleteCoupon(c.id)} className="text-red-400 hover:text-red-600 text-[18px] shrink-0">🗑️</button>
                     </div>
                   );
                 })}
-                {coupons.length === 0 && (
-                  <div className="px-6 py-8 text-center text-muted text-[14px]">Aucun coupon encore.</div>
-                )}
+                {coupons.length === 0 && <div className="px-6 py-8 text-center text-muted text-[14px]">Aucun coupon encore.</div>}
               </div>
             </div>
           </div>
         )}
 
-        {/* ─── STORES TAB ──────────────────────── */}
+        {/* ─── STORES ──────────────────────────── */}
         {tab === 'stores' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl border border-border p-6">
@@ -351,79 +239,55 @@ export default function AdminPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Nom *</label>
-                  <input
-                    value={storeForm.name}
-                    onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-'), logo_letter: e.target.value[0]?.toUpperCase() || '' })}
-                    placeholder="ex: Shein"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={storeForm.name} onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-'), logo_letter: e.target.value[0]?.toUpperCase() || '' })} placeholder="ex: Shein" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Slug (URL)</label>
-                  <input
-                    value={storeForm.slug}
-                    onChange={(e) => setStoreForm({ ...storeForm, slug: e.target.value })}
-                    placeholder="ex: shein"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={storeForm.slug} onChange={(e) => setStoreForm({ ...storeForm, slug: e.target.value })} placeholder="ex: shein" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-[13px] font-semibold text-text-main mb-1">🖼️ Logo URL (image)</label>
+                  <input value={storeForm.logo_url} onChange={(e) => setStoreForm({ ...storeForm, logo_url: e.target.value })} placeholder="https://logo.clearbit.com/shein.com" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
+                  <p className="text-muted text-[11px] mt-1">Astuce: utilisez https://logo.clearbit.com/SITE.com pour obtenir le logo automatiquement</p>
+                  {storeForm.logo_url && (
+                    <div className="mt-2 flex items-center gap-3">
+                      <img src={storeForm.logo_url} alt="preview" className="w-12 h-12 rounded-lg object-contain border border-border" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />
+                      <span className="text-[12px] text-success">Aperçu du logo</span>
+                    </div>
+                  )}
                 </div>
                 <div>
-                  <label className="block text-[13px] font-semibold text-text-main mb-1">Couleur du logo</label>
+                  <label className="block text-[13px] font-semibold text-text-main mb-1">Couleur de secours</label>
                   <div className="flex items-center gap-2">
-                    <input
-                      type="color"
-                      value={storeForm.logo_color}
-                      onChange={(e) => setStoreForm({ ...storeForm, logo_color: e.target.value })}
-                      className="w-10 h-10 rounded-lg border border-border cursor-pointer"
-                    />
-                    <input
-                      value={storeForm.logo_color}
-                      onChange={(e) => setStoreForm({ ...storeForm, logo_color: e.target.value })}
-                      className="flex-1 border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                    />
+                    <input type="color" value={storeForm.logo_color} onChange={(e) => setStoreForm({ ...storeForm, logo_color: e.target.value })} className="w-10 h-10 rounded-lg border border-border cursor-pointer" />
+                    <input value={storeForm.logo_color} onChange={(e) => setStoreForm({ ...storeForm, logo_color: e.target.value })} className="flex-1 border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                   </div>
+                  <p className="text-muted text-[11px] mt-1">Utilisée si aucune image n&apos;est fournie</p>
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Lettre du logo</label>
-                  <input
-                    value={storeForm.logo_letter}
-                    onChange={(e) => setStoreForm({ ...storeForm, logo_letter: e.target.value.slice(0, 2).toUpperCase() })}
-                    placeholder="ex: S"
-                    maxLength={2}
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={storeForm.logo_letter} onChange={(e) => setStoreForm({ ...storeForm, logo_letter: e.target.value.slice(0, 2).toUpperCase() })} placeholder="ex: S" maxLength={2} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div className="md:col-span-2">
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Description</label>
-                  <input
-                    value={storeForm.description}
-                    onChange={(e) => setStoreForm({ ...storeForm, description: e.target.value })}
-                    placeholder="ex: Mode et accessoires tendance"
-                    className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"
-                  />
+                  <input value={storeForm.description} onChange={(e) => setStoreForm({ ...storeForm, description: e.target.value })} placeholder="ex: Mode et accessoires tendance" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
               </div>
-              <button onClick={addStore} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
-                Ajouter la boutique
-              </button>
+              <button onClick={addStore} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">Ajouter la boutique</button>
             </div>
 
-            {/* Stores list */}
             <div className="bg-white rounded-xl border border-border overflow-hidden">
-              <div className="px-6 py-4 border-b border-border">
-                <h2 className="text-text-main text-[16px] font-bold">Boutiques existantes ({stores.length})</h2>
-              </div>
+              <div className="px-6 py-4 border-b border-border"><h2 className="text-text-main text-[16px] font-bold">Boutiques existantes ({stores.length})</h2></div>
               <div className="divide-y divide-border">
                 {stores.map((s) => {
                   const count = coupons.filter((c) => c.store_id === s.id).length;
                   return (
                     <div key={s.id} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50">
-                      <div
-                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-[16px] shrink-0"
-                        style={{ backgroundColor: s.logo_color || '#C0392B' }}
-                      >
-                        {s.logo_letter || s.name[0]}
-                      </div>
+                      {s.logo_url ? (
+                        <img src={s.logo_url} alt={s.name} className="w-10 h-10 rounded-lg object-contain border border-border shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold text-[16px] shrink-0" style={{ backgroundColor: s.logo_color || '#C0392B' }}>{s.logo_letter || s.name[0]}</div>
+                      )}
                       <div className="flex-1 min-w-0">
                         <p className="text-text-main text-[14px] font-semibold">{s.name}</p>
                         <p className="text-muted text-[12px]">/{s.slug} · {count} coupons</p>
@@ -437,12 +301,10 @@ export default function AdminPage() {
           </div>
         )}
 
-        {/* ─── SUBSCRIBERS TAB ─────────────────── */}
+        {/* ─── SUBSCRIBERS ─────────────────────── */}
         {tab === 'subscribers' && (
           <div className="bg-white rounded-xl border border-border overflow-hidden">
-            <div className="px-6 py-4 border-b border-border">
-              <h2 className="text-text-main text-[16px] font-bold">Abonnés newsletter ({subscribers.length})</h2>
-            </div>
+            <div className="px-6 py-4 border-b border-border"><h2 className="text-text-main text-[16px] font-bold">Abonnés newsletter ({subscribers.length})</h2></div>
             <div className="divide-y divide-border">
               {subscribers.map((s) => (
                 <div key={s.id} className="px-6 py-3 flex items-center justify-between hover:bg-gray-50">
@@ -450,9 +312,7 @@ export default function AdminPage() {
                   <span className="text-muted text-[12px]">{new Date(s.created_at).toLocaleDateString('fr-FR')}</span>
                 </div>
               ))}
-              {subscribers.length === 0 && (
-                <div className="px-6 py-8 text-center text-muted text-[14px]">Aucun abonné encore.</div>
-              )}
+              {subscribers.length === 0 && <div className="px-6 py-8 text-center text-muted text-[14px]">Aucun abonné encore.</div>}
             </div>
           </div>
         )}
