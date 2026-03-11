@@ -15,20 +15,22 @@ export default function AdminPage() {
   const [subscribers, setSubscribers] = useState<{ id: string; email: string; created_at: string }[]>([]);
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState<'success' | 'error'>('success');
+  const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
+  const [editingStoreId, setEditingStoreId] = useState<string | null>(null);
 
-  const [couponForm, setCouponForm] = useState({
+  const emptyCouponForm = {
     store_id: '', title: '', code: '', discount_value: '', discount_type: 'percent',
     type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true,
-  });
-
-  const [storeForm, setStoreForm] = useState({
+  };
+  const emptyStoreForm = {
     name: '', slug: '', logo_url: '', logo_color: '#C0392B', logo_letter: '', description: '',
-  });
+  };
+
+  const [couponForm, setCouponForm] = useState(emptyCouponForm);
+  const [storeForm, setStoreForm] = useState(emptyStoreForm);
 
   const showMsg = (text: string, type: 'success' | 'error') => {
-    setMsg(text);
-    setMsgType(type);
-    setTimeout(() => setMsg(''), 3000);
+    setMsg(text); setMsgType(type); setTimeout(() => setMsg(''), 3000);
   };
 
   const loadData = useCallback(async () => {
@@ -47,46 +49,78 @@ export default function AdminPage() {
     else showMsg('Mot de passe incorrect', 'error');
   };
 
-  const addStore = async () => {
-    if (!storeForm.name || !storeForm.slug) { showMsg('Nom et slug sont requis', 'error'); return; }
-    const { error } = await supabase.from('stores').insert({
-      name: storeForm.name,
-      slug: storeForm.slug.toLowerCase().replace(/\s+/g, '-'),
-      logo_url: storeForm.logo_url || null,
-      logo_color: storeForm.logo_color,
-      logo_letter: storeForm.logo_letter || storeForm.name[0].toUpperCase(),
-      description: storeForm.description,
-    });
-    if (error) showMsg('Erreur: ' + error.message, 'error');
-    else {
-      showMsg('Boutique ajoutée !', 'success');
-      setStoreForm({ name: '', slug: '', logo_url: '', logo_color: '#C0392B', logo_letter: '', description: '' });
-      loadData();
-    }
-  };
-
-  const addCoupon = async () => {
+  // ─── Coupon CRUD ───────────────────────────────
+  const saveCoupon = async () => {
     if (!couponForm.store_id || !couponForm.title) { showMsg('Boutique et titre sont requis', 'error'); return; }
-    const { error } = await supabase.from('coupons').insert({
+    const payload = {
       store_id: couponForm.store_id, title: couponForm.title, code: couponForm.code || null,
       discount_value: couponForm.discount_value || null, discount_type: couponForm.discount_type,
       type: couponForm.type, expiry_date: couponForm.expiry_date || null,
       affiliate_url: couponForm.affiliate_url || null,
       is_best: couponForm.is_best, is_exclusive: couponForm.is_exclusive, is_verified: couponForm.is_verified,
-    });
-    if (error) showMsg('Erreur: ' + error.message, 'error');
-    else {
-      showMsg('Coupon ajouté !', 'success');
-      setCouponForm({ store_id: couponForm.store_id, title: '', code: '', discount_value: '', discount_type: 'percent', type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true });
-      loadData();
+    };
+
+    if (editingCouponId) {
+      const { error } = await supabase.from('coupons').update(payload).eq('id', editingCouponId);
+      if (error) showMsg('Erreur: ' + error.message, 'error');
+      else { showMsg('Coupon modifié !', 'success'); setEditingCouponId(null); setCouponForm(emptyCouponForm); loadData(); }
+    } else {
+      const { error } = await supabase.from('coupons').insert(payload);
+      if (error) showMsg('Erreur: ' + error.message, 'error');
+      else { showMsg('Coupon ajouté !', 'success'); setCouponForm({ ...emptyCouponForm, store_id: couponForm.store_id }); loadData(); }
     }
   };
+
+  const editCoupon = (c: Coupon) => {
+    setCouponForm({
+      store_id: c.store_id, title: c.title, code: c.code || '', discount_value: c.discount_value || '',
+      discount_type: c.discount_type || 'percent', type: c.type || 'code',
+      expiry_date: c.expiry_date || '', affiliate_url: c.affiliate_url || '',
+      is_best: c.is_best, is_exclusive: c.is_exclusive, is_verified: c.is_verified,
+    });
+    setEditingCouponId(c.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEditCoupon = () => { setEditingCouponId(null); setCouponForm(emptyCouponForm); };
 
   const deleteCoupon = async (id: string) => {
     if (!confirm('Supprimer ce coupon ?')) return;
     await supabase.from('coupons').delete().eq('id', id);
     showMsg('Coupon supprimé', 'success'); loadData();
   };
+
+  // ─── Store CRUD ────────────────────────────────
+  const saveStore = async () => {
+    if (!storeForm.name || !storeForm.slug) { showMsg('Nom et slug sont requis', 'error'); return; }
+    const payload = {
+      name: storeForm.name, slug: storeForm.slug.toLowerCase().replace(/\s+/g, '-'),
+      logo_url: storeForm.logo_url || null, logo_color: storeForm.logo_color,
+      logo_letter: storeForm.logo_letter || storeForm.name[0].toUpperCase(),
+      description: storeForm.description,
+    };
+
+    if (editingStoreId) {
+      const { error } = await supabase.from('stores').update(payload).eq('id', editingStoreId);
+      if (error) showMsg('Erreur: ' + error.message, 'error');
+      else { showMsg('Boutique modifiée !', 'success'); setEditingStoreId(null); setStoreForm(emptyStoreForm); loadData(); }
+    } else {
+      const { error } = await supabase.from('stores').insert(payload);
+      if (error) showMsg('Erreur: ' + error.message, 'error');
+      else { showMsg('Boutique ajoutée !', 'success'); setStoreForm(emptyStoreForm); loadData(); }
+    }
+  };
+
+  const editStore = (s: Store) => {
+    setStoreForm({
+      name: s.name, slug: s.slug, logo_url: s.logo_url || '', logo_color: s.logo_color || '#C0392B',
+      logo_letter: s.logo_letter || '', description: s.description || '',
+    });
+    setEditingStoreId(s.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const cancelEditStore = () => { setEditingStoreId(null); setStoreForm(emptyStoreForm); };
 
   const deleteStore = async (id: string) => {
     if (!confirm('Supprimer cette boutique et tous ses coupons ?')) return;
@@ -101,9 +135,7 @@ export default function AdminPage() {
       <div className="min-h-screen bg-bg flex items-center justify-center p-4">
         <div className="bg-white rounded-2xl shadow-lg w-full max-w-[380px] overflow-hidden">
           <div className="bg-[#1a1a1a] px-6 py-8 text-center">
-            <div className="text-[28px] font-extrabold">
-              <span className="text-white">lock</span><span className="text-primary">coupon</span>
-            </div>
+            <div className="text-[28px] font-extrabold"><span className="text-white">lock</span><span className="text-primary">coupon</span></div>
             <p className="text-white/50 text-[14px] mt-2">Panneau d&apos;administration</p>
           </div>
           <div className="p-6">
@@ -122,10 +154,7 @@ export default function AdminPage() {
     <div className="min-h-screen bg-bg">
       <div className="bg-[#1a1a1a] sticky top-0 z-50">
         <div className="max-w-[1000px] mx-auto px-4 h-[56px] flex items-center justify-between">
-          <div className="text-[20px] font-extrabold">
-            <span className="text-white">lock</span><span className="text-primary">coupon</span>
-            <span className="text-white/40 text-[14px] ml-2 font-normal">Admin</span>
-          </div>
+          <div className="text-[20px] font-extrabold"><span className="text-white">lock</span><span className="text-primary">coupon</span><span className="text-white/40 text-[14px] ml-2 font-normal">Admin</span></div>
           <button onClick={() => setAuthed(false)} className="text-white/50 hover:text-white text-[13px]">Déconnexion</button>
         </div>
       </div>
@@ -149,7 +178,16 @@ export default function AdminPage() {
         {tab === 'coupons' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl border border-border p-6">
-              <h2 className="text-text-main text-[18px] font-bold mb-5">➕ Ajouter un coupon</h2>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-text-main text-[18px] font-bold">
+                  {editingCouponId ? '✏️ Modifier le coupon' : '➕ Ajouter un coupon'}
+                </h2>
+                {editingCouponId && (
+                  <button onClick={cancelEditCoupon} className="text-muted hover:text-text-main text-[13px] font-medium">
+                    ✕ Annuler
+                  </button>
+                )}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Boutique *</label>
@@ -201,7 +239,16 @@ export default function AdminPage() {
                   <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={couponForm.is_verified} onChange={(e) => setCouponForm({ ...couponForm, is_verified: e.target.checked })} className="w-4 h-4 accent-primary" /><span className="text-[13px] font-medium">✅ Vérifié</span></label>
                 </div>
               </div>
-              <button onClick={addCoupon} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">Ajouter le coupon</button>
+              <div className="flex gap-3 mt-5">
+                <button onClick={saveCoupon} className="bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
+                  {editingCouponId ? 'Enregistrer les modifications' : 'Ajouter le coupon'}
+                </button>
+                {editingCouponId && (
+                  <button onClick={cancelEditCoupon} className="bg-gray-200 hover:bg-gray-300 text-text-main font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
+                    Annuler
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="bg-white rounded-xl border border-border overflow-hidden">
@@ -219,8 +266,10 @@ export default function AdminPage() {
                           {c.code && <span className="text-[11px] bg-gray-100 text-muted px-2 py-0.5 rounded font-mono">{c.code}</span>}
                         </div>
                         <p className="text-text-main text-[14px] font-medium truncate">{c.title}</p>
+                        {c.affiliate_url && <p className="text-muted text-[11px] truncate mt-0.5">🔗 {c.affiliate_url}</p>}
                       </div>
                       <span className="text-primary font-bold text-[16px] shrink-0">{c.discount_value}{c.discount_type === 'percent' ? '%' : c.discount_type === 'euro' ? '€' : ''}</span>
+                      <button onClick={() => editCoupon(c)} className="text-blue-500 hover:text-blue-700 text-[13px] font-semibold shrink-0">✏️</button>
                       <button onClick={() => deleteCoupon(c.id)} className="text-red-400 hover:text-red-600 text-[18px] shrink-0">🗑️</button>
                     </div>
                   );
@@ -235,11 +284,20 @@ export default function AdminPage() {
         {tab === 'stores' && (
           <div className="space-y-6">
             <div className="bg-white rounded-xl border border-border p-6">
-              <h2 className="text-text-main text-[18px] font-bold mb-5">➕ Ajouter une boutique</h2>
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="text-text-main text-[18px] font-bold">
+                  {editingStoreId ? '✏️ Modifier la boutique' : '➕ Ajouter une boutique'}
+                </h2>
+                {editingStoreId && (
+                  <button onClick={cancelEditStore} className="text-muted hover:text-text-main text-[13px] font-medium">
+                    ✕ Annuler
+                  </button>
+                )}
+              </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Nom *</label>
-                  <input value={storeForm.name} onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value, slug: e.target.value.toLowerCase().replace(/\s+/g, '-'), logo_letter: e.target.value[0]?.toUpperCase() || '' })} placeholder="ex: Shein" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
+                  <input value={storeForm.name} onChange={(e) => setStoreForm({ ...storeForm, name: e.target.value, slug: editingStoreId ? storeForm.slug : e.target.value.toLowerCase().replace(/\s+/g, '-'), logo_letter: e.target.value[0]?.toUpperCase() || '' })} placeholder="ex: Shein" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Slug (URL)</label>
@@ -262,7 +320,6 @@ export default function AdminPage() {
                     <input type="color" value={storeForm.logo_color} onChange={(e) => setStoreForm({ ...storeForm, logo_color: e.target.value })} className="w-10 h-10 rounded-lg border border-border cursor-pointer" />
                     <input value={storeForm.logo_color} onChange={(e) => setStoreForm({ ...storeForm, logo_color: e.target.value })} className="flex-1 border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                   </div>
-                  <p className="text-muted text-[11px] mt-1">Utilisée si aucune image n&apos;est fournie</p>
                 </div>
                 <div>
                   <label className="block text-[13px] font-semibold text-text-main mb-1">Lettre du logo</label>
@@ -273,7 +330,16 @@ export default function AdminPage() {
                   <input value={storeForm.description} onChange={(e) => setStoreForm({ ...storeForm, description: e.target.value })} placeholder="ex: Mode et accessoires tendance" className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" />
                 </div>
               </div>
-              <button onClick={addStore} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">Ajouter la boutique</button>
+              <div className="flex gap-3 mt-5">
+                <button onClick={saveStore} className="bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
+                  {editingStoreId ? 'Enregistrer les modifications' : 'Ajouter la boutique'}
+                </button>
+                {editingStoreId && (
+                  <button onClick={cancelEditStore} className="bg-gray-200 hover:bg-gray-300 text-text-main font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
+                    Annuler
+                  </button>
+                )}
+              </div>
             </div>
 
             <div className="bg-white rounded-xl border border-border overflow-hidden">
@@ -292,6 +358,7 @@ export default function AdminPage() {
                         <p className="text-text-main text-[14px] font-semibold">{s.name}</p>
                         <p className="text-muted text-[12px]">/{s.slug} · {count} coupons</p>
                       </div>
+                      <button onClick={() => editStore(s)} className="text-blue-500 hover:text-blue-700 text-[13px] font-semibold shrink-0">✏️</button>
                       <button onClick={() => deleteStore(s.id)} className="text-red-400 hover:text-red-600 text-[18px] shrink-0">🗑️</button>
                     </div>
                   );
