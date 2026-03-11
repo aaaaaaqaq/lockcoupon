@@ -5,6 +5,7 @@ import Footer from '@/components/Footer';
 import { getPostBySlug, getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
+export const dynamicParams = true;
 
 interface Props {
   params: { slug: string };
@@ -44,26 +45,7 @@ export default async function BlogPostPage({ params }: Props) {
     author: { '@type': 'Person', name: post.author },
     datePublished: post.created_at,
     dateModified: post.updated_at,
-    publisher: {
-      '@type': 'Organization',
-      name: 'LockCoupon',
-      url: 'https://lockcoupon.com',
-    },
-  };
-
-  // Convert line breaks to paragraphs
-  const renderContent = (content: string) => {
-    return content.split('\n\n').map((block, i) => {
-      const trimmed = block.trim();
-      if (!trimmed) return null;
-      if (trimmed.startsWith('## ')) {
-        return <h2 key={i} className="text-text-main text-[24px] font-bold mt-8 mb-3">{trimmed.replace('## ', '')}</h2>;
-      }
-      if (trimmed.startsWith('### ')) {
-        return <h3 key={i} className="text-text-main text-[20px] font-bold mt-6 mb-2">{trimmed.replace('### ', '')}</h3>;
-      }
-      return <p key={i} className="mb-4">{trimmed}</p>;
-    });
+    publisher: { '@type': 'Organization', name: 'LockCoupon', url: 'https://lockcoupon.com' },
   };
 
   return (
@@ -72,7 +54,6 @@ export default async function BlogPostPage({ params }: Props) {
       <Navbar />
 
       <article className="max-w-[800px] mx-auto px-4 py-8 md:py-12">
-        {/* Meta */}
         <div className="flex items-center gap-3 text-[13px] text-muted mb-4">
           <span>{new Date(post.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
           <span>·</span>
@@ -89,11 +70,25 @@ export default async function BlogPostPage({ params }: Props) {
           </div>
         )}
 
-        <div className="text-muted text-[16px] leading-relaxed">
-          {renderContent(post.content)}
-        </div>
+        {/* Render HTML content */}
+        <div
+          className="text-muted text-[16px] leading-relaxed
+            [&_h2]:text-text-main [&_h2]:text-[24px] [&_h2]:font-bold [&_h2]:mt-8 [&_h2]:mb-3
+            [&_h3]:text-text-main [&_h3]:text-[20px] [&_h3]:font-bold [&_h3]:mt-6 [&_h3]:mb-2
+            [&_p]:mb-4
+            [&_a]:text-primary [&_a]:underline [&_a]:hover:text-primary-dark
+            [&_img]:max-w-full [&_img]:rounded-lg [&_img]:my-4
+            [&_blockquote]:border-l-4 [&_blockquote]:border-primary [&_blockquote]:pl-4 [&_blockquote]:italic [&_blockquote]:my-4
+            [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:mb-4
+            [&_ol]:list-decimal [&_ol]:pl-6 [&_ol]:mb-4
+            [&_li]:mb-1
+            [&_hr]:my-6 [&_hr]:border-border
+            [&_strong]:text-text-main [&_strong]:font-bold
+            [&_em]:italic
+          "
+          dangerouslySetInnerHTML={{ __html: post.content }}
+        />
 
-        {/* Back to blog */}
         <div className="mt-12 pt-8 border-t border-border">
           <a href="/blog" className="text-primary font-semibold text-[15px] hover:underline">
             ← Retour au blog

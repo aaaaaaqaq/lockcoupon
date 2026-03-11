@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/lib/supabase';
 import type { Store, Coupon, BlogPost } from '@/lib/supabase';
+import RichEditor from '@/components/RichEditor';
 
 const ADMIN_PASSWORD = 'lockcoupon2026';
 
@@ -256,8 +257,8 @@ export default function AdminPage() {
                   {postForm.cover_image && <img src={postForm.cover_image} alt="preview" className="mt-2 h-32 rounded-lg object-cover" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} />}
                 </div>
                 <div>
-                  <label className="block text-[13px] font-semibold text-text-main mb-1">Contenu * <span className="text-muted font-normal">(utilisez ## pour les titres, sautez 2 lignes entre les paragraphes)</span></label>
-                  <textarea value={postForm.content} onChange={(e) => setPostForm({ ...postForm, content: e.target.value })} rows={15} placeholder={"Écrivez votre article ici...\n\n## Premier titre\n\nPremier paragraphe de votre article.\n\n## Deuxième titre\n\nDeuxième paragraphe..."} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary resize-y font-mono" />
+                  <label className="block text-[13px] font-semibold text-text-main mb-1">Contenu *</label>
+                  <RichEditor value={postForm.content} onChange={(html) => setPostForm({ ...postForm, content: html })} />
                 </div>
                 <div className="flex items-center gap-2">
                   <label className="flex items-center gap-2 cursor-pointer">
