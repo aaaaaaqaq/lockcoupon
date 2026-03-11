@@ -68,3 +68,38 @@ export async function getAllStores(): Promise<Store[]> {
 export async function incrementCouponUsage(couponId: string): Promise<void> {
   await supabase.rpc('increment_usage', { coupon_id: couponId });
 }
+
+// ─── Blog ────────────────────────────────────────────────
+export interface BlogPost {
+  id: string;
+  title: string;
+  slug: string;
+  excerpt: string | null;
+  content: string;
+  cover_image: string | null;
+  author: string;
+  is_published: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function getPublishedPosts(): Promise<BlogPost[]> {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false });
+  if (error) return [];
+  return data || [];
+}
+
+export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .single();
+  if (error) return null;
+  return data;
+}
