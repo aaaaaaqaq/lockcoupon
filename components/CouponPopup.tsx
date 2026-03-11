@@ -27,6 +27,16 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
     }
   }, [coupon, copyCode]);
 
+  // Auto-open affiliate link in new tab when popup opens
+  useEffect(() => {
+    if (coupon?.affiliate_url) {
+      const t = setTimeout(() => {
+        window.open(coupon.affiliate_url!, '_blank');
+      }, 800);
+      return () => clearTimeout(t);
+    }
+  }, [coupon]);
+
   if (!coupon) return null;
 
   function daysUntil(dateStr: string | null): number {
@@ -37,19 +47,21 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      {/* Backdrop */}
       <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
 
-      {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[440px] overflow-hidden animate-scale-in">
-        {/* Red header bar */}
+        {/* Header */}
         <div className="bg-primary px-6 py-4 flex items-center gap-3">
-          <div
-            className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg font-bold"
-            style={{ backgroundColor: store.logo_color || '#E87A2A' }}
-          >
-            {store.logo_letter || store.name[0]}
-          </div>
+          {store.logo_url ? (
+            <img src={store.logo_url} alt={store.name} className="w-10 h-10 rounded-lg object-contain bg-white" />
+          ) : (
+            <div
+              className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg font-bold"
+              style={{ backgroundColor: store.logo_color || '#E87A2A' }}
+            >
+              {store.logo_letter || store.name[0]}
+            </div>
+          )}
           <div>
             <div className="text-white font-bold text-[16px]">{store.name}</div>
             {coupon.expiry_date && (
@@ -58,10 +70,7 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
               </div>
             )}
           </div>
-          <button
-            onClick={onClose}
-            className="ml-auto text-white/70 hover:text-white transition-colors"
-          >
+          <button onClick={onClose} className="ml-auto text-white/70 hover:text-white transition-colors">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
@@ -74,7 +83,6 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
             {coupon.title}
           </h3>
 
-          {/* Code box */}
           {coupon.code ? (
             <div className="flex items-stretch rounded-lg border-2 border-dashed border-success overflow-hidden mb-5">
               <div className="flex-1 bg-green-50 px-4 py-3 text-center">
@@ -95,15 +103,21 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
             </div>
           )}
 
-          {/* Go to site button */}
           <a
             href={coupon.affiliate_url || '#'}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={(e) => {
+              if (!coupon.affiliate_url) e.preventDefault();
+            }}
             className="block w-full bg-primary hover:bg-primary-dark text-white text-center font-bold text-[15px] py-3.5 rounded-lg transition-colors"
           >
             Accéder au site →
           </a>
+
+          {!coupon.affiliate_url && (
+            <p className="text-muted text-[11px] text-center mt-2">Lien non disponible pour le moment</p>
+          )}
         </div>
       </div>
     </div>
