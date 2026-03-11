@@ -6,6 +6,7 @@ import { supabase } from '@/lib/supabase';
 
 export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -33,27 +34,97 @@ export default function Navbar() {
 
   return (
     <>
-      <header className="bg-white border-b border-border sticky top-0 z-50">
-        <div className="max-w-[1200px] mx-auto px-4 h-[60px] flex items-center justify-between">
-          <Link href="/" className="flex items-center text-[22px] font-extrabold tracking-tight">
-            <span className="text-text-main">Lock</span>
-            <span className="text-primary">Coupon</span>
+      {/* Top announcement bar */}
+      <div className="bg-primary text-white text-center py-2 text-[13px] font-medium tracking-wide">
+        TOP 20 : NOS MEILLEURS CODES PROMO &nbsp;
+        <Link href="/" className="underline font-bold hover:text-white/80">J&apos;en profite &gt;</Link>
+      </div>
+
+      {/* Main header */}
+      <header className="bg-[#1a1a1a] sticky top-0 z-50">
+        <div className="max-w-[1200px] mx-auto px-4 h-[64px] flex items-center gap-4">
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2 shrink-0">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <rect x="5" y="1" width="6" height="4" rx="2" stroke="white" strokeWidth="1.5" fill="none"/>
+                <rect x="3" y="5" width="10" height="10" rx="2" fill="white"/>
+                <rect x="7" y="8" width="2" height="4" rx="1" fill="#C0392B"/>
+              </svg>
+            </div>
+            <span className="text-[22px] font-extrabold tracking-tight">
+              <span className="text-white">lock</span>
+              <span className="text-primary">coupon</span>
+            </span>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-8 text-[15px] text-muted font-medium">
-            <Link href="/" className="hover:text-text-main transition-colors">Accueil</Link>
-            <Link href="/" className="hover:text-text-main transition-colors">Boutiques</Link>
-            <Link href="/" className="hover:text-text-main transition-colors">Cashback</Link>
-            <Link href="/" className="hover:text-text-main transition-colors">Bon Plans</Link>
-          </nav>
+          {/* Search bar — hidden on small mobile */}
+          <div className="hidden sm:flex flex-1 max-w-[500px] mx-4">
+            <div className="relative w-full">
+              <input
+                type="text"
+                placeholder="Cdiscount, Asos, Hotels.com..."
+                className="w-full bg-white rounded-full pl-5 pr-12 py-2.5 text-[14px] text-text-main outline-none placeholder:text-muted"
+              />
+              <button className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg flex items-center justify-center">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#777" strokeWidth="2">
+                  <circle cx="7" cy="7" r="5"/>
+                  <path d="M11 11l3 3" strokeLinecap="round"/>
+                </svg>
+              </button>
+            </div>
+          </div>
 
+          {/* Right side — desktop */}
+          <div className="hidden md:flex items-center gap-3 ml-auto">
+            <button
+              onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); }}
+              className="text-white/70 hover:text-white text-[14px] font-medium border border-white/20 rounded-full px-5 py-2 transition-colors"
+            >
+              Connexion ou inscription
+            </button>
+          </div>
+
+          {/* Mobile hamburger */}
           <button
-            onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); }}
-            className="bg-primary hover:bg-primary-dark text-white text-[14px] font-semibold px-5 py-2 rounded-lg transition-colors"
+            onClick={() => setMenuOpen(!menuOpen)}
+            className="md:hidden ml-auto text-white p-2"
           >
-            S&apos;inscrire
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              {menuOpen ? (
+                <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
+              ) : (
+                <>
+                  <path d="M3 7h18M3 12h18M3 17h18" strokeLinecap="round"/>
+                </>
+              )}
+            </svg>
           </button>
         </div>
+
+        {/* Mobile menu */}
+        {menuOpen && (
+          <div className="md:hidden bg-[#222] border-t border-white/10 px-4 py-4 space-y-3">
+            {/* Mobile search */}
+            <div className="sm:hidden">
+              <input
+                type="text"
+                placeholder="Rechercher une boutique..."
+                className="w-full bg-white/10 text-white rounded-full pl-4 pr-4 py-2.5 text-[14px] outline-none placeholder:text-white/40 border border-white/10"
+              />
+            </div>
+            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Accueil</Link>
+            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Boutiques</Link>
+            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Cashback</Link>
+            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Bon Plans</Link>
+            <button
+              onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); setMenuOpen(false); }}
+              className="w-full text-center bg-primary text-white font-semibold text-[14px] py-2.5 rounded-full mt-2"
+            >
+              S&apos;inscrire
+            </button>
+          </div>
+        )}
       </header>
 
       {/* Newsletter Modal */}
@@ -66,17 +137,13 @@ export default function Navbar() {
               <h2 className="text-white text-[20px] font-bold">Restez informé !</h2>
               <p className="text-white/70 text-[14px] mt-1">Recevez les meilleurs codes promo directement dans votre boîte mail.</p>
             </div>
-
             <div className="p-6">
               {status === 'success' ? (
                 <div className="text-center py-4">
                   <div className="text-[40px] mb-3">✅</div>
                   <h3 className="text-text-main text-[18px] font-bold mb-1">Merci !</h3>
                   <p className="text-muted text-[14px]">Vous êtes maintenant inscrit à notre newsletter.</p>
-                  <button
-                    onClick={() => setShowModal(false)}
-                    className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors"
-                  >
+                  <button onClick={() => setShowModal(false)} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
                     Fermer
                   </button>
                 </div>
@@ -91,9 +158,7 @@ export default function Navbar() {
                       placeholder="exemple@email.com"
                       className="w-full border border-border rounded-lg px-4 py-3 text-[15px] outline-none focus:border-primary transition-colors"
                     />
-                    {status === 'error' && (
-                      <p className="text-red-500 text-[12px] mt-1.5">{errorMsg}</p>
-                    )}
+                    {status === 'error' && <p className="text-red-500 text-[12px] mt-1.5">{errorMsg}</p>}
                   </div>
                   <button
                     onClick={handleSubmit}
