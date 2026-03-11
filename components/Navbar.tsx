@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase';
+import type { Store } from '@/lib/supabase';
 
 export default function Navbar() {
   const [showModal, setShowModal] = useState(false);
@@ -11,33 +12,50 @@ export default function Navbar() {
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
 
+  // Search
+  const [query, setQuery] = useState('');
+  const [results, setResults] = useState<Store[]>([]);
+  const [showResults, setShowResults] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (query.length < 1) { setResults([]); setShowResults(false); return; }
+    const timer = setTimeout(async () => {
+      const { data } = await supabase
+        .from('stores')
+        .select('*')
+        .ilike('name', `%${query}%`)
+        .limit(8);
+      if (data) { setResults(data); setShowResults(true); }
+    }, 200);
+    return () => clearTimeout(timer);
+  }, [query]);
+
+  // Close search results on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setShowResults(false);
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
   const handleSubmit = async () => {
-    if (!email || !email.includes('@')) {
-      setErrorMsg('Veuillez entrer un email valide');
-      setStatus('error');
-      return;
-    }
+    if (!email || !email.includes('@')) { setErrorMsg('Veuillez entrer un email valide'); setStatus('error'); return; }
     setStatus('loading');
     const { error } = await supabase.from('subscribers').insert({ email });
     if (error) {
-      if (error.code === '23505') {
-        setErrorMsg('Cet email est déjà inscrit !');
-      } else {
-        setErrorMsg('Une erreur est survenue. Réessayez.');
-      }
+      setErrorMsg(error.code === '23505' ? 'Cet email est déjà inscrit !' : 'Une erreur est survenue.');
       setStatus('error');
-    } else {
-      setStatus('success');
-      setEmail('');
-    }
+    } else { setStatus('success'); setEmail(''); }
   };
 
   return (
     <>
-      {/* Top announcement bar */}
+      {/* Top bar */}
       <div className="bg-primary text-white text-center py-2 text-[13px] font-medium tracking-wide">
         TOP 20 : NOS MEILLEURS CODES PROMO &nbsp;
-        <Link href="/" className="underline font-bold hover:text-white/80">J&apos;en profite &gt;</Link>
+        <Link href="/boutiques" className="underline font-bold hover:text-white/80">J&apos;en profite &gt;</Link>
       </div>
 
       {/* Main header */}
@@ -58,24 +76,57 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Search bar — hidden on small mobile */}
-          <div className="hidden sm:flex flex-1 max-w-[500px] mx-4">
+          {/* Search bar */}
+          <div className="hidden sm:flex flex-1 max-w-[500px] mx-4" ref={searchRef}>
             <div className="relative w-full">
               <input
                 type="text"
-                placeholder="Cdiscount, Asos, Hotels.com..."
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onFocus={() => { if (results.length > 0) setShowResults(true); }}
+                placeholder="Rechercher une boutique..."
                 className="w-full bg-white rounded-full pl-5 pr-12 py-2.5 text-[14px] text-text-main outline-none placeholder:text-muted"
               />
-              <button className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg flex items-center justify-center">
+              <div className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg flex items-center justify-center">
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#777" strokeWidth="2">
                   <circle cx="7" cy="7" r="5"/>
                   <path d="M11 11l3 3" strokeLinecap="round"/>
                 </svg>
-              </button>
+              </div>
+
+              {/* Search results dropdown */}
+              {showResults && (
+                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-border overflow-hidden z-[60]">
+                  {results.length === 0 ? (
+                    <div className="px-4 py-3 text-muted text-[14px]">Aucune boutique trouvée</div>
+                  ) : (
+                    results.map((store) => (
+                      <Link
+                        key={store.id}
+                        href={`/codes-promo/${store.slug}`}
+                        onClick={() => { setShowResults(false); setQuery(''); }}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                      >
+                        {store.logo_url ? (
+                          <img src={store.logo_url} alt={store.name} className="w-8 h-8 rounded-lg object-contain" />
+                        ) : (
+                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[14px] font-bold" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
+                            {store.logo_letter || store.name[0]}
+                          </div>
+                        )}
+                        <div>
+                          <p className="text-text-main text-[14px] font-semibold">{store.name}</p>
+                          <p className="text-muted text-[11px]">{store.description}</p>
+                        </div>
+                      </Link>
+                    ))
+                  )}
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right side — desktop */}
+          {/* Right — desktop */}
           <div className="hidden md:flex items-center gap-3 ml-auto">
             <button
               onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); }}
@@ -86,17 +137,12 @@ export default function Navbar() {
           </div>
 
           {/* Mobile hamburger */}
-          <button
-            onClick={() => setMenuOpen(!menuOpen)}
-            className="md:hidden ml-auto text-white p-2"
-          >
+          <button onClick={() => setMenuOpen(!menuOpen)} className="md:hidden ml-auto text-white p-2">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               {menuOpen ? (
                 <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
               ) : (
-                <>
-                  <path d="M3 7h18M3 12h18M3 17h18" strokeLinecap="round"/>
-                </>
+                <path d="M3 7h18M3 12h18M3 17h18" strokeLinecap="round"/>
               )}
             </svg>
           </button>
@@ -105,18 +151,35 @@ export default function Navbar() {
         {/* Mobile menu */}
         {menuOpen && (
           <div className="md:hidden bg-[#222] border-t border-white/10 px-4 py-4 space-y-3">
-            {/* Mobile search */}
             <div className="sm:hidden">
               <input
                 type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="Rechercher une boutique..."
                 className="w-full bg-white/10 text-white rounded-full pl-4 pr-4 py-2.5 text-[14px] outline-none placeholder:text-white/40 border border-white/10"
               />
+              {query.length > 0 && results.length > 0 && (
+                <div className="mt-2 bg-white/10 rounded-xl overflow-hidden">
+                  {results.map((store) => (
+                    <Link
+                      key={store.id}
+                      href={`/codes-promo/${store.slug}`}
+                      onClick={() => { setMenuOpen(false); setQuery(''); }}
+                      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+                    >
+                      <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-[12px] font-bold" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
+                        {store.logo_letter || store.name[0]}
+                      </div>
+                      <span className="text-white text-[14px]">{store.name}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
             </div>
             <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Accueil</Link>
-            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Boutiques</Link>
-            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Cashback</Link>
-            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Bon Plans</Link>
+            <Link href="/boutiques" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Boutiques</Link>
+            <Link href="/blog" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Blog</Link>
             <button
               onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); setMenuOpen(false); }}
               className="w-full text-center bg-primary text-white font-semibold text-[14px] py-2.5 rounded-full mt-2"
@@ -143,28 +206,16 @@ export default function Navbar() {
                   <div className="text-[40px] mb-3">✅</div>
                   <h3 className="text-text-main text-[18px] font-bold mb-1">Merci !</h3>
                   <p className="text-muted text-[14px]">Vous êtes maintenant inscrit à notre newsletter.</p>
-                  <button onClick={() => setShowModal(false)} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
-                    Fermer
-                  </button>
+                  <button onClick={() => setShowModal(false)} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">Fermer</button>
                 </div>
               ) : (
                 <>
                   <div className="mb-4">
                     <label className="block text-text-main text-[13px] font-semibold mb-1.5">Votre email</label>
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setStatus('idle'); }}
-                      placeholder="exemple@email.com"
-                      className="w-full border border-border rounded-lg px-4 py-3 text-[15px] outline-none focus:border-primary transition-colors"
-                    />
+                    <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setStatus('idle'); }} placeholder="exemple@email.com" className="w-full border border-border rounded-lg px-4 py-3 text-[15px] outline-none focus:border-primary transition-colors" />
                     {status === 'error' && <p className="text-red-500 text-[12px] mt-1.5">{errorMsg}</p>}
                   </div>
-                  <button
-                    onClick={handleSubmit}
-                    disabled={status === 'loading'}
-                    className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-[15px] py-3 rounded-lg transition-colors disabled:opacity-60"
-                  >
+                  <button onClick={handleSubmit} disabled={status === 'loading'} className="w-full bg-primary hover:bg-primary-dark text-white font-bold text-[15px] py-3 rounded-lg transition-colors disabled:opacity-60">
                     {status === 'loading' ? 'Inscription...' : "S'inscrire gratuitement"}
                   </button>
                   <p className="text-muted text-[11px] text-center mt-3">Pas de spam. Désabonnement en 1 clic.</p>
