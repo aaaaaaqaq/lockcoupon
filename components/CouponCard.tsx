@@ -34,7 +34,6 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
     return 'Bon plan';
   };
 
-  // Show last 2 chars of code
   const partialCode = coupon.code ? coupon.code.slice(-2).toUpperCase() : '';
 
   return (
@@ -97,17 +96,17 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
           )}
         </div>
 
-        {/* Right — Green CTA button like MaReduc */}
-        <div className="w-[130px] sm:w-[150px] shrink-0 flex flex-col items-center justify-center p-3 sm:p-4">
+        {/* Right — Wide red/black button like MaReduc */}
+        <div className="shrink-0 flex flex-col items-center justify-center p-3 sm:p-4">
           <button
             onClick={() => onOpenPopup(coupon)}
-            className="w-full h-[44px] rounded-lg flex items-stretch overflow-hidden transition-all hover:opacity-90"
+            className="h-[46px] rounded-lg flex items-stretch overflow-hidden transition-all hover:opacity-90 min-w-[160px] sm:min-w-[180px]"
           >
-            <span className="flex-1 bg-success flex items-center justify-center text-white font-bold text-[13px] sm:text-[14px] gap-1 px-2">
-              Voir le code <span className="text-[16px]">›</span>
+            <span className="flex-1 bg-primary flex items-center justify-center text-white font-bold text-[14px] sm:text-[15px] gap-1.5 px-4">
+              Voir le code <span className="text-[18px]">›</span>
             </span>
             {partialCode && (
-              <span className="w-[36px] bg-[#1a1a1a] flex items-center justify-center text-white text-[13px] font-mono font-bold">
+              <span className="w-[42px] bg-[#1a1a1a] flex items-center justify-center text-white text-[14px] font-mono font-bold">
                 {partialCode}
               </span>
             )}
