@@ -55,7 +55,7 @@ export default function Navbar() {
       {/* Top bar */}
       <div className="bg-primary text-white text-center py-2 text-[13px] font-medium tracking-wide">
         TOP 20 : NOS MEILLEURS CODES PROMO &nbsp;
-        <Link href="/boutiques" className="underline font-bold hover:text-white/80">J&apos;en profite &gt;</Link>
+        <Link href="/top-codes-promo" className="underline font-bold hover:text-white/80">J&apos;en profite &gt;</Link>
       </div>
 
       {/* Main header */}
