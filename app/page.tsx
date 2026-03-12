@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import FAQ from '@/components/FAQ';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
@@ -125,6 +126,7 @@ export default async function HomePage() {
         </section>
       )}
 
+      <FAQ />
       <Footer />
     </>
   );
