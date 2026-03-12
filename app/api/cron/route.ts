@@ -90,7 +90,7 @@ const TOPICS = [
 ];
 
 // ─── Generate one article and save to DB ─────────────────
-async function generateAndPublish(storeName: string, title: string, storeSlug: string): Promise<{ success: boolean; title: string; error?: string }> {
+async function generateAndPublish(storeName: string, title: string, storeSlug: string, publishTime?: string): Promise<{ success: boolean; title: string; error?: string }> {
   const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
   const coverImage = getCoverImage(storeSlug);
 
@@ -167,7 +167,8 @@ Commence directement avec le HTML, sans backticks ni commentaires.`;
       cover_image: coverImage,
       author: 'LockCoupon',
       is_published: true,
-      updated_at: new Date().toISOString(),
+      created_at: publishTime || new Date().toISOString(),
+      updated_at: publishTime || new Date().toISOString(),
     });
 
     if (error) {
@@ -198,6 +199,10 @@ export async function GET(request: Request) {
     const results = [];
     const usedStores = new Set<string>();
 
+    // Publish times: 8AM, 12PM, 4PM, 8PM
+    const today = new Date();
+    const publishHours = [8, 12, 16, 20];
+
     for (let i = 0; i < 4; i++) {
       let store = stores[Math.floor(Math.random() * stores.length)];
       let attempts = 0;
@@ -210,7 +215,12 @@ export async function GET(request: Request) {
       const topicFn = TOPICS[Math.floor(Math.random() * TOPICS.length)];
       const title = topicFn(store.name, month);
 
-      const result = await generateAndPublish(store.name, title, store.slug);
+      // Set publish time to different hours today
+      const publishDate = new Date(today);
+      publishDate.setHours(publishHours[i], Math.floor(Math.random() * 30), 0, 0);
+      const publishTime = publishDate.toISOString();
+
+      const result = await generateAndPublish(store.name, title, store.slug, publishTime);
       results.push(result);
 
       await new Promise(r => setTimeout(r, 2000));
