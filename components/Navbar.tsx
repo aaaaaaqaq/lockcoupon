@@ -134,6 +134,13 @@ export default function Navbar() {
             >
               Connexion ou inscription
             </button>
+            <Link
+              href="/ajouter-code"
+              className="bg-primary hover:bg-primary-dark text-white text-[14px] font-bold rounded-full px-5 py-2 transition-colors flex items-center gap-1.5"
+            >
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 1v12M1 7h12" strokeLinecap="round"/></svg>
+              Ajouter un code
+            </Link>
           </div>
 
           {/* Mobile hamburger */}
