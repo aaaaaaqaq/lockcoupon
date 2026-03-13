@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { getStoreBySlug, getCouponsByStoreId, getAllStores } from '@/lib/supabase';
 import StorePageClient from './StorePageClient';
+import CouponSchema from '@/components/CouponSchema';
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -14,8 +15,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const store = await getStoreBySlug(params.slug);
   if (!store) return {};
 
-  const title = `Code promo ${store.name} — ${new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })} | LockCoupon`;
-  const description = `Trouvez les meilleurs codes promo ${store.name} vérifiés. Réductions exclusives et bons plans mis à jour quotidiennement.`;
+  const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+  const title = `Code promo ${store.name} — ${month} | LockCoupon`;
+  const description = `${store.name} : trouvez les meilleurs codes promo vérifiés. Réductions exclusives et bons plans mis à jour quotidiennement sur LockCoupon.`;
 
   return {
     title,
@@ -42,35 +44,9 @@ export default async function StorePageSSR({ params }: Props) {
 
   const coupons = await getCouponsByStoreId(store.id);
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'WebPage',
-    name: `Code promo ${store.name}`,
-    description: `Codes promo et réductions vérifiées pour ${store.name}`,
-    url: `${process.env.NEXT_PUBLIC_SITE_URL || 'https://lockcoupon.com'}/codes-promo/${store.slug}`,
-    mainEntity: {
-      '@type': 'ItemList',
-      numberOfItems: coupons.length,
-      itemListElement: coupons.map((c, i) => ({
-        '@type': 'Offer',
-        position: i + 1,
-        name: c.title,
-        description: c.title,
-        validThrough: c.expiry_date || undefined,
-        offeredBy: {
-          '@type': 'Organization',
-          name: store.name,
-        },
-      })),
-    },
-  };
-
   return (
     <>
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+      <CouponSchema store={store} coupons={coupons} />
       <StorePageClient store={store} coupons={coupons} />
     </>
   );
