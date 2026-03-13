@@ -2,7 +2,7 @@
   "crons": [
     {
       "path": "/api/cron?secret=lockcoupon-cron-2026",
-      "schedule": "0 8 * * *"
+      "schedule": "40 1 * * *"
     }
   ]
 }
