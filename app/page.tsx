@@ -26,7 +26,7 @@ export default async function HomePage() {
           <p className="text-white/50 text-[14px] md:text-[16px] max-w-lg mx-auto mb-6">
             Codes promo vérifiés &amp; mis à jour chaque jour. 100% gratuit.
           </p>
-          <div className="flex items-center justify-center gap-3 sm:gap-6 flex-wrap">
+          <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
             <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">
               🔥 Mis à jour aujourd&apos;hui
             </div>
@@ -35,6 +35,9 @@ export default async function HomePage() {
             </div>
             <Link href="/boutiques" className="bg-primary hover:bg-primary-dark rounded-full px-5 py-2 text-white text-[13px] font-bold transition-colors">
               🏪 {stores.length}+ boutiques →
+            </Link>
+            <Link href="/guide-achat" className="bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2 text-white text-[13px] font-bold transition-colors border border-white/20">
+              📖 Guide d&apos;achat
             </Link>
           </div>
         </div>
