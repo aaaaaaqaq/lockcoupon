@@ -22,20 +22,7 @@
     },
     {
       "path": "/api/cron/update-coupons?secret=lockcoupon-cron-2026",
-      "schedule": "0 6 * * 1"
-    },
-    {
-      "path": "/api/cron/update-coupons?secret=lockcoupon-cron-2026",
-      "schedule": "0 6 * * 4"
+      "schedule": "0 6 * * *"
     }
   ]
 }
-```
-
-6. Click **Commit changes**
-
-**Step 4 — Test it!**
-
-Wait 2 minutes for Vercel to deploy, then open this in your browser:
-```
-https://www.lockcoupon.com/api/cron/update-coupons?secret=lockcoupon-cron-2026
