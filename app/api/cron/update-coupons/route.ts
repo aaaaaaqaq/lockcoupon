@@ -13,7 +13,8 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!;
 const CRON_SECRET = process.env.CRON_SECRET || 'lockcoupon-cron-2026';
 
 const COUPON_SOURCES = ['Dealabs', 'Ma-Reduc', 'Savoo', 'PlanReduc', 'Radins.com'];
-const STORES_PER_RUN = 3;
+const MIN_STORES_WITH_COUPONS = 3;
+const MAX_STORES_TO_TRY = 8;
 
 interface ScrapedCoupon {
   title: string;
@@ -163,23 +164,18 @@ async function cleanExpiredCoupons(): Promise<number> {
   return ids.length;
 }
 
-async function selectStoresForRun(allStores: StoreRecord[]): Promise<StoreRecord[]> {
+async function getStoresQueue(allStores: StoreRecord[]): Promise<StoreRecord[]> {
   try {
     const { data: logs, error } = await supabase.from('cron_coupon_log').select('store_id, updated_at').order('updated_at', { ascending: true });
-    if (error || !logs) return shuffleAndPick(allStores, STORES_PER_RUN);
+    if (error || !logs) return [...allStores].sort(() => Math.random() - 0.5);
 
     const logMap = new Map(logs.map((l) => [l.store_id, l.updated_at]));
-    const sorted = [...allStores].sort((a, b) => {
+    return [...allStores].sort((a, b) => {
       const aTime = logMap.get(a.id) || '1970-01-01';
       const bTime = logMap.get(b.id) || '1970-01-01';
       return aTime.localeCompare(bTime);
     });
-    return sorted.slice(0, STORES_PER_RUN);
-  } catch { return shuffleAndPick(allStores, STORES_PER_RUN); }
-}
-
-function shuffleAndPick<T>(arr: T[], count: number): T[] {
-  return [...arr].sort(() => Math.random() - 0.5).slice(0, count);
+  } catch { return [...allStores].sort(() => Math.random() - 0.5); }
 }
 
 async function logUpdate(storeId: string, storeName: string, result: any) {
@@ -206,7 +202,59 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'No stores found' }, { status: 404 });
     }
 
-    const selectedStores = await selectStoresForRun(stores);
+    const storesQueue = await getStoresQueue(stores);
     const expiredCleaned = await cleanExpiredCoupons();
 
-    const results: Array<{ store: st
+    const results: Array<{ store: string; slug: string; found: number; inserted: number; skipped: number; errors: number }> = [];
+    let storesWithCoupons = 0;
+    let storesTried = 0;
+
+    for (const store of storesQueue) {
+      // Stop if we found enough stores with coupons OR tried too many
+      if (storesWithCoupons >= MIN_STORES_WITH_COUPONS || storesTried >= MAX_STORES_TO_TRY) break;
+
+      storesTried++;
+      const coupons = await searchCouponsForStore(store.name, store.slug);
+
+      if (coupons.length > 0) {
+        const upsertResult = await upsertCoupons(store.id, store.name, coupons);
+        const storeResult = { store: store.name, slug: store.slug, found: coupons.length, ...upsertResult };
+        results.push(storeResult);
+        await logUpdate(store.id, store.name, storeResult);
+        storesWithCoupons++;
+      } else {
+        const storeResult = { store: store.name, slug: store.slug, found: 0, inserted: 0, skipped: 0, errors: 0 };
+        results.push(storeResult);
+        await logUpdate(store.id, store.name, storeResult);
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+    }
+
+    return NextResponse.json({
+      success: true,
+      timestamp: new Date().toISOString(),
+      summary: {
+        stores_tried: storesTried,
+        stores_with_coupons: storesWithCoupons,
+        total_stores: stores.length,
+        coupons_found: results.reduce((s, r) => s + r.found, 0),
+        coupons_inserted: results.reduce((s, r) => s + r.inserted, 0),
+        coupons_skipped_duplicates: results.reduce((s, r) => s + r.skipped, 0),
+        expired_cleaned: expiredCleaned,
+      },
+      details: results,
+    });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+}
+```
+
+5. Click **Commit changes**
+
+Now the logic is: it keeps trying stores (up to 8 max) until it finds **at least 3 stores that have coupons**. If a store has nothing, it skips to the next one instead of wasting a slot.
+
+Wait 2 minutes for deploy, then test again:
+```
+https://www.lockcoupon.com/api/cron/update-coupons?secret=lockcoupon-cron-2026
