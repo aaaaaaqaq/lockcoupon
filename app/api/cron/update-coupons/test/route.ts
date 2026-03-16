@@ -10,16 +10,8 @@ const supabase = createClient(
 );
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!;
-
 const COUPON_SOURCES = ['Dealabs', 'Ma-Reduc', 'Savoo', 'PlanReduc', 'Radins.com'];
 
-/**
- * POST /api/cron/update-coupons/test
- * Body: { "secret": "...", "store_slug": "nike" }
- * 
- * Tests the coupon scraper for a single store without saving to DB.
- * Useful for debugging before the cron runs.
- */
 export async function POST(request: Request) {
   try {
     const body = await request.json();
@@ -33,20 +25,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'store_slug is required' }, { status: 400 });
     }
 
-    // Find the store
-    const { data: store } = await supabase
-      .from('stores')
-      .select('id, name, slug')
-      .eq('slug', store_slug)
-      .single();
-
+    const { data: store } = await supabase.from('stores').select('id, name, slug').eq('slug', store_slug).single();
     if (!store) {
       return NextResponse.json({ error: `Store "${store_slug}" not found` }, { status: 404 });
     }
 
-    const today = new Date().toISOString().split('T')[0];
     const sources = COUPON_SOURCES.join(', ');
-
     const prompt = `Tu es un assistant qui recherche des codes promo RÉELS et ACTUELS pour la boutique "${store.name}".
 
 MISSION : Utilise l'outil web_search pour chercher des codes promo valides pour ${store.name} sur ces sites français : ${sources}.
@@ -89,25 +73,11 @@ Si rien trouvé, réponds : []`;
 
     if (!response.ok) {
       const errText = await response.text();
-      return NextResponse.json(
-        { error: 'Claude API error', detail: errText.substring(0, 500) },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: 'Claude API error', detail: errText.substring(0, 500) }, { status: 500 });
     }
 
     const data = await response.json();
-
-    // Full raw response for debugging
-    const rawBlocks = data.content?.map((b: any) => ({
-      type: b.type,
-      text: b.type === 'text' ? b.text?.substring(0, 500) : undefined,
-      name: b.type === 'tool_use' ? b.name : undefined,
-    }));
-
-    const textBlocks = data.content
-      ?.filter((b: any) => b.type === 'text')
-      .map((b: any) => b.text)
-      .join('\n') || '';
+    const textBlocks = data.content?.filter((b: any) => b.type === 'text').map((b: any) => b.text).join('\n') || '';
 
     let parsedCoupons: any[] = [];
     let parseError: string | null = null;
@@ -115,14 +85,9 @@ Si rien trouvé, réponds : []`;
     try {
       const cleaned = textBlocks.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const jsonMatch = cleaned.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        parsedCoupons = JSON.parse(jsonMatch[0]);
-      } else {
-        parseError = 'No JSON array found in response';
-      }
-    } catch (err: any) {
-      parseError = err.message;
-    }
+      if (jsonMatch) { parsedCoupons = JSON.parse(jsonMatch[0]); }
+      else { parseError = 'No JSON array found'; }
+    } catch (err: any) { parseError = err.message; }
 
     return NextResponse.json({
       store: { name: store.name, slug: store.slug },
@@ -131,7 +96,6 @@ Si rien trouvé, réponds : []`;
       coupons_found: parsedCoupons.length,
       coupons: parsedCoupons,
       parse_error: parseError,
-      raw_content_blocks: rawBlocks,
     });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
