@@ -13,8 +13,8 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!;
 const CRON_SECRET = process.env.CRON_SECRET || 'lockcoupon-cron-2026';
 
 const COUPON_SOURCES = ['Dealabs', 'Ma-Reduc', 'Savoo', 'PlanReduc', 'Radins.com'];
-const MIN_STORES_WITH_COUPONS = 3;
-const MAX_STORES_TO_TRY = 8;
+const STORES_PER_RUN = 3;
+const MIN_COUPONS = 3;
 
 interface ScrapedCoupon {
   title: string;
@@ -32,7 +32,7 @@ interface StoreRecord {
   slug: string;
 }
 
-function buildSearchPrompt(storeName: string, storeSlug: string): string {
+function buildSearchPrompt(storeName: string): string {
   const today = new Date().toISOString().split('T')[0];
   const sources = COUPON_SOURCES.join(', ');
 
@@ -68,9 +68,39 @@ RÉPONSE : Réponds UNIQUEMENT avec un JSON valide (pas de backticks, pas de tex
 Si tu ne trouves AUCUN code promo valide, réponds exactement : []`;
 }
 
-async function searchCouponsForStore(storeName: string, storeSlug: string): Promise<ScrapedCoupon[]> {
-  const prompt = buildSearchPrompt(storeName, storeSlug);
+function buildExtraPrompt(storeName: string): string {
+  const sources = COUPON_SOURCES.join(', ');
 
+  return `Tu es un assistant qui recherche des codes promo RÉELS pour "${storeName}".
+
+Cette boutique a très peu de codes promo. Fais une recherche APPROFONDIE sur : ${sources}, ainsi que Google Shopping, RetailMeNot, Groupon, et tout autre site de codes promo.
+
+Cherche aussi :
+- "code promo ${storeName} 2026"
+- "${storeName} bon de réduction"  
+- "${storeName} offre spéciale"
+- "${storeName} promo nouveaux clients"
+- "${storeName} livraison gratuite code"
+
+Trouve au moins 5 codes/offres si possible. Inclus aussi les offres génériques comme "livraison gratuite dès X€" ou "réduction nouveaux clients".
+
+RÉPONSE : Réponds UNIQUEMENT avec un JSON valide (pas de backticks) :
+[
+  {
+    "title": "Description courte de l'offre en français",
+    "code": "LECODE123" ou null si pas de code,
+    "discount_value": "20" ou null,
+    "discount_type": "percent" ou "euro" ou "free" ou "cashback" ou null,
+    "type": "code" ou "bon" ou "cashback",
+    "expiry_date": "2026-04-30" ou null,
+    "source": "nom du site source"
+  }
+]
+
+Si rien trouvé, réponds : []`;
+}
+
+async function callClaude(prompt: string): Promise<ScrapedCoupon[]> {
   const response = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
     headers: {
@@ -86,15 +116,10 @@ async function searchCouponsForStore(storeName: string, storeSlug: string): Prom
     }),
   });
 
-  if (!response.ok) {
-    const errText = await response.text();
-    console.error(`Claude API error for ${storeName}:`, errText.substring(0, 300));
-    return [];
-  }
+  if (!response.ok) return [];
 
   const data = await response.json();
   const textBlocks = data.content?.filter((block: any) => block.type === 'text').map((block: any) => block.text).join('\n') || '';
-
   if (!textBlocks.trim()) return [];
 
   try {
@@ -110,13 +135,10 @@ async function searchCouponsForStore(storeName: string, storeSlug: string): Prom
       if (c.type && !['code', 'bon', 'cashback'].includes(c.type)) return false;
       return true;
     });
-  } catch (err) {
-    console.error(`JSON parse error for ${storeName}:`, err);
-    return [];
-  }
+  } catch { return []; }
 }
 
-async function upsertCoupons(storeId: string, storeName: string, coupons: ScrapedCoupon[]): Promise<{ inserted: number; skipped: number; errors: number }> {
+async function upsertCoupons(storeId: string, coupons: ScrapedCoupon[]): Promise<{ inserted: number; skipped: number; errors: number }> {
   let inserted = 0, skipped = 0, errors = 0;
 
   for (const coupon of coupons) {
@@ -149,9 +171,14 @@ async function upsertCoupons(storeId: string, storeName: string, coupons: Scrape
       });
 
       if (insertError) { errors++; } else { inserted++; }
-    } catch (err) { errors++; }
+    } catch { errors++; }
   }
   return { inserted, skipped, errors };
+}
+
+async function getStoreCouponCount(storeId: string): Promise<number> {
+  const { count } = await supabase.from('coupons').select('*', { count: 'exact', head: true }).eq('store_id', storeId);
+  return count || 0;
 }
 
 async function cleanExpiredCoupons(): Promise<number> {
@@ -164,18 +191,19 @@ async function cleanExpiredCoupons(): Promise<number> {
   return ids.length;
 }
 
-async function getStoresQueue(allStores: StoreRecord[]): Promise<StoreRecord[]> {
+async function selectStoresForRun(allStores: StoreRecord[]): Promise<StoreRecord[]> {
   try {
     const { data: logs, error } = await supabase.from('cron_coupon_log').select('store_id, updated_at').order('updated_at', { ascending: true });
-    if (error || !logs) return [...allStores].sort(() => Math.random() - 0.5);
+    if (error || !logs) return [...allStores].sort(() => Math.random() - 0.5).slice(0, STORES_PER_RUN);
 
     const logMap = new Map(logs.map((l) => [l.store_id, l.updated_at]));
-    return [...allStores].sort((a, b) => {
+    const sorted = [...allStores].sort((a, b) => {
       const aTime = logMap.get(a.id) || '1970-01-01';
       const bTime = logMap.get(b.id) || '1970-01-01';
       return aTime.localeCompare(bTime);
     });
-  } catch { return [...allStores].sort(() => Math.random() - 0.5); }
+    return sorted.slice(0, STORES_PER_RUN);
+  } catch { return [...allStores].sort(() => Math.random() - 0.5).slice(0, STORES_PER_RUN); }
 }
 
 async function logUpdate(storeId: string, storeName: string, result: any) {
@@ -202,32 +230,63 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'No stores found' }, { status: 404 });
     }
 
-    const storesQueue = await getStoresQueue(stores);
     const expiredCleaned = await cleanExpiredCoupons();
+    const selectedStores = await selectStoresForRun(stores);
 
-    const results: Array<{ store: string; slug: string; found: number; inserted: number; skipped: number; errors: number }> = [];
-    let storesWithCoupons = 0;
-    let storesTried = 0;
+    const results: Array<{
+      store: string;
+      slug: string;
+      coupons_before: number;
+      found_update: number;
+      inserted_update: number;
+      needed_extra: boolean;
+      found_extra: number;
+      inserted_extra: number;
+      coupons_after: number;
+    }> = [];
 
-    for (const store of storesQueue) {
-      // Stop if we found enough stores with coupons OR tried too many
-      if (storesWithCoupons >= MIN_STORES_WITH_COUPONS || storesTried >= MAX_STORES_TO_TRY) break;
+    for (const store of selectedStores) {
+      const couponsBefore = await getStoreCouponCount(store.id);
 
-      storesTried++;
-      const coupons = await searchCouponsForStore(store.name, store.slug);
-
-      if (coupons.length > 0) {
-        const upsertResult = await upsertCoupons(store.id, store.name, coupons);
-        const storeResult = { store: store.name, slug: store.slug, found: coupons.length, ...upsertResult };
-        results.push(storeResult);
-        await logUpdate(store.id, store.name, storeResult);
-        storesWithCoupons++;
-      } else {
-        const storeResult = { store: store.name, slug: store.slug, found: 0, inserted: 0, skipped: 0, errors: 0 };
-        results.push(storeResult);
-        await logUpdate(store.id, store.name, storeResult);
+      const updateCoupons = await callClaude(buildSearchPrompt(store.name));
+      let insertedUpdate = 0;
+      if (updateCoupons.length > 0) {
+        const r = await upsertCoupons(store.id, updateCoupons);
+        insertedUpdate = r.inserted;
       }
 
+      const couponsAfterUpdate = await getStoreCouponCount(store.id);
+
+      let neededExtra = false;
+      let foundExtra = 0;
+      let insertedExtra = 0;
+
+      if (couponsAfterUpdate <= MIN_COUPONS) {
+        neededExtra = true;
+        const extraCoupons = await callClaude(buildExtraPrompt(store.name));
+        foundExtra = extraCoupons.length;
+        if (extraCoupons.length > 0) {
+          const r = await upsertCoupons(store.id, extraCoupons);
+          insertedExtra = r.inserted;
+        }
+      }
+
+      const couponsAfter = await getStoreCouponCount(store.id);
+
+      const storeResult = {
+        store: store.name,
+        slug: store.slug,
+        coupons_before: couponsBefore,
+        found_update: updateCoupons.length,
+        inserted_update: insertedUpdate,
+        needed_extra: neededExtra,
+        found_extra: foundExtra,
+        inserted_extra: insertedExtra,
+        coupons_after: couponsAfter,
+      };
+
+      results.push(storeResult);
+      await logUpdate(store.id, store.name, storeResult);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
 
@@ -235,12 +294,11 @@ export async function GET(request: Request) {
       success: true,
       timestamp: new Date().toISOString(),
       summary: {
-        stores_tried: storesTried,
-        stores_with_coupons: storesWithCoupons,
+        stores_processed: selectedStores.length,
         total_stores: stores.length,
-        coupons_found: results.reduce((s, r) => s + r.found, 0),
-        coupons_inserted: results.reduce((s, r) => s + r.inserted, 0),
-        coupons_skipped_duplicates: results.reduce((s, r) => s + r.skipped, 0),
+        total_updated: results.reduce((s, r) => s + r.inserted_update, 0),
+        stores_needed_extra: results.filter((r) => r.needed_extra).length,
+        total_extra_added: results.reduce((s, r) => s + r.inserted_extra, 0),
         expired_cleaned: expiredCleaned,
       },
       details: results,
@@ -249,12 +307,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-```
-
-5. Click **Commit changes**
-
-Now the logic is: it keeps trying stores (up to 8 max) until it finds **at least 3 stores that have coupons**. If a store has nothing, it skips to the next one instead of wasting a slot.
-
-Wait 2 minutes for deploy, then test again:
-```
-https://www.lockcoupon.com/api/cron/update-coupons?secret=lockcoupon-cron-2026
