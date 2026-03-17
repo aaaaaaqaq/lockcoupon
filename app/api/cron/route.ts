@@ -306,10 +306,3 @@ export async function GET(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
-```
-
-5. Click **Commit changes**
-
-Now test it:
-```
-https://www.lockcoupon.com/api/cron?secret=lockcoupon-cron-2026
