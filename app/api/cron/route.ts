@@ -93,6 +93,124 @@ const TITLE_TEMPLATES = [
   (store: string) => `Guide d'Achat ${store} : Les Catégories les Moins Chères`,
 ];
 
+async function callClaude(prompt: string, maxTokens: number = 8000): Promise<string> {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+    },
+    body: JSON.stringify({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: maxTokens,
+      messages: [{ role: 'user', content: prompt }],
+    }),
+  });
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`Claude API error: ${response.status} - ${errText.substring(0, 300)}`);
+  }
+
+  const data = await response.json();
+  return data.content[0]?.text || '';
+}
+
+function buildWritePrompt(storeName: string, storeSlug: string, title: string, month: string): string {
+  return `Act as a highly experienced, slightly cynical, but incredibly helpful deal-hunter and frugal lifestyle expert. Your target audience consists of smart shoppers in France, Canada, Belgium, and Luxembourg. You are writing an article for LockCoupon.com, a coupon and savings blog.
+
+Your ultimate goal is to bypass AI detection NOT by spinning words, but by writing with profound "Human Variability" (High Burstiness and High Perplexity) and genuine E-E-A-T (Experience, Expertise, Authoritativeness, Trustworthiness).
+
+Adhere STRICTLY to the following rules:
+
+1. THE PERSONA & TONE:
+- Write in native, conversational, and slightly informal French suitable for your specific Francophone audience.
+- Speak directly to the reader using "je" (I) and "vous" (you).
+- Sound like a real person who actually tests promo codes, gets frustrated when they don't work, and gets thrilled when they save money.
+- Inject brief, realistic personal anecdotes (e.g., "J'ai passé 20 minutes hier à tester ce code...", "Mon portefeuille me remercie...").
+- Write numbers in letters sometimes ("vingt-trois euros") and digits other times ("23€") — mix it up unpredictably.
+
+2. STRUCTURAL VARIABILITY (BURSTINESS):
+- Drastically vary your sentence length. Write a very long, flowing sentence that explains a complex condition with dashes and parentheses. Then follow it with a two-word sentence. Like this.
+- Use formatting organically: em-dashes (—) for afterthoughts, <strong> for emphasis, and very short paragraphs (1-3 sentences max).
+- Some sections should be 2 paragraphs, others 5. Never uniform.
+- Start sentences with "Et", "Mais", "Parce que", "Sauf que" sometimes.
+
+3. THE ANTI-AI DICTIONARY (BANNED WORDS):
+- NEVER use these: "En conclusion", "Il est important de noter que", "Dans ce monde en constante évolution", "Naviguer dans le paysage", "Cependant", "En fin de compte", "Dévoiler", "N'hésitez pas à", "Force est de constater", "Il convient de", "Il est indéniable", "Cela étant dit", "Dans un monde où", "De nos jours", "En effet".
+- Start paragraphs directly with the action or the thought, not with a transition word.
+
+4. CONTENT DEPTH & VALUE:
+- Don't just list coupons or deals. Explain HOW the retailer's pricing strategy works.
+- Mention the failures. Acknowledge that some codes expire or have hidden terms (this builds massive trust).
+- Give insider tips that only a real shopper would know.
+
+5. PERPLEXITY (UNPREDICTABLE WORD CHOICES):
+- Replace common words with unexpected but correct synonyms: not "utiliser" but "dégainer", "miser sur", "recourir à"
+- Use French idioms: "ça vaut le détour", "faut pas se voiler la face", "on ne va pas se mentir", "ça crève les yeux"
+- Mix familiar and elevated vocabulary in the same sentence
+- Use metaphors for prices and savings ("mon portefeuille a fait un infarctus", "les prix fondent comme neige au soleil")
+
+6. FORMAT — HTML ONLY:
+- No backticks, no markdown, no html/head/body, no H1
+- <h2> for 6-8 sections (informal, question-style titles)
+- <h3> for sub-sections when needed
+- <p> paragraphs of varying lengths
+- <strong> for promo codes and key emphasis
+- <ul><li> for occasional lists
+- <a href="/codes-promo/${storeSlug}"> internal links (use 3 times)
+- <a href="/boutiques"> (use 1 time)
+- <a href="/top-codes-promo"> (use 1 time)
+- One HTML table of the best codes
+- <blockquote> for 1-2 insider tips
+
+7. SEO KEYWORDS (use naturally): "code promo ${storeName.toLowerCase()}", "réduction ${storeName.toLowerCase()}", "bon plan ${storeName.toLowerCase()}", "promo ${storeName.toLowerCase()} ${month}"
+
+8. MINIMUM 2000 mots. Obligatoire.
+
+9. STRUCTURE: accroche personnelle, tableau des codes, guide d'utilisation détaillé, astuces d'initié, meilleures périodes d'achat, erreurs courantes, FAQ (4-5 questions)
+
+SUJET : "${title}"
+BOUTIQUE : ${storeName}
+MOIS : ${month}
+
+Commence directement avec le HTML. Pas de préambule.`;
+}
+
+function buildHumanizePrompt(htmlContent: string): string {
+  return `Tu es un expert en réécriture humaine. Prends cet article HTML et RÉÉCRIS-LE pour maximiser la variabilité humaine.
+
+OBJECTIF : Rendre le texte INDÉTECTABLE par GPTZero, Originality.ai, et tous les détecteurs IA.
+
+MODIFICATIONS OBLIGATOIRES :
+
+PERPLEXITÉ — Rends chaque phrase IMPRÉVISIBLE :
+- Remplace 40% des mots courants par des synonymes INATTENDUS mais naturels
+- Ajoute 8-10 expressions idiomatiques françaises dans tout l'article
+- Mélange registre familier et soutenu dans la même phrase ("Ce stratagème, franchement, il déchire")
+- Choisis TOUJOURS le 2ème ou 3ème mot le plus probable, jamais le 1er
+
+BURSTINESS — Varie RADICALEMENT le rythme :
+- Insère 10+ phrases de 2-4 mots : "Bref.", "Résultat ?", "Ça pique.", "Vrai de vrai.", "Pas faux.", "Et voilà."
+- Insère 5+ phrases de 35+ mots avec virgules, tirets et parenthèses
+- JAMAIS deux phrases de longueur similaire qui se suivent
+- Certains paragraphes : 1 phrase. D'autres : 6 phrases.
+- Commence des phrases par "Et", "Mais", "Parce que", "Sauf que"
+
+PRÉSERVE ABSOLUMENT :
+- Tout le HTML (h2, h3, p, strong, a, ul, li, table, blockquote, etc.)
+- Tous les liens href exactement comme ils sont
+- Tous les codes promo dans <strong>
+- La longueur totale (garde la même taille ou plus long)
+
+Renvoie UNIQUEMENT le HTML réécrit. Pas de backticks. Pas d'explications.
+
+ARTICLE :
+
+${htmlContent}`;
+}
+
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const secret = searchParams.get('secret');
@@ -112,77 +230,42 @@ export async function GET(request: Request) {
     }
 
     const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-    const year = new Date().getFullYear();
 
-    // Pick ONE random store
     const store = stores[Math.floor(Math.random() * stores.length)];
     const templateIdx = Math.floor(Math.random() * TITLE_TEMPLATES.length);
     const title = TITLE_TEMPLATES[templateIdx](store.name, month);
     const storeSlug = store.slug;
     const coverImage = getCoverImage(storeSlug);
 
-    const prompt = `Tu es un rédacteur web français passionné par les bons plans. Tu écris pour LockCoupon.com. Tu n'es PAS une IA — tu es un vrai blogueur.
+    // ═══ STEP 1: Write article with human persona prompt ═══
+    const writePrompt = buildWritePrompt(store.name, storeSlug, title, month);
+    const rawArticle = await callClaude(writePrompt, 8000);
 
-RÈGLES :
-1. MINIMUM 2000 mots. Obligatoire.
-2. Français naturel, conversationnel : "on", "vous", "franchement", "le truc c'est que"
-3. Interpelle le lecteur, donne des opinions, ajoute des anecdotes
-4. N'utilise JAMAIS : "Dans le monde numérique", "Il est important de noter", "En conclusion", "N'hésitez pas à"
-5. FORMAT HTML uniquement (pas de backticks, pas de html/head/body, pas de H1) :
-   - <h2> pour 6-8 sections (chaque H2 contient un mot-clé)
-   - <h3> pour sous-sections
-   - <p> paragraphes de 3-4 phrases minimum
-   - <strong> pour les codes promo
-   - <ul><li> pour les listes
-   - <blockquote> pour les astuces
-   - <a href="/codes-promo/${storeSlug}"> liens internes
-   - Un tableau HTML des meilleurs codes
-
-6. SEO mots-clés naturels : "code promo ${store.name.toLowerCase()}", "réduction ${store.name.toLowerCase()}", "bon plan ${store.name.toLowerCase()}", "promo ${store.name.toLowerCase()} ${month}", "${store.name.toLowerCase()} moins cher"
-
-7. Structure : accroche + tableau codes, guide utilisation, astuces insider, meilleures périodes, erreurs à éviter, comparaison, FAQ (4-5 questions)
-
-8. Liens : 3x vers /codes-promo/${storeSlug}, 1x vers /boutiques, 1x vers /top-codes-promo
-
-SUJET : "${title}"
-BOUTIQUE : ${store.name}
-
-Commence directement avec le HTML.`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
-
-    if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json({ error: 'Claude API error', status: response.status, detail: errText.substring(0, 300) }, { status: 500 });
+    if (!rawArticle || rawArticle.length < 500) {
+      return NextResponse.json({ error: 'Article too short', length: rawArticle.length }, { status: 500 });
     }
 
-    const data = await response.json();
-    const content = data.content[0]?.text || '';
-
-    if (!content || content.length < 500) {
-      return NextResponse.json({ error: 'Content too short', length: content.length }, { status: 500 });
-    }
-
-    const cleanContent = content
+    const cleanRaw = rawArticle
       .replace(/```html\n?/g, '').replace(/```\n?/g, '')
       .replace(/^<!DOCTYPE.*$/gm, '')
       .replace(/<\/?html[^>]*>/g, '').replace(/<\/?head[^>]*>/g, '').replace(/<\/?body[^>]*>/g, '')
       .trim();
 
-    const excerpt = cleanContent.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').substring(0, 155).trim() + '...';
-    const wordCount = cleanContent.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length;
+    // ═══ STEP 2: Humanize — boost perplexity & burstiness ═══
+    const humanizePrompt = buildHumanizePrompt(cleanRaw);
+    const humanizedArticle = await callClaude(humanizePrompt, 8000);
+
+    let finalContent = cleanRaw;
+    if (humanizedArticle && humanizedArticle.length > cleanRaw.length * 0.7) {
+      finalContent = humanizedArticle
+        .replace(/```html\n?/g, '').replace(/```\n?/g, '')
+        .replace(/^<!DOCTYPE.*$/gm, '')
+        .replace(/<\/?html[^>]*>/g, '').replace(/<\/?head[^>]*>/g, '').replace(/<\/?body[^>]*>/g, '')
+        .trim();
+    }
+
+    const excerpt = finalContent.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').substring(0, 155).trim() + '...';
+    const wordCount = finalContent.replace(/<[^>]+>/g, '').split(/\s+/).filter(Boolean).length;
 
     const slug = title
       .toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -196,7 +279,7 @@ Commence directement avec le HTML.`;
       title,
       slug: finalSlug,
       excerpt,
-      content: cleanContent,
+      content: finalContent,
       cover_image: coverImage,
       author: 'LockCoupon',
       is_published: true,
@@ -214,6 +297,7 @@ Commence directement avec le HTML.`;
         title,
         slug: finalSlug,
         wordCount,
+        humanized: humanizedArticle.length > cleanRaw.length * 0.7,
         url: 'https://www.lockcoupon.com/blog/' + finalSlug,
       },
     });
@@ -222,3 +306,10 @@ Commence directement avec le HTML.`;
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
+```
+
+5. Click **Commit changes**
+
+Now test it:
+```
+https://www.lockcoupon.com/api/cron?secret=lockcoupon-cron-2026
