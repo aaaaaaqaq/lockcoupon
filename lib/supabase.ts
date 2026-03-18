@@ -30,7 +30,8 @@ export interface Coupon {
   is_best: boolean;
   is_exclusive: boolean;
   is_verified: boolean;
-  affiliate_url: string | null;
+ description: string | null;
+affiliate_url: string | null;
   created_at: string;
 }
 
