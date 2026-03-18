@@ -83,20 +83,24 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
             )}
             <button
               onClick={(e) => { e.stopPropagation(); setDetailsOpen(!detailsOpen); }}
-              className="hover:text-text-main transition-colors"
+              className="hover:text-text-main transition-colors flex items-center gap-1"
             >
-              Détails {detailsOpen ? '▲' : '▼'}
+              Détails et commentaires ({coupon.usage_count || 0}) <span className="text-[10px]">{detailsOpen ? '▲' : '▼'}</span>
             </button>
           </div>
 
           {detailsOpen && (
-            <div className="mt-2 pt-2 border-t border-border text-[12px] text-muted">
-              Vérifié et fonctionnel. Utilisé par {coupon.usage_count || 0} personnes.
+            <div className="mt-3 pt-3 border-t border-border text-[13px] text-muted leading-relaxed">
+              {coupon.description ? (
+                <p>{coupon.description}</p>
+              ) : (
+                <p>Ce code a été vérifié et fonctionne actuellement. Utilisé par {coupon.usage_count || 0} personnes.</p>
+              )}
             </div>
           )}
         </div>
 
-        {/* Right — Wide red/black button like MaReduc */}
+        {/* Right — Button */}
         <div className="shrink-0 flex flex-col items-center justify-center p-3 sm:p-4">
           <button
             onClick={() => onOpenPopup(coupon)}
