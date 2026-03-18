@@ -21,7 +21,7 @@ export default function AdminPage() {
   const [editingStoreId, setEditingStoreId] = useState<string | null>(null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
 
-  const emptyCouponForm = { store_id: '', title: '', code: '', discount_value: '', discount_type: 'percent', type: 'code', expiry_date: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true };
+  const emptyCouponForm = { store_id: '', title: '', code: '', discount_value: '', discount_type: 'percent', type: 'code', expiry_date: '', description: '', affiliate_url: '', is_best: false, is_exclusive: false, is_verified: true };
   const emptyStoreForm = { name: '', slug: '', logo_url: '', logo_color: '#C0392B', logo_letter: '', description: '' };
   const emptyPostForm = { title: '', slug: '', excerpt: '', content: '', cover_image: '', author: 'LockCoupon', is_published: false };
 
@@ -49,7 +49,7 @@ export default function AdminPage() {
   // ─── Coupon CRUD ───────────────────────────────
   const saveCoupon = async () => {
     if (!couponForm.store_id || !couponForm.title) { showMsg('Boutique et titre sont requis', 'error'); return; }
-    const payload = { store_id: couponForm.store_id, title: couponForm.title, code: couponForm.code || null, discount_value: couponForm.discount_value || null, discount_type: couponForm.discount_type, type: couponForm.type, expiry_date: couponForm.expiry_date || null, affiliate_url: couponForm.affiliate_url || null, is_best: couponForm.is_best, is_exclusive: couponForm.is_exclusive, is_verified: couponForm.is_verified };
+    const payload = { store_id: couponForm.store_id, title: couponForm.title, code: couponForm.code || null, discount_value: couponForm.discount_value || null, discount_type: couponForm.discount_type, type: couponForm.type, expiry_date: couponForm.expiry_date || null, description: couponForm.description || null, affiliate_url: couponForm.affiliate_url || null, is_best: couponForm.is_best, is_exclusive: couponForm.is_exclusive, is_verified: couponForm.is_verified };
     if (editingCouponId) {
       const { error } = await supabase.from('coupons').update(payload).eq('id', editingCouponId);
       if (error) showMsg('Erreur: ' + error.message, 'error');
@@ -60,7 +60,7 @@ export default function AdminPage() {
       else { showMsg('Coupon ajouté !', 'success'); setCouponForm({ ...emptyCouponForm, store_id: couponForm.store_id }); loadData(); }
     }
   };
-  const editCoupon = (c: Coupon) => { setCouponForm({ store_id: c.store_id, title: c.title, code: c.code || '', discount_value: c.discount_value || '', discount_type: c.discount_type || 'percent', type: c.type || 'code', expiry_date: c.expiry_date || '', affiliate_url: c.affiliate_url || '', is_best: c.is_best, is_exclusive: c.is_exclusive, is_verified: c.is_verified }); setEditingCouponId(c.id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  const editCoupon = (c: Coupon) => { setCouponForm({ store_id: c.store_id, title: c.title, code: c.code || '', discount_value: c.discount_value || '', discount_type: c.discount_type || 'percent', type: c.type || 'code', expiry_date: c.expiry_date || '', description: c.description || '', affiliate_url: c.affiliate_url || '', is_best: c.is_best, is_exclusive: c.is_exclusive, is_verified: c.is_verified }); setEditingCouponId(c.id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelEditCoupon = () => { setEditingCouponId(null); setCouponForm(emptyCouponForm); };
   const deleteCoupon = async (id: string) => { if (!confirm('Supprimer ce coupon ?')) return; await supabase.from('coupons').delete().eq('id', id); showMsg('Coupon supprimé', 'success'); loadData(); };
 
@@ -159,6 +159,7 @@ export default function AdminPage() {
                 <div><label className="block text-[13px] font-semibold text-text-main mb-1">Type de réduction</label><select value={couponForm.discount_type} onChange={(e) => setCouponForm({ ...couponForm, discount_type: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"><option value="percent">%</option><option value="euro">€</option><option value="free">Gratuit</option><option value="cashback">Cashback</option></select></div>
                 <div><label className="block text-[13px] font-semibold text-text-main mb-1">Catégorie</label><select value={couponForm.type} onChange={(e) => setCouponForm({ ...couponForm, type: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary"><option value="code">Code Promo</option><option value="cashback">Cashback</option><option value="bon">Bon Plan</option></select></div>
                 <div><label className="block text-[13px] font-semibold text-text-main mb-1">Expiration</label><input type="date" value={couponForm.expiry_date} onChange={(e) => setCouponForm({ ...couponForm, expiry_date: e.target.value })} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" /></div>
+                <div className="md:col-span-2"><label className="block text-[13px] font-semibold text-text-main mb-1">📝 Description (Détails)</label><textarea value={couponForm.description} onChange={(e) => setCouponForm({ ...couponForm, description: e.target.value })} placeholder="Description détaillée du coupon (visible quand l'utilisateur clique sur Détails)..." rows={3} className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary resize-y" /></div>
                 <div className="md:col-span-2"><label className="block text-[13px] font-semibold text-text-main mb-1">🔗 Lien affiliation</label><input value={couponForm.affiliate_url} onChange={(e) => setCouponForm({ ...couponForm, affiliate_url: e.target.value })} placeholder="https://..." className="w-full border border-border rounded-lg px-3 py-2.5 text-[14px] outline-none focus:border-primary" /></div>
                 <div className="md:col-span-2 flex flex-wrap gap-5">
                   <label className="flex items-center gap-2 cursor-pointer"><input type="checkbox" checked={couponForm.is_best} onChange={(e) => setCouponForm({ ...couponForm, is_best: e.target.checked })} className="w-4 h-4 accent-primary" /><span className="text-[13px]">⭐ Meilleure offre</span></label>
