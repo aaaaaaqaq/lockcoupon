@@ -123,8 +123,8 @@ MOTS-CLÉS SEO (intègre-les naturellement, pas de bourrage) :
 CONSIGNES TECHNIQUES :
 - PAS de titre H1 (il est géré séparément)
 - Article de 700-900 mots
-- Commence DIRECTEMENT par le HTML, pas de backticks, pas de commentaires
-- Pas de "```html" ni de "```"
+- Commence DIRECTEMENT par le HTML, sans entourer le code de backticks
+- Ne mets pas de blocs de code autour du HTML
 
 SUJET : "${title}"
 
