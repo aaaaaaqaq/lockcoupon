@@ -1,12 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Coupon } from '@/lib/supabase';
-import { SUPABASE_URL } from '@/lib/supabase';
+import { Coupon, Store } from '@/lib/supabase';
 
 interface CouponPopupProps {
   coupon: Coupon | null;
-  store: { name: string; logo_url: string | null; slug: string } | null;
+  store: Store | null;
   onClose: () => void;
   onCopy: () => void;
 }
@@ -28,7 +27,7 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
-  // ✅ NO auto-redirect useEffect — user clicks manually
+  // NO auto-redirect — user clicks manually
 
   if (!coupon) return null;
 
@@ -47,7 +46,6 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
       onCopy();
       setTimeout(() => setCopied(false), 2500);
     } catch {
-      // Fallback for older browsers
       const el = document.createElement('textarea');
       el.value = coupon.code;
       document.body.appendChild(el);
@@ -137,10 +135,9 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
           {coupon.code ? (
             <>
               <p className="text-muted text-[13px] text-center mb-3">
-                Copiez le code ci-dessous puis cliquez sur « Aller sur la boutique »
+                Copiez le code ci-dessous puis cliquez sur &laquo; Aller sur la boutique &raquo;
               </p>
 
-              {/* Code display + copy */}
               <div
                 onClick={handleCopy}
                 className="relative flex items-center justify-between border-2 border-dashed border-primary/40 rounded-xl px-5 py-4 cursor-pointer hover:border-primary transition-colors group bg-primary-light/20"
@@ -169,7 +166,6 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
 
         {/* Actions */}
         <div className="px-6 pb-6 flex flex-col gap-3">
-          {/* Go to store — manual click only, NO auto-redirect */}
           <button
             onClick={handleGoToStore}
             className="w-full h-[48px] bg-primary text-white font-bold text-[15px] rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
