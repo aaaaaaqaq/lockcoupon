@@ -1,124 +1,167 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import { Coupon, Store } from '@/lib/supabase';
+import { useState, useRef, useEffect } from 'react';
+import { Coupon } from '@/lib/supabase';
 
 interface CouponPopupProps {
   coupon: Coupon | null;
-  store: Store;
   onClose: () => void;
-  onCopy: () => void;
 }
 
-export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPopupProps) {
-  const copyCode = useCallback(() => {
-    if (coupon?.code) {
-      navigator.clipboard.writeText(coupon.code).then(() => {
-        onCopy();
-      });
-    }
-  }, [coupon, onCopy]);
+export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
+  const [copied, setCopied] = useState(false);
+  const codeRef = useRef<HTMLSpanElement>(null);
 
-  // Auto-copy on open
+  // Reset copied state when coupon changes
   useEffect(() => {
-    if (coupon?.code) {
-      const t = setTimeout(copyCode, 500);
-      return () => clearTimeout(t);
-    }
-  }, [coupon, copyCode]);
-
-  // Auto-open affiliate link in new tab when popup opens
-  useEffect(() => {
-    if (coupon?.affiliate_url) {
-      const t = setTimeout(() => {
-        window.open(coupon.affiliate_url!, '_blank');
-      }, 800);
-      return () => clearTimeout(t);
-    }
+    setCopied(false);
   }, [coupon]);
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
 
   if (!coupon) return null;
 
-  function daysUntil(dateStr: string | null): number {
-    if (!dateStr) return 0;
-    const diff = new Date(dateStr).getTime() - Date.now();
-    return Math.max(0, Math.ceil(diff / 86400000));
-  }
+  const handleCopy = async () => {
+    if (!coupon.code) return;
+    try {
+      await navigator.clipboard.writeText(coupon.code);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    } catch {
+      // Fallback for older browsers
+      const el = document.createElement('textarea');
+      el.value = coupon.code;
+      document.body.appendChild(el);
+      el.select();
+      document.execCommand('copy');
+      document.body.removeChild(el);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2500);
+    }
+  };
+
+  const handleGoToStore = () => {
+    if (coupon.url) {
+      window.open(coupon.url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
+  const discountDisplay = () => {
+    if (coupon.discount_type === 'free') return 'GRATUIT';
+    if (coupon.discount_type === 'percent') return `${coupon.discount_value}%`;
+    if (coupon.discount_type === 'euro') return `${coupon.discount_value}€`;
+    if (coupon.discount_type === 'cashback') return `${coupon.discount_value}% cashback`;
+    return coupon.discount_value || '—';
+  };
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose} />
-
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[440px] overflow-hidden animate-scale-in">
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      {/* Popup */}
+      <div
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-[420px] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
-        <div className="bg-primary px-6 py-4 flex items-center gap-3">
-          {store.logo_url ? (
-            <img src={store.logo_url} alt={store.name} className="w-10 h-10 rounded-lg object-contain bg-white" />
-          ) : (
-            <div
-              className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg font-bold"
-              style={{ backgroundColor: store.logo_color || '#E87A2A' }}
-            >
-              {store.logo_letter || store.name[0]}
-            </div>
-          )}
-          <div>
-            <div className="text-white font-bold text-[16px]">{store.name}</div>
-            {coupon.expiry_date && (
-              <div className="text-white/70 text-[12px]">
-                Expire dans {daysUntil(coupon.expiry_date)} jours
-              </div>
-            )}
-          </div>
-          <button onClick={onClose} className="ml-auto text-white/70 hover:text-white transition-colors">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M18 6L6 18M6 6l12 12" strokeLinecap="round" strokeLinejoin="round"/>
-            </svg>
+        <div className="relative bg-primary-light/50 px-6 py-5 text-center border-b border-border">
+          <button
+            onClick={onClose}
+            className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-muted hover:text-text-main hover:bg-black/5 transition-colors text-[18px]"
+            aria-label="Fermer"
+          >
+            ✕
           </button>
-        </div>
 
-        {/* Body */}
-        <div className="p-6">
-          <h3 className="text-text-main text-[18px] font-bold mb-5 leading-snug">
+          <span className="text-primary text-[36px] font-extrabold leading-none">
+            {discountDisplay()}
+          </span>
+
+          <h3 className="text-text-main text-[15px] font-semibold leading-snug mt-2 px-4">
             {coupon.title}
           </h3>
 
-          {coupon.code ? (
-            <div className="flex items-stretch rounded-lg border-2 border-dashed border-success overflow-hidden mb-5">
-              <div className="flex-1 bg-green-50 px-4 py-3 text-center">
-                <span className="text-text-main text-[20px] font-mono font-extrabold tracking-widest">
-                  {coupon.code}
-                </span>
-              </div>
-              <button
-                onClick={copyCode}
-                className="bg-success hover:bg-green-700 text-white font-bold text-[14px] px-5 transition-colors shrink-0"
-              >
-                COPIER
-              </button>
-            </div>
-          ) : (
-            <div className="bg-bg rounded-lg px-4 py-3 text-center text-muted text-[14px] mb-5">
-              Aucun code nécessaire — réduction appliquée automatiquement
-            </div>
-          )}
-
-          <a
-            href={coupon.affiliate_url || '#'}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => {
-              if (!coupon.affiliate_url) e.preventDefault();
-            }}
-            className="block w-full bg-primary hover:bg-primary-dark text-white text-center font-bold text-[15px] py-3.5 rounded-lg transition-colors"
-          >
-            Accéder au site →
-          </a>
-
-          {!coupon.affiliate_url && (
-            <p className="text-muted text-[11px] text-center mt-2">Lien non disponible pour le moment</p>
+          {coupon.is_verified && (
+            <span className="inline-flex items-center gap-1 text-success text-[12px] mt-2">
+              <span className="w-1.5 h-1.5 bg-success rounded-full" />
+              Code vérifié
+            </span>
           )}
         </div>
+
+        {/* Code Section */}
+        <div className="px-6 py-6">
+          {coupon.code ? (
+            <>
+              <p className="text-muted text-[13px] text-center mb-3">
+                Copiez le code ci-dessous puis cliquez sur « Aller sur la boutique »
+              </p>
+
+              {/* Code display + copy */}
+              <div
+                onClick={handleCopy}
+                className="relative flex items-center justify-between border-2 border-dashed border-primary/40 rounded-xl px-5 py-4 cursor-pointer hover:border-primary transition-colors group bg-primary-light/20"
+              >
+                <span
+                  ref={codeRef}
+                  className="text-text-main text-[22px] font-mono font-bold tracking-wider select-all"
+                >
+                  {coupon.code}
+                </span>
+
+                <span
+                  className={`shrink-0 ml-3 text-[13px] font-bold px-3 py-1.5 rounded-lg transition-all ${
+                    copied
+                      ? 'bg-success/10 text-success'
+                      : 'bg-primary/10 text-primary group-hover:bg-primary/20'
+                  }`}
+                >
+                  {copied ? '✓ Copié !' : 'Copier'}
+                </span>
+              </div>
+            </>
+          ) : (
+            <p className="text-muted text-[14px] text-center">
+              Aucun code nécessaire — la réduction s'applique automatiquement.
+            </p>
+          )}
+        </div>
+
+        {/* Actions */}
+        <div className="px-6 pb-6 flex flex-col gap-3">
+          {/* Primary: Go to store — user clicks manually, no auto-redirect */}
+          <button
+            onClick={handleGoToStore}
+            className="w-full h-[48px] bg-primary text-white font-bold text-[15px] rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
+          >
+            Aller sur la boutique
+            <span className="text-[18px]">↗</span>
+          </button>
+
+          <button
+            onClick={onClose}
+            className="w-full h-[40px] text-muted text-[13px] hover:text-text-main transition-colors"
+          >
+            Fermer
+          </button>
+        </div>
+
+        {/* Footer info */}
+        {coupon.expiry_date && (
+          <div className="px-6 pb-4 text-center">
+            <span className="text-muted text-[11px]">
+              ⏳ Expire le {new Date(coupon.expiry_date).toLocaleDateString('fr-FR')}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );
