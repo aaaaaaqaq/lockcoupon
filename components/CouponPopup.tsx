@@ -1,16 +1,18 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Coupon } from '@/lib/supabase';
+import { SUPABASE_URL } from '@/lib/supabase';
 
 interface CouponPopupProps {
   coupon: Coupon | null;
+  store: { name: string; logo_url: string | null; slug: string } | null;
   onClose: () => void;
+  onCopy: () => void;
 }
 
-export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
+export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPopupProps) {
   const [copied, setCopied] = useState(false);
-  const codeRef = useRef<HTMLSpanElement>(null);
 
   // Reset copied state when coupon changes
   useEffect(() => {
@@ -19,20 +21,30 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
 
   // Close on Escape key
   useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-    window.addEventListener('keydown', handleKey);
-    return () => window.removeEventListener('keydown', handleKey);
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
   }, [onClose]);
 
+  // ✅ NO auto-redirect useEffect — user clicks manually
+
   if (!coupon) return null;
+
+  function daysUntil(dateStr: string | null): string {
+    if (!dateStr) return '';
+    const diff = new Date(dateStr).getTime() - Date.now();
+    const days = Math.max(0, Math.ceil(diff / 86400000));
+    return `${days}j restants`;
+  }
 
   const handleCopy = async () => {
     if (!coupon.code) return;
     try {
       await navigator.clipboard.writeText(coupon.code);
       setCopied(true);
+      onCopy();
       setTimeout(() => setCopied(false), 2500);
     } catch {
       // Fallback for older browsers
@@ -43,22 +55,15 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
       document.execCommand('copy');
       document.body.removeChild(el);
       setCopied(true);
+      onCopy();
       setTimeout(() => setCopied(false), 2500);
     }
   };
 
   const handleGoToStore = () => {
-    if (coupon.url) {
-      window.open(coupon.url, '_blank', 'noopener,noreferrer');
+    if (coupon.affiliate_url) {
+      window.open(coupon.affiliate_url, '_blank', 'noopener,noreferrer');
     }
-  };
-
-  const discountDisplay = () => {
-    if (coupon.discount_type === 'free') return 'GRATUIT';
-    if (coupon.discount_type === 'percent') return `${coupon.discount_value}%`;
-    if (coupon.discount_type === 'euro') return `${coupon.discount_value}€`;
-    if (coupon.discount_type === 'cashback') return `${coupon.discount_value}% cashback`;
-    return coupon.discount_value || '—';
   };
 
   return (
@@ -66,13 +71,12 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
       onClick={onClose}
     >
-      {/* Popup */}
       <div
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-[420px] overflow-hidden animate-in fade-in zoom-in-95 duration-200"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-[420px] overflow-hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="relative bg-primary-light/50 px-6 py-5 text-center border-b border-border">
+        {/* Header with store info */}
+        <div className="relative bg-primary-light/40 px-6 py-5 text-center border-b border-border">
           <button
             onClick={onClose}
             className="absolute top-3 right-3 w-8 h-8 flex items-center justify-center rounded-full text-muted hover:text-text-main hover:bg-black/5 transition-colors text-[18px]"
@@ -81,11 +85,36 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
             ✕
           </button>
 
-          <span className="text-primary text-[36px] font-extrabold leading-none">
-            {discountDisplay()}
-          </span>
+          {/* Store logo + name */}
+          <div className="flex items-center justify-center gap-3 mb-3">
+            {store?.logo_url ? (
+              <img
+                src={store.logo_url}
+                alt={store.name}
+                className="w-10 h-10 rounded-lg object-contain bg-white"
+              />
+            ) : (
+              <div
+                className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-lg font-bold"
+                style={{ backgroundColor: store?.name?.length ? '#6366f1' : '#94a3b8' }}
+              >
+                {store?.name?.charAt(0) || '?'}
+              </div>
+            )}
+            <span className="text-text-main text-[16px] font-bold">
+              {store?.name}
+            </span>
+          </div>
 
-          <h3 className="text-text-main text-[15px] font-semibold leading-snug mt-2 px-4">
+          {/* Discount */}
+          <div className="text-primary text-[32px] font-extrabold leading-none">
+            {coupon.discount_type === 'free' && 'GRATUIT'}
+            {coupon.discount_type === 'percent' && `${coupon.discount_value}%`}
+            {coupon.discount_type === 'euro' && `${coupon.discount_value}€`}
+            {coupon.discount_type === 'cashback' && `${coupon.discount_value}% cashback`}
+          </div>
+
+          <h3 className="text-text-main text-[14px] font-semibold leading-snug mt-2 px-2">
             {coupon.title}
           </h3>
 
@@ -95,9 +124,15 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
               Code vérifié
             </span>
           )}
+
+          {coupon.expiry_date && (
+            <div className="text-muted text-[11px] mt-1">
+              ⏳ Expire dans {daysUntil(coupon.expiry_date)}
+            </div>
+          )}
         </div>
 
-        {/* Code Section */}
+        {/* Code section */}
         <div className="px-6 py-6">
           {coupon.code ? (
             <>
@@ -110,10 +145,7 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
                 onClick={handleCopy}
                 className="relative flex items-center justify-between border-2 border-dashed border-primary/40 rounded-xl px-5 py-4 cursor-pointer hover:border-primary transition-colors group bg-primary-light/20"
               >
-                <span
-                  ref={codeRef}
-                  className="text-text-main text-[22px] font-mono font-bold tracking-wider select-all"
-                >
+                <span className="text-text-main text-[22px] font-mono font-bold tracking-wider select-all">
                   {coupon.code}
                 </span>
 
@@ -130,14 +162,14 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
             </>
           ) : (
             <p className="text-muted text-[14px] text-center">
-              Aucun code nécessaire — la réduction s'applique automatiquement.
+              Aucun code nécessaire — la réduction s&apos;applique automatiquement.
             </p>
           )}
         </div>
 
         {/* Actions */}
         <div className="px-6 pb-6 flex flex-col gap-3">
-          {/* Primary: Go to store — user clicks manually, no auto-redirect */}
+          {/* Go to store — manual click only, NO auto-redirect */}
           <button
             onClick={handleGoToStore}
             className="w-full h-[48px] bg-primary text-white font-bold text-[15px] rounded-xl hover:opacity-90 active:scale-[0.98] transition-all flex items-center justify-center gap-2"
@@ -153,15 +185,6 @@ export default function CouponPopup({ coupon, onClose }: CouponPopupProps) {
             Fermer
           </button>
         </div>
-
-        {/* Footer info */}
-        {coupon.expiry_date && (
-          <div className="px-6 pb-4 text-center">
-            <span className="text-muted text-[11px]">
-              ⏳ Expire le {new Date(coupon.expiry_date).toLocaleDateString('fr-FR')}
-            </span>
-          </div>
-        )}
       </div>
     </div>
   );
