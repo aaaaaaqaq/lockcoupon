@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-export const maxDuration = 60;
+export const maxDuration = 120;
 export const dynamic = 'force-dynamic';
 
 const supabase = createClient(
@@ -59,76 +59,98 @@ const STORE_CAT: Record<string, string> = {
   'temu':'general','amazon':'general','aliexpress':'general','ebay':'general','rakuten':'general',
 };
 
-// Priority stores for articles
 const PRIORITY_STORES = [
-  'temu', 'amazon', 'aliexpress', 'shein', 'zalando', 'nike', 'adidas',
-  'sephora', 'fnac', 'cdiscount', 'booking', 'asos', 'hm', 'decathlon',
-  'ikea', 'darty', 'boulanger', 'la-redoute', 'puma', 'back-market',
+  'temu','amazon','aliexpress','shein','zalando','nike','adidas',
+  'sephora','fnac','cdiscount','booking','asos','hm','decathlon',
+  'ikea','darty','boulanger','la-redoute','puma','back-market',
 ];
 
-// ─── Topic generators ────────────────────────────────────
 const TOPICS = [
   (s: string, m: string) => `Codes promo ${s} : les meilleures offres de ${m}`,
-  (s: string) => `${s} : notre guide pour ne jamais payer le prix fort`,
-  (s: string, m: string) => `Comment économiser sur ${s} — nos astuces testées (${m})`,
-  (s: string) => `On a testé les codes promo ${s} : voici ceux qui marchent`,
-  (s: string, m: string) => `${s} : ${m}, le moment idéal pour acheter ?`,
-  (s: string) => `Acheter malin sur ${s} : le guide complet`,
+  (s: string) => `${s} : notre guide complet pour ne jamais payer le prix fort`,
+  (s: string, m: string) => `Comment economiser sur ${s} — nos astuces testees (${m})`,
+  (s: string) => `On a teste les codes promo ${s} : voici ceux qui marchent vraiment`,
+  (s: string, m: string) => `${s} : ${m}, le moment ideal pour acheter ?`,
+  (s: string) => `Acheter malin sur ${s} : le guide ultime`,
   (s: string) => `${s} pas cher : 7 techniques que personne ne vous dit`,
-  (s: string, m: string) => `Promotions ${s} ${m} : notre sélection vérifiée`,
-  (s: string) => `Faut-il craquer pour les deals ${s} ? Notre avis honnête`,
-  (s: string) => `${s} : comment notre équipe déniche les meilleurs codes`,
+  (s: string, m: string) => `Promotions ${s} ${m} : notre selection verifiee`,
+  (s: string) => `Faut-il craquer pour les deals ${s} ? Notre avis honnete`,
+  (s: string) => `${s} : comment notre equipe deniche les meilleurs codes`,
   (s: string, m: string) => `Les bons plans ${s} de ${m} que vous allez adorer`,
-  (s: string) => `Réductions ${s} : ce que les autres sites ne vous disent pas`,
+  (s: string) => `Reductions ${s} : ce que les autres sites ne vous disent pas`,
 ];
 
-// ─── The humanized prompt ────────────────────────────────
+// ─── The mega prompt for 1500+ word articles ─────────────
 function buildPrompt(storeName: string, storeSlug: string, title: string, month: string): string {
-  return `Tu es un rédacteur shopping français chevronné qui travaille pour LockCoupon.com, un site de codes promo. Tu écris comme un VRAI blogueur passionné, pas comme une IA.
+  return `Tu es un redacteur shopping francais chevronné qui travaille pour LockCoupon.com, un site de codes promo. Tu ecris comme un VRAI blogueur passionne, pas comme une IA.
 
-PERSONNALITÉ :
-- Tu fais partie de l'équipe LockCoupon. Utilise "nous", "notre équipe", "on a testé"
-- Tu es direct, parfois drôle, toujours authentique
-- Tu donnes ton VRAI avis, y compris les points négatifs
-- Tu racontes des expériences concrètes ("La semaine dernière, on a commandé sur ${storeName}...")
+PERSONNALITE :
+- Tu fais partie de l'equipe LockCoupon. Utilise "nous", "notre equipe", "on a teste"
+- Tu es direct, parfois drole, toujours authentique
+- Tu donnes ton VRAI avis, y compris les points negatifs
+- Tu racontes des experiences concretes ("La semaine derniere, on a commande sur ${storeName}...")
+- Tu compares avec d'autres sites concurrents
 
-STYLE D'ÉCRITURE — ULTRA IMPORTANT :
-- Alterne phrases courtes percutantes et phrases longues détaillées
-- Commence certains paragraphes par : "Bon.", "Soyons honnêtes.", "Petit secret.", "Entre nous.", "OK,", "Résultat ?", "Le truc,"
-- JAMAIS ces expressions : "En conclusion", "Il est important de noter", "N'hésitez pas", "Dans cet article", "Découvrez", "Il convient de", "Force est de constater", "En somme", "En définitive"
-- Utilise des parenthèses pour des apartés (comme si tu parlais à un pote)
-- Pose des questions au lecteur : "Vous connaissez ce moment où...?"
-- Mets des exemples de prix réels : "un t-shirt à 12,99€ au lieu de 29,99€"
+STYLE D'ECRITURE — ULTRA IMPORTANT :
+- Alterne phrases courtes percutantes et phrases longues detaillees
+- Commence certains paragraphes par : "Bon.", "Soyons honnetes.", "Petit secret.", "Entre nous.", "OK,", "Resultat ?", "Le truc,", "Attention.", "Pour etre franc,"
+- JAMAIS ces expressions : "En conclusion", "Il est important de noter", "N'hesitez pas", "Dans cet article", "Decouvrez", "Il convient de", "Force est de constater", "En somme", "En definitive", "Il va sans dire"
+- Utilise des parentheses pour des apartes (comme si tu parlais a un pote)
+- Pose des questions au lecteur : "Vous connaissez ce moment ou...?"
+- Mets des exemples de prix reels : "un t-shirt a 12,99 euros au lieu de 29,99 euros"
+- Ajoute des anecdotes personnelles : "L'autre jour, un collegue m'a montre..."
 
-STRUCTURE HTML :
-- <h2> pour 4-5 sections principales
-- <h3> pour les sous-sections
-- <p> pour les paragraphes (VARIE leur longueur)
-- <strong> pour les infos clés
-- <ul><li> pour les listes pratiques (max 5 items)
-- <blockquote> pour UNE astuce exclusive (style "conseil d'initié")
+LONGUEUR OBLIGATOIRE :
+Tu DOIS ecrire un article d'au minimum 1500 mots. Developpe en profondeur chaque section. Ne resume PAS. Chaque section H2 doit contenir au moins 3-4 paragraphes detailles. C'est un article pilier SEO, pas un resume.
 
-LIENS INTERNES (OBLIGATOIRE — en inclure exactement 2) :
-- Lien 1 : <a href="/codes-promo/${storeSlug}">nos codes promo ${storeName} vérifiés</a>
-- Lien 2 : <a href="/boutiques">toutes nos boutiques partenaires</a>
-Place-les naturellement dans le texte, pas à la fin.
+STRUCTURE HTML OBLIGATOIRE :
 
-MOTS-CLÉS SEO (intègre-les naturellement, pas de bourrage) :
+1. Introduction engageante (2-3 paragraphes, accroche forte, contexte)
+
+2. Section H2 : Presentation de ${storeName} et pourquoi c'est populaire (3-4 paragraphes)
+
+3. Section H2 : Les types de codes promo disponibles chez ${storeName} (avec sous-sections H3 pour chaque type : pourcentage, euros, livraison, cashback)
+
+4. Section H2 : Nos astuces exclusives pour maximiser les economies (5-6 astuces detaillees avec exemples concrets de prix)
+
+5. Section H2 : Tableau comparatif (OBLIGATOIRE) — Compare ${storeName} avec 3-4 concurrents sur : livraison, retours, types de promo, programme fidelite. Utilise ce format HTML exact :
+<table style="width:100%;border-collapse:collapse;margin:20px 0">
+<thead><tr style="background:#1a1a1a;color:white"><th style="padding:12px;text-align:left">Critere</th><th style="padding:12px;text-align:center">${storeName}</th><th style="padding:12px;text-align:center">[Concurrent 1]</th><th style="padding:12px;text-align:center">[Concurrent 2]</th></tr></thead>
+<tbody>
+<tr style="border-bottom:1px solid #eee"><td style="padding:10px">...</td><td style="padding:10px;text-align:center">...</td><td style="padding:10px;text-align:center">...</td><td style="padding:10px;text-align:center">...</td></tr>
+</tbody></table>
+
+6. Section H2 : Notre verdict final (2-3 paragraphes, avis honnete avec points positifs ET negatifs)
+
+7. Section FAQ (OBLIGATOIRE) — Exactement 5 questions/reponses detaillees en HTML :
+<div style="margin-top:30px">
+<h2>Questions frequentes sur les codes promo ${storeName}</h2>
+<h3>Question ici ?</h3>
+<p>Reponse detaillee de 3-4 phrases minimum...</p>
+</div>
+
+LIENS INTERNES (OBLIGATOIRE — exactement 2) :
+- <a href="/codes-promo/${storeSlug}">nos codes promo ${storeName} verifies</a>
+- <a href="/boutiques">toutes nos boutiques partenaires</a>
+Place-les naturellement dans le texte.
+
+MOTS-CLES SEO (integre-les naturellement) :
 - "code promo ${storeName}"
-- "réduction ${storeName}"
+- "reduction ${storeName}"
 - "bon plan ${storeName}"
 - "${storeName} ${month}"
-- "économiser sur ${storeName}"
+- "economiser sur ${storeName}"
 
-CONSIGNES TECHNIQUES :
-- PAS de titre H1 (il est géré séparément)
-- Article de 700-900 mots
-- Commence DIRECTEMENT par le HTML, sans entourer le code de backticks
+RAPPEL CRITIQUE :
+- PAS de titre H1
+- Minimum 1500 mots — developpe CHAQUE section en profondeur
+- Commence DIRECTEMENT par le HTML
 - Ne mets pas de blocs de code autour du HTML
+- Inclus le tableau comparatif et la FAQ obligatoirement
 
 SUJET : "${title}"
 
-Écris maintenant.`;
+Ecris maintenant un article massif et detaille.`;
 }
 
 // ─── Main handler ────────────────────────────────────────
@@ -143,34 +165,25 @@ export async function GET(request: Request) {
   if (!apiKey) return NextResponse.json({ error: 'No API key configured' }, { status: 500 });
 
   try {
-    // Get stores, prefer priority stores
     const { data: allStores } = await supabase.from('stores').select('name, slug');
     if (!allStores || allStores.length === 0) {
       return NextResponse.json({ error: 'No stores found' }, { status: 404 });
     }
 
-    // Filter to priority stores that exist in DB
     const priorityAvailable = allStores.filter(s => PRIORITY_STORES.includes(s.slug));
     const storePool = priorityAvailable.length > 0 ? priorityAvailable : allStores;
 
-    // Check what we posted recently to avoid duplicates
+    // Avoid stores posted about in last 3 days
     const { data: recentPosts } = await supabase
       .from('blog_posts')
       .select('title')
       .gte('created_at', new Date(Date.now() - 3 * 86400000).toISOString());
 
-    const recentStoreNames = (recentPosts || []).map(p => {
-      const match = PRIORITY_STORES.find(slug => {
-        const store = allStores.find(s => s.slug === slug);
-        return store && p.title.toLowerCase().includes(store.name.toLowerCase());
-      });
-      return match;
-    }).filter(Boolean);
+    const recentNames = (recentPosts || []).map(p => p.title.toLowerCase());
 
-    // Pick a store not posted about recently
     let store = storePool[Math.floor(Math.random() * storePool.length)];
     let tries = 0;
-    while (recentStoreNames.includes(store.slug) && tries < 15) {
+    while (recentNames.some(t => t.includes(store.name.toLowerCase())) && tries < 20) {
       store = storePool[Math.floor(Math.random() * storePool.length)];
       tries++;
     }
@@ -180,7 +193,7 @@ export async function GET(request: Request) {
     const title = topicFn(store.name, month);
     const prompt = buildPrompt(store.name, store.slug, title, month);
 
-    // Call Claude API
+    // Call Claude API with high max_tokens for long articles
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -190,7 +203,7 @@ export async function GET(request: Request) {
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2500,
+        max_tokens: 5000,
         temperature: 0.9,
         messages: [{ role: 'user', content: prompt }],
       }),
@@ -206,17 +219,12 @@ export async function GET(request: Request) {
     if (!rawContent) return NextResponse.json({ error: 'Empty response from Claude' }, { status: 500 });
 
     // Clean output
-    const content = rawContent
-      .replace(/```html\n?/g, '')
-      .replace(/```\n?/g, '')
-      .replace(/^[\s\n]+/, '')
-      .trim();
+    const content = rawContent.replace(/```html\n?/gi, '').replace(/```\n?/g, '').replace(/^[\s\n]+/, '').trim();
 
-    // Generate excerpt (first 160 chars of plain text)
     const plainText = content.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    const wordCount = plainText.split(/\s+/).length;
     const excerpt = plainText.substring(0, 155) + '...';
 
-    // Generate unique slug
     const slug = title
       .toLowerCase()
       .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
@@ -225,21 +233,13 @@ export async function GET(request: Request) {
       .substring(0, 75)
       + '-' + Date.now().toString(36);
 
-    // Pick cover image
     const cat = STORE_CAT[store.slug] || 'general';
     const coverList = COVERS[cat] || COVERS.general;
     const coverImage = coverList[Math.floor(Math.random() * coverList.length)];
 
-    // Save to DB
     const { error: dbError } = await supabase.from('blog_posts').insert({
-      title,
-      slug,
-      excerpt,
-      content,
-      cover_image: coverImage,
-      author: 'LockCoupon',
-      is_published: true,
-      updated_at: new Date().toISOString(),
+      title, slug, excerpt, content, cover_image: coverImage,
+      author: 'LockCoupon', is_published: true, updated_at: new Date().toISOString(),
     });
 
     if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
@@ -249,7 +249,7 @@ export async function GET(request: Request) {
       title,
       store: store.name,
       slug,
-      words: plainText.split(/\s+/).length,
+      words: wordCount,
     });
 
   } catch (e: any) {
