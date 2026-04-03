@@ -17,12 +17,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: `${post.title} | Blog LockCoupon`,
     description: post.excerpt || post.title,
+    alternates: {
+      canonical: `/blog/${post.slug}`,
+    },
     openGraph: {
       title: post.title,
       description: post.excerpt || post.title,
       url: `/blog/${post.slug}`,
       type: 'article',
-      images: post.cover_image ? [{ url: post.cover_image }] : [],
+      images: post.cover_image ? [{ url: post.cover_image }] : ['/og-default.png'],
     },
   };
 }
@@ -45,7 +48,7 @@ export default async function BlogPostPage({ params }: Props) {
     author: { '@type': 'Person', name: post.author },
     datePublished: post.created_at,
     dateModified: post.updated_at,
-    publisher: { '@type': 'Organization', name: 'LockCoupon', url: 'https://lockcoupon.com' },
+    publisher: { '@type': 'Organization', name: 'LockCoupon', url: 'https://www.lockcoupon.com' },
   };
 
   return (

@@ -67,17 +67,39 @@ export default function FAQ() {
                 </svg>
               </button>
 
-              {openIndex === i && (
-                <div className="px-5 pb-4">
-                  <p className="text-muted text-[14px] leading-relaxed">
-                    {item.answer}
-                  </p>
-                </div>
-              )}
+              {/* Always render answer in DOM for SEO, toggle visibility with CSS */}
+              <div
+                className={`px-5 overflow-hidden transition-all duration-200 ${
+                  openIndex === i ? 'max-h-[500px] pb-4 opacity-100' : 'max-h-0 pb-0 opacity-0'
+                }`}
+              >
+                <p className="text-muted text-[14px] leading-relaxed">
+                  {item.answer}
+                </p>
+              </div>
             </div>
           ))}
         </div>
       </div>
+
+      {/* FAQPage structured data for homepage */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'FAQPage',
+            mainEntity: FAQ_ITEMS.map((item) => ({
+              '@type': 'Question',
+              name: item.question,
+              acceptedAnswer: {
+                '@type': 'Answer',
+                text: item.answer,
+              },
+            })),
+          }),
+        }}
+      />
     </section>
   );
 }

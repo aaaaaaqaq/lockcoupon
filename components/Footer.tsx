@@ -30,9 +30,10 @@ export default function Footer() {
             <h3 className="text-white font-bold text-[14px] mb-3">Navigation</h3>
             <div className="space-y-2">
               <Link href="/" className="block text-white/50 hover:text-white text-[13px] transition-colors">Accueil</Link>
-              <Link href="/" className="block text-white/50 hover:text-white text-[13px] transition-colors">Boutiques</Link>
-              <Link href="/" className="block text-white/50 hover:text-white text-[13px] transition-colors">Cashback</Link>
-              <Link href="/" className="block text-white/50 hover:text-white text-[13px] transition-colors">Bon Plans</Link>
+              <Link href="/boutiques" className="block text-white/50 hover:text-white text-[13px] transition-colors">Boutiques</Link>
+              <Link href="/top-codes-promo" className="block text-white/50 hover:text-white text-[13px] transition-colors">Top Codes Promo</Link>
+              <Link href="/guide-achat" className="block text-white/50 hover:text-white text-[13px] transition-colors">Guide d&apos;achat</Link>
+              <Link href="/blog" className="block text-white/50 hover:text-white text-[13px] transition-colors">Blog</Link>
             </div>
           </div>
 

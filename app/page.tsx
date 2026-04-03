@@ -14,6 +14,37 @@ export default async function HomePage() {
 
   return (
     <>
+      {/* Homepage structured data */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            '@context': 'https://schema.org',
+            '@type': 'WebSite',
+            name: 'LockCoupon',
+            url: 'https://www.lockcoupon.com',
+            description: 'Trouvez les meilleurs codes promo, coupons et réductions vérifiés pour vos boutiques préférées en France.',
+            publisher: {
+              '@type': 'Organization',
+              name: 'LockCoupon',
+              url: 'https://www.lockcoupon.com',
+              logo: {
+                '@type': 'ImageObject',
+                url: 'https://www.lockcoupon.com/og-default.png',
+              },
+            },
+            potentialAction: {
+              '@type': 'SearchAction',
+              target: {
+                '@type': 'EntryPoint',
+                urlTemplate: 'https://www.lockcoupon.com/boutiques?q={search_term_string}',
+              },
+              'query-input': 'required name=search_term_string',
+            },
+          }),
+        }}
+      />
+
       <Navbar />
 
       {/* Hero */}
@@ -128,6 +159,34 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {/* SEO content block */}
+      <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-12">
+        <div className="max-w-[800px] mx-auto">
+          <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-4">
+            LockCoupon : votre référence codes promo en France
+          </h2>
+          <div className="text-muted text-[14px] md:text-[15px] leading-relaxed space-y-4">
+            <p>
+              LockCoupon est la plateforme française de référence pour trouver des codes promo, coupons de réduction et bons plans vérifiés. 
+              Notre équipe vérifie chaque offre quotidiennement pour vous garantir des codes qui fonctionnent réellement. 
+              Avec plus de {stores.length} boutiques partenaires — de la mode à la tech, en passant par la maison, le sport et les voyages — 
+              vous trouverez toujours une réduction adaptée à vos achats.
+            </p>
+            <p>
+              Comment ça marche ? Recherchez votre boutique préférée, choisissez un code promo vérifié, copiez-le en un clic et 
+              appliquez-le lors de votre paiement. C&apos;est 100% gratuit, sans inscription obligatoire. Nous mettons à jour nos offres 
+              chaque jour pour inclure les dernières promotions, ventes flash et réductions exclusives disponibles en France.
+            </p>
+            <p>
+              Que vous cherchiez un code promo Amazon, une réduction Fnac, un bon plan Nike ou des offres Booking, 
+              LockCoupon centralise les meilleures affaires pour vous faire économiser sur chaque achat en ligne. 
+              Consultez également notre <Link href="/blog" className="text-primary hover:underline">blog</Link> pour des guides d&apos;achat détaillés 
+              et nos <Link href="/guide-achat" className="text-primary hover:underline">conseils pour économiser</Link> toute l&apos;année.
+            </p>
+          </div>
+        </div>
+      </section>
 
       <FAQ />
       <Footer />

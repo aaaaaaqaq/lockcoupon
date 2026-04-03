@@ -8,7 +8,10 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Toutes les boutiques — Codes promo | LockCoupon',
-  description: 'Retrouvez toutes les boutiques avec codes promo et réductions vérifiées sur LockCoupon.',
+  description: 'Retrouvez toutes les boutiques avec codes promo et réductions vérifiées sur LockCoupon. Plus de 98 enseignes françaises avec des réductions mises à jour chaque jour.',
+  alternates: {
+    canonical: '/boutiques',
+  },
 };
 
 export default async function BoutiquesPage() {

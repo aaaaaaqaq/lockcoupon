@@ -6,7 +6,7 @@ interface CouponSchemaProps {
 }
 
 export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://lockcoupon.com';
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com';
   const now = new Date().toISOString();
 
   // Main WebPage schema

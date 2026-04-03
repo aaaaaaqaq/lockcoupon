@@ -22,6 +22,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description,
+    alternates: {
+      canonical: `/codes-promo/${params.slug}`,
+    },
     openGraph: {
       title,
       description,
@@ -29,6 +32,20 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'LockCoupon',
       locale: 'fr_FR',
       type: 'website',
+      images: [
+        {
+          url: '/og-default.png',
+          width: 1200,
+          height: 630,
+          alt: `Code promo ${store.name} — LockCoupon`,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: ['/og-default.png'],
     },
   };
 }
