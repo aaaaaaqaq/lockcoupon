@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import BlogRelated from '@/components/BlogRelated';
 import { getPostBySlug, getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
@@ -39,16 +40,45 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug);
   if (!post) notFound();
 
+  const baseUrl = 'https://www.lockcoupon.com';
+  const postUrl = `${baseUrl}/blog/${post.slug}`;
   const jsonLd = {
     '@context': 'https://schema.org',
     '@type': 'BlogPosting',
     headline: post.title,
     description: post.excerpt || post.title,
-    image: post.cover_image || undefined,
+    image: post.cover_image
+      ? {
+          '@type': 'ImageObject',
+          url: post.cover_image,
+          width: 1200,
+          height: 630,
+        }
+      : {
+          '@type': 'ImageObject',
+          url: `${baseUrl}/og-default.png`,
+          width: 1200,
+          height: 630,
+        },
     author: { '@type': 'Person', name: post.author },
     datePublished: post.created_at,
     dateModified: post.updated_at,
-    publisher: { '@type': 'Organization', name: 'LockCoupon', url: 'https://www.lockcoupon.com' },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': postUrl,
+    },
+    url: postUrl,
+    publisher: {
+      '@type': 'Organization',
+      name: 'LockCoupon',
+      url: baseUrl,
+      logo: {
+        '@type': 'ImageObject',
+        url: `${baseUrl}/logo.png`,
+        width: 600,
+        height: 60,
+      },
+    },
   };
 
   return (
@@ -56,6 +86,7 @@ export default async function BlogPostPage({ params }: Props) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       <Navbar />
 
+      <main>
       <article className="max-w-[800px] mx-auto px-4 py-8 md:py-12">
         <div className="flex items-center gap-3 text-[13px] text-muted mb-4">
           <span>{new Date(post.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
@@ -98,6 +129,9 @@ export default async function BlogPostPage({ params }: Props) {
           </a>
         </div>
       </article>
+
+      <BlogRelated currentSlug={post.slug} />
+      </main>
 
       <Footer />
     </>

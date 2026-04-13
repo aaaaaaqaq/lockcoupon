@@ -3,8 +3,8 @@ import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com';
-  const stores = await getAllStores();
-  const posts = await getPublishedPosts();
+  const stores = (await getAllStores()).filter((s) => s && s.slug && typeof s.slug === 'string');
+  const posts = (await getPublishedPosts()).filter((p) => p && p.slug && typeof p.slug === 'string');
 
   const storeUrls = stores.map((store) => ({
     url: `${baseUrl}/codes-promo/${store.slug}`,

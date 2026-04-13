@@ -53,8 +53,16 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
           name: coupon.title,
           description: coupon.title,
           url: `${baseUrl}/codes-promo/${store.slug}`,
+          price: '0',
           priceCurrency: 'EUR',
+          priceSpecification: {
+            '@type': 'PriceSpecification',
+            price: '0',
+            priceCurrency: 'EUR',
+            valueAddedTaxIncluded: true,
+          },
           availability: 'https://schema.org/InStock',
+          validFrom: now,
           offeredBy: {
             '@type': 'Organization',
             name: store.name,
@@ -64,11 +72,6 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
 
       // Add discount info
       if (coupon.discount_type === 'percent' && coupon.discount_value) {
-        offer.item.priceSpecification = {
-          '@type': 'PriceSpecification',
-          valueAddedTaxIncluded: true,
-          priceCurrency: 'EUR',
-        };
         offer.item.discount = `${coupon.discount_value}%`;
       } else if (coupon.discount_type === 'euro' && coupon.discount_value) {
         offer.item.discount = `${coupon.discount_value}€`;

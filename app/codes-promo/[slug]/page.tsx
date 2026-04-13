@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getStoreBySlug, getCouponsByStoreId, getAllStores } from '@/lib/supabase';
 import StorePageClient from './StorePageClient';
 import CouponSchema from '@/components/CouponSchema';
+import RelatedStores from '@/components/RelatedStores';
 
 export const revalidate = 60;
 export const dynamicParams = true;
@@ -15,9 +16,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const store = await getStoreBySlug(params.slug);
   if (!store) return {};
 
-  const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-  const title = `Code promo ${store.name} — ${month} | LockCoupon`;
-  const description = `${store.name} : trouvez les meilleurs codes promo vérifiés. Réductions exclusives et bons plans mis à jour quotidiennement sur LockCoupon.`;
+  const now = new Date();
+  const month = now.toLocaleString('fr-FR', { month: 'long' });
+  const year = now.getFullYear();
+  // Keep title under 60 chars. Fallback to shorter format for long store names.
+  const baseTitle = `Code Promo ${store.name} ${year}`;
+  const titleWithMonth = `Code Promo ${store.name} ${month} ${year}`;
+  const title = titleWithMonth.length <= 60 ? titleWithMonth : baseTitle;
+  const description = `Codes promo ${store.name} vérifiés en ${month} ${year}. Réductions exclusives et bons plans mis à jour chaque jour sur LockCoupon.`;
 
   return {
     title,
@@ -65,6 +71,7 @@ export default async function StorePageSSR({ params }: Props) {
     <>
       <CouponSchema store={store} coupons={coupons} />
       <StorePageClient store={store} coupons={coupons} />
+      <RelatedStores currentSlug={store.slug} />
     </>
   );
 }
