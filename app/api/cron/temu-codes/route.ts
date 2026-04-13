@@ -10,6 +10,8 @@ const supabase = createClient(
 );
 
 // ─── Temu codes pool ─────────────────────────────────────
+const TEMU_AFFILIATE_URL = 'https://temu.com/kuiper/uk1.html?subj=bundle-un&_bg_fs=1&_p_mat2_type=a1001&_p_jump_id=875&_x_vst_scene=adg&_p_rfs=1&_x_ads_csite=pc_bottom&_x_ads_channel=kol_affiliate&_x_cid=2005367855kol_affiliate&_x_campaign=affiliate';
+
 const TEMU_CODES = [
   'frt46705','frw46705','fro24466','frx24466','frr48830','frr32018','frp32018','fry39595','fry72123',
   'fri18242','frw18242','frv99624','frj76452','frg76452','frx99845','frt99845','frg02804','frh02804',
@@ -164,6 +166,7 @@ export async function GET(request: Request) {
       discount_value: selectedOffers[i].discount_value,
       discount_type: selectedOffers[i].discount_type,
       type: 'code' as const,
+      affiliate_url: TEMU_AFFILIATE_URL,
       expiry_date: expiryStr,
       is_best: selectedOffers[i].is_best,
       is_exclusive: selectedOffers[i].is_exclusive,
