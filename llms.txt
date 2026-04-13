@@ -1,0 +1,20 @@
+# LockCoupon
+
+> LockCoupon est un site français de codes promo et bons plans vérifiés pour économiser sur vos achats en ligne chez les plus grandes boutiques (Temu, Amazon, Shein, Nike, Zara, etc.).
+
+## Boutiques populaires
+- [Temu](https://www.lockcoupon.com/codes-promo/temu): Codes promo Temu vérifiés
+- [Amazon](https://www.lockcoupon.com/codes-promo/amazon): Réductions Amazon
+- [Shein](https://www.lockcoupon.com/codes-promo/shein): Codes Shein
+- [Nike](https://www.lockcoupon.com/codes-promo/nike): Promos Nike
+- [Zara](https://www.lockcoupon.com/codes-promo/zara): Réductions Zara
+
+## Pages importantes
+- [Toutes les boutiques](https://www.lockcoupon.com/boutiques)
+- [Top 20 codes promo](https://www.lockcoupon.com/top-codes-promo)
+- [Blog](https://www.lockcoupon.com/blog)
+- [Guide d'achat](https://www.lockcoupon.com/guide-achat)
+
+## À propos
+LockCoupon propose uniquement des codes promo vérifiés et mis à jour quotidiennement.
+Le site est 100% gratuit et couvre plus de 98 boutiques en ligne.
