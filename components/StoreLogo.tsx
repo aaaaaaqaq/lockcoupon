@@ -18,36 +18,20 @@ const sizes = {
 };
 
 export default function StoreLogo({ logoUrl, logoColor, logoLetter, name, size = 'md', className = '' }: StoreLogoProps) {
-  const [primaryError, setPrimaryError] = useState(false);
-  const [fallbackError, setFallbackError] = useState(false);
+  const [imgError, setImgError] = useState(false);
 
   const sizeClass = sizes[size];
   const letter = logoLetter || name[0]?.toUpperCase() || '?';
   const color = logoColor || '#C0392B';
 
-  // Try Clearbit as a fallback when the provided logoUrl fails
-  const clearbitUrl = `https://logo.clearbit.com/${name.toLowerCase().replace(/\s+/g, '')}.com`;
-
-  if (logoUrl && !primaryError) {
+  if (logoUrl && !imgError) {
     return (
       <img
         src={logoUrl}
         alt={`Logo ${name}`}
         loading="lazy"
         className={`${sizeClass} rounded-xl object-contain ${className}`}
-        onError={() => setPrimaryError(true)}
-      />
-    );
-  }
-
-  if (!fallbackError) {
-    return (
-      <img
-        src={clearbitUrl}
-        alt={`Logo ${name}`}
-        loading="lazy"
-        className={`${sizeClass} rounded-xl object-contain ${className}`}
-        onError={() => setFallbackError(true)}
+        onError={() => setImgError(true)}
       />
     );
   }
