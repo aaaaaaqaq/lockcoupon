@@ -175,9 +175,13 @@ export default function Navbar() {
                       onClick={() => { setMenuOpen(false); setQuery(''); }}
                       className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                     >
-                      <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-[12px] font-bold" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
-                        {store.logo_letter || store.name[0]}
-                      </div>
+                      {store.logo_url ? (
+                        <img src={store.logo_url} alt={store.name} className="w-7 h-7 rounded-md object-contain" />
+                      ) : (
+                        <div className="w-7 h-7 rounded-md flex items-center justify-center text-white text-[12px] font-bold" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
+                          {store.logo_letter || store.name[0]}
+                        </div>
+                      )}
                       <span className="text-white text-[14px]">{store.name}</span>
                     </Link>
                   ))}
