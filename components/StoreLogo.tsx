@@ -24,12 +24,18 @@ export default function StoreLogo({ logoUrl, logoColor, logoLetter, name, size =
   const letter = logoLetter || name[0]?.toUpperCase() || '?';
   const color = logoColor || '#C0392B';
 
-  if (logoUrl && !imgError) {
+  // Filter out known-broken Google favicon URLs
+  const isGoogleFavicon = logoUrl?.includes('google.com/s2/favicons') || logoUrl?.includes('t1.gstatic.com') || logoUrl?.includes('t2.gstatic.com');
+  const effectiveUrl = (logoUrl && !isGoogleFavicon) ? logoUrl : null;
+
+  if (effectiveUrl && !imgError) {
     return (
       <img
-        src={logoUrl}
+        src={effectiveUrl}
         alt={`Logo ${name}`}
         loading="lazy"
+        width={size === 'sm' ? 40 : size === 'lg' ? 72 : 48}
+        height={size === 'sm' ? 40 : size === 'lg' ? 72 : 48}
         className={`${sizeClass} rounded-xl object-contain ${className}`}
         onError={() => setImgError(true)}
       />
@@ -40,6 +46,7 @@ export default function StoreLogo({ logoUrl, logoColor, logoLetter, name, size =
     <div
       className={`${sizeClass} rounded-xl flex items-center justify-center text-white font-bold shadow-sm ${className}`}
       style={{ backgroundColor: color }}
+      role="img"
       aria-label={`Logo ${name}`}
     >
       {letter}

@@ -36,39 +36,57 @@ export default function FAQ() {
     setOpenIndex(openIndex === i ? null : i);
   };
 
+  // Clean FAQPage JSON-LD (issue 3)
+  const faqSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: FAQ_ITEMS.map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
+      },
+    })),
+  };
+
   return (
-    <section className="bg-primary-light/50 border-t border-border">
+    <section className="bg-primary-light/50 border-t border-border" aria-label="Questions fréquentes">
       <div className="max-w-[800px] mx-auto px-4 py-10 md:py-14">
         <h2 className="text-text-main text-[24px] md:text-[30px] font-extrabold text-center mb-8">
           Questions fréquentes
         </h2>
 
-        <div className="space-y-3">
+        <dl className="space-y-3">
           {FAQ_ITEMS.map((item, i) => (
             <div
               key={i}
               className="bg-white rounded-xl border border-border overflow-hidden transition-all"
             >
-              <button
-                onClick={() => toggle(i)}
-                className="w-full flex items-center justify-between px-5 py-4 text-left"
-              >
-                <span className="text-text-main text-[15px] md:text-[16px] font-semibold pr-4">
-                  {item.question}
-                </span>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  className={`shrink-0 text-muted transition-transform duration-200 ${openIndex === i ? 'rotate-180' : ''}`}
+              <dt>
+                <button
+                  onClick={() => toggle(i)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  aria-expanded={openIndex === i}
                 >
-                  <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
+                  <span className="text-text-main text-[15px] md:text-[16px] font-semibold pr-4">
+                    {item.question}
+                  </span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
+                    className={`shrink-0 text-muted transition-transform duration-200 ${openIndex === i ? 'rotate-180' : ''}`}
+                  >
+                    <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </dt>
 
-              {/* Always render answer in DOM for SEO, toggle visibility with CSS */}
-              <div
+              {/* Always render in DOM for SEO, toggle visibility */}
+              <dd
                 className={`px-5 overflow-hidden transition-all duration-200 ${
                   openIndex === i ? 'max-h-[500px] pb-4 opacity-100' : 'max-h-0 pb-0 opacity-0'
                 }`}
@@ -76,29 +94,16 @@ export default function FAQ() {
                 <p className="text-muted text-[14px] leading-relaxed">
                   {item.answer}
                 </p>
-              </div>
+              </dd>
             </div>
           ))}
-        </div>
+        </dl>
       </div>
 
-      {/* FAQPage structured data for homepage */}
+      {/* FAQPage structured data */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'FAQPage',
-            mainEntity: FAQ_ITEMS.map((item) => ({
-              '@type': 'Question',
-              name: item.question,
-              acceptedAnswer: {
-                '@type': 'Answer',
-                text: item.answer,
-              },
-            })),
-          }),
-        }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
       />
     </section>
   );

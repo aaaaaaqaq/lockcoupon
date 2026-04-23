@@ -12,6 +12,33 @@ interface Props {
   params: { slug: string };
 }
 
+/* ── SEO helper: build title ≤ 60 chars ─────────────── */
+function buildTitle(storeName: string): string {
+  const now = new Date();
+  const monthNames = [
+    'Janvier','Février','Mars','Avril','Mai','Juin',
+    'Juillet','Août','Septembre','Octobre','Novembre','Décembre',
+  ];
+  const month = monthNames[now.getMonth()];
+  const year = now.getFullYear();
+
+  // Try: "Code Promo StoreName — Mai 2026" (ideal)
+  const full = `Code Promo ${storeName} — ${month} ${year}`;
+  if (full.length <= 60) return full;
+
+  // Fallback: "Code Promo StoreName — 2026"
+  const withYear = `Code Promo ${storeName} — ${year}`;
+  if (withYear.length <= 60) return withYear;
+
+  // Ultra-long store names: "Code Promo StoreName"
+  const minimal = `Code Promo ${storeName}`;
+  if (minimal.length <= 60) return minimal;
+
+  // Truncate store name as last resort
+  const maxName = 60 - 'Code Promo  …'.length;
+  return `Code Promo ${storeName.slice(0, maxName)}…`;
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const store = await getStoreBySlug(params.slug);
   if (!store) return {};
@@ -19,11 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const now = new Date();
   const month = now.toLocaleString('fr-FR', { month: 'long' });
   const year = now.getFullYear();
-  // Keep title under 60 chars. Fallback to shorter format for long store names.
-  const baseTitle = `Code Promo ${store.name} ${year}`;
-  const titleWithMonth = `Code Promo ${store.name} ${month} ${year}`;
-  const title = titleWithMonth.length <= 60 ? titleWithMonth : baseTitle;
-  const description = `Codes promo ${store.name} vérifiés en ${month} ${year}. Réductions exclusives et bons plans mis à jour chaque jour sur LockCoupon.`;
+
+  const title = buildTitle(store.name);
+  const description = `${store.name} : codes promo vérifiés en ${month} ${year}. Économisez avec des réductions exclusives mises à jour chaque jour.`;
 
   return {
     title,
@@ -43,7 +68,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
           url: '/og-default.png',
           width: 1200,
           height: 630,
-          alt: `Code promo ${store.name} — LockCoupon`,
+          alt: `Code promo ${store.name}`,
         },
       ],
     },

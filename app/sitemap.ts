@@ -1,10 +1,23 @@
 import { MetadataRoute } from 'next';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 
+/* ── Validate a slug: only lowercase alphanumeric + hyphens ── */
+function isValidSlug(slug: unknown): slug is string {
+  if (typeof slug !== 'string') return false;
+  if (!slug || slug.length === 0) return false;
+  // Reject slugs with spaces, special chars, uppercase, double hyphens, etc.
+  return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com';
-  const stores = (await getAllStores()).filter((s) => s && s.slug && typeof s.slug === 'string');
-  const posts = (await getPublishedPosts()).filter((p) => p && p.slug && typeof p.slug === 'string');
+
+  // Fetch & filter: only stores/posts with valid slugs
+  const allStores = await getAllStores();
+  const allPosts = await getPublishedPosts();
+
+  const stores = allStores.filter((s) => s && isValidSlug(s.slug));
+  const posts = allPosts.filter((p) => p && isValidSlug(p.slug));
 
   const storeUrls = stores.map((store) => ({
     url: `${baseUrl}/codes-promo/${store.slug}`,
@@ -28,8 +41,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/a-propos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/politique-de-confidentialite`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
-    { url: `${baseUrl}/conditions-utilisation`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.3 },
     ...storeUrls,
     ...postUrls,
   ];

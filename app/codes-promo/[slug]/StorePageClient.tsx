@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import HeroSection from '@/components/HeroSection';
 import FilterTabs from '@/components/FilterTabs';
@@ -51,31 +52,34 @@ function StoreFAQSection({ store, coupons }: { store: Store; coupons: Coupon[] }
         <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">
           Questions fréquentes sur les codes promo {store.name}
         </h2>
-        <div className="space-y-3">
+        <dl className="space-y-3">
           {faqItems.map((item, i) => (
             <div
               key={i}
               className="bg-white rounded-xl border border-border overflow-hidden transition-all"
             >
-              <button
-                onClick={() => setOpenIndex(openIndex === i ? null : i)}
-                className="w-full flex items-center justify-between px-5 py-4 text-left"
-              >
-                <h3 className="text-text-main text-[15px] md:text-[16px] font-semibold pr-4">
-                  {item.question}
-                </h3>
-                <svg
-                  width="20"
-                  height="20"
-                  viewBox="0 0 20 20"
-                  fill="none"
-                  className={`shrink-0 text-muted transition-transform duration-200 ${openIndex === i ? 'rotate-180' : ''}`}
+              <dt>
+                <button
+                  onClick={() => setOpenIndex(openIndex === i ? null : i)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  aria-expanded={openIndex === i}
                 >
-                  <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </button>
-              {/* Always in DOM for SEO crawlers */}
-              <div
+                  <span className="text-text-main text-[15px] md:text-[16px] font-semibold pr-4">
+                    {item.question}
+                  </span>
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 20 20"
+                    fill="none"
+                    aria-hidden="true"
+                    className={`shrink-0 text-muted transition-transform duration-200 ${openIndex === i ? 'rotate-180' : ''}`}
+                  >
+                    <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                  </svg>
+                </button>
+              </dt>
+              <dd
                 className={`px-5 overflow-hidden transition-all duration-200 ${
                   openIndex === i ? 'max-h-[500px] pb-4 opacity-100' : 'max-h-0 pb-0 opacity-0'
                 }`}
@@ -83,10 +87,10 @@ function StoreFAQSection({ store, coupons }: { store: Store; coupons: Coupon[] }
                 <p className="text-muted text-[14px] leading-relaxed">
                   {item.answer}
                 </p>
-              </div>
+              </dd>
             </div>
           ))}
-        </div>
+        </dl>
       </div>
     </section>
   );
@@ -105,15 +109,15 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
           </h2>
           <div className="text-muted text-[14px] md:text-[15px] leading-relaxed space-y-3">
             <p>
-              Retrouvez sur cette page toutes les réductions et codes promo {store.name} vérifiés par l&apos;équipe LockCoupon. 
-              Nous proposons actuellement <strong>{coupons.length} offres actives</strong> pour {store.name}, 
-              {totalUsage > 0 && <> utilisées par plus de <strong>{totalUsage.toLocaleString('fr-FR')} personnes</strong></>}. 
+              Retrouvez sur cette page toutes les réductions et codes promo {store.name} vérifiés par l&apos;équipe LockCoupon.
+              Nous proposons actuellement <strong>{coupons.length} offres actives</strong> pour {store.name}
+              {totalUsage > 0 && <>, utilisées par plus de <strong>{totalUsage.toLocaleString('fr-FR')} personnes</strong></>}.
               Chaque code est testé régulièrement pour garantir son fonctionnement.
             </p>
             <p>
-              Pour profiter d&apos;une réduction {store.name}, il vous suffit de copier le code promo de votre choix, 
-              de vous rendre sur le site officiel {store.name}, d&apos;ajouter vos articles au panier et de coller le code 
-              dans le champ prévu lors du paiement. La remise s&apos;applique immédiatement. Pensez à vérifier les conditions 
+              Pour profiter d&apos;une réduction {store.name}, il vous suffit de copier le code promo de votre choix,
+              de vous rendre sur le site officiel {store.name}, d&apos;ajouter vos articles au panier et de coller le code
+              dans le champ prévu lors du paiement. La remise s&apos;applique immédiatement. Pensez à vérifier les conditions
               d&apos;utilisation de chaque offre (montant minimum, catégories éligibles, date d&apos;expiration).
             </p>
             {store.description && (
@@ -121,6 +125,12 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
                 <strong>À propos de {store.name} :</strong> {store.description}
               </p>
             )}
+            <p>
+              Vous cherchez d&apos;autres bons plans ? Consultez le{' '}
+              <Link href="/top-codes-promo" className="text-primary hover:underline">top 20 des codes promo</Link>,
+              notre <Link href="/guide-achat" className="text-primary hover:underline">guide d&apos;achat</Link>,
+              ou parcourez <Link href="/boutiques" className="text-primary hover:underline">toutes nos boutiques</Link>.
+            </p>
           </div>
         </div>
       </div>
@@ -161,27 +171,30 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
   return (
     <>
       <Navbar />
-      <HeroSection store={store} coupons={coupons} onOpenBest={openBestOffer} />
-      <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} counts={counts} />
 
-      {/* Coupon list */}
-      <section className="max-w-[1200px] mx-auto px-4 py-6">
-        <div className="flex flex-col gap-4">
-          {filtered.map((coupon) => (
-            <CouponCard key={coupon.id} coupon={coupon} onOpenPopup={openPopup} />
-          ))}
-        </div>
+      <main>
+        <HeroSection store={store} coupons={coupons} onOpenBest={openBestOffer} />
+        <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} counts={counts} />
 
-        {filtered.length === 0 && (
-          <div className="text-center py-12 text-muted">
-            <p className="text-[16px]">Aucun coupon trouvé dans cette catégorie.</p>
+        {/* Coupon list */}
+        <section className="max-w-[1200px] mx-auto px-4 py-6" aria-label={`Codes promo ${store.name}`}>
+          <div className="flex flex-col gap-4">
+            {filtered.map((coupon) => (
+              <CouponCard key={coupon.id} coupon={coupon} onOpenPopup={openPopup} />
+            ))}
           </div>
-        )}
-      </section>
 
-      {/* SEO content sections */}
-      <StoreAboutSection store={store} coupons={coupons} />
-      <StoreFAQSection store={store} coupons={coupons} />
+          {filtered.length === 0 && (
+            <div className="text-center py-12 text-muted">
+              <p className="text-[16px]">Aucun coupon trouvé dans cette catégorie.</p>
+            </div>
+          )}
+        </section>
+
+        {/* SEO content sections */}
+        <StoreAboutSection store={store} coupons={coupons} />
+        <StoreFAQSection store={store} coupons={coupons} />
+      </main>
 
       <Footer />
 

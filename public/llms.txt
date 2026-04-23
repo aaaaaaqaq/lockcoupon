@@ -1,20 +1,63 @@
 # LockCoupon
 
-> LockCoupon est un site français de codes promo et bons plans vérifiés pour économiser sur vos achats en ligne chez les plus grandes boutiques (Temu, Amazon, Shein, Nike, Zara, etc.).
+> LockCoupon est la plateforme française de référence pour les codes promo et bons plans vérifiés. Notre équipe vérifie quotidiennement chaque code promo pour garantir un taux de fonctionnement de 98%. Le site est 100% gratuit, sans inscription obligatoire, et couvre plus de 98 boutiques en ligne.
 
-## Boutiques populaires
+## Site Info
+- URL: https://www.lockcoupon.com
+- Language: French (fr-FR)
+- Contact: contact@lockcoupon.com
+- Tech: Next.js 14, Supabase, Tailwind CSS, Vercel
+
+## How It Works
+1. Browse stores at /boutiques or search for a specific store
+2. Choose a verified coupon code from the store page at /codes-promo/{store-slug}
+3. Click "Voir le code" — the code is copied automatically
+4. Paste the code at checkout on the retailer's website
+5. The discount applies instantly
+
+## Main Pages
+- [Homepage](https://www.lockcoupon.com/): Search and browse popular stores with verified coupon codes
+- [All Stores](https://www.lockcoupon.com/boutiques): Browse 98+ stores alphabetically
+- [Top 20 Codes Promo](https://www.lockcoupon.com/top-codes-promo): Most popular and highest-rated coupon codes
+- [Shopping Guide](https://www.lockcoupon.com/guide-achat): Category-based buying guides with tips for saving
+- [Blog](https://www.lockcoupon.com/blog): Articles with saving tips, buying guides, and deal alerts
+- [Submit a Code](https://www.lockcoupon.com/ajouter-code): Community code submission form
+- [About](https://www.lockcoupon.com/a-propos): About LockCoupon and our mission
+- [Contact](https://www.lockcoupon.com/contact): Contact the team
+
+## Store Pages (Dynamic)
+Each store has a dedicated page at /codes-promo/{slug} with:
+- All active coupon codes with discount amounts
+- Verification status and usage counts
+- FAQ section specific to that store
+- Related stores for cross-shopping
+
+## Popular Store Pages
 - [Temu](https://www.lockcoupon.com/codes-promo/temu): Codes promo Temu vérifiés
 - [Amazon](https://www.lockcoupon.com/codes-promo/amazon): Réductions Amazon
-- [Shein](https://www.lockcoupon.com/codes-promo/shein): Codes Shein
+- [Shein](https://www.lockcoupon.com/codes-promo/shein): Codes promo Shein
 - [Nike](https://www.lockcoupon.com/codes-promo/nike): Promos Nike
 - [Zara](https://www.lockcoupon.com/codes-promo/zara): Réductions Zara
+- [Adidas](https://www.lockcoupon.com/codes-promo/adidas): Codes promo Adidas
+- [Fnac](https://www.lockcoupon.com/codes-promo/fnac): Réductions Fnac
+- [Booking](https://www.lockcoupon.com/codes-promo/booking): Codes promo Booking
 
-## Pages importantes
-- [Toutes les boutiques](https://www.lockcoupon.com/boutiques)
-- [Top 20 codes promo](https://www.lockcoupon.com/top-codes-promo)
-- [Blog](https://www.lockcoupon.com/blog)
-- [Guide d'achat](https://www.lockcoupon.com/guide-achat)
+## Categories Covered
+- Fashion & Clothing (Shein, Zara, H&M, ASOS, Zalando)
+- Electronics & Tech (Samsung, Apple, Fnac, Darty)
+- Sports & Outdoor (Nike, Adidas, Decathlon, Puma)
+- Beauty & Perfume (Sephora, Yves Rocher, Nocibé)
+- Travel & Hotels (Booking, Expedia, Airbnb)
+- Home & Decor (IKEA, Leroy Merlin, Maisons du Monde)
+- Marketplace (Amazon, Temu, AliExpress, Cdiscount)
+- Luxury & Premium (Galeries Lafayette, Lacoste, Ralph Lauren)
 
-## À propos
-LockCoupon propose uniquement des codes promo vérifiés et mis à jour quotidiennement.
-Le site est 100% gratuit et couvre plus de 98 boutiques en ligne.
+## Data & API
+- Coupons are updated multiple times daily via automated cron jobs
+- Each coupon includes: title, code, discount value, discount type, verification status, usage count, expiry date
+- Stores include: name, slug, logo, description, category
+
+## Legal
+- [Privacy Policy](https://www.lockcoupon.com/politique-de-confidentialite)
+- [Terms of Service](https://www.lockcoupon.com/conditions-utilisation)
+- Affiliate links: LockCoupon earns commissions on purchases made through affiliate links at no extra cost to users
