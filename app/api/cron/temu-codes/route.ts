@@ -161,7 +161,7 @@ export async function GET(request: Request) {
     const newCoupons = selectedCodes.map((code, i) => ({
       store_id: store.id,
       title: selectedOffers[i].title,
-      code: code.toUpperCase(),
+      code: code.toLowerCase(),
       description: selectedOffers[i].description,
       discount_value: selectedOffers[i].discount_value,
       discount_type: selectedOffers[i].discount_type,
