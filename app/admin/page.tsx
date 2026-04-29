@@ -18,6 +18,10 @@ export default function AdminPage() {
   const [msg, setMsg] = useState('');
   const [msgType, setMsgType] = useState<'success' | 'error'>('success');
   const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [temuPaused, setTemuPaused] = useState(false);
+  const [pauseLoading, setPauseLoading] = useState(false);
   const [editingStoreId, setEditingStoreId] = useState<string | null>(null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
 
@@ -33,13 +37,15 @@ export default function AdminPage() {
 
   const loadData = useCallback(async () => {
     const { data: s } = await supabase.from('stores').select('*').order('name');
-    const { data: c } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
+    const { data: c } = await supabase.from('coupons').select('*').order('sort_order', { ascending: true });
     const { data: p } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
     const { data: sub } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false });
+    const { data: setting } = await supabase.from('settings').select('value').eq('key', 'temu_cron_paused').single();
     if (s) setStores(s);
     if (c) setCoupons(c);
     if (p) setPosts(p);
     if (sub) setSubscribers(sub);
+    if (setting) setTemuPaused(setting.value === 'true');
   }, []);
 
   useEffect(() => { if (authed) loadData(); }, [authed, loadData]);
@@ -63,6 +69,35 @@ export default function AdminPage() {
   const editCoupon = (c: Coupon) => { setCouponForm({ store_id: c.store_id, title: c.title, code: c.code || '', discount_value: c.discount_value || '', discount_type: c.discount_type || 'percent', type: c.type || 'code', expiry_date: c.expiry_date || '', description: c.description || '', affiliate_url: c.affiliate_url || '', is_best: c.is_best, is_exclusive: c.is_exclusive, is_verified: c.is_verified }); setEditingCouponId(c.id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelEditCoupon = () => { setEditingCouponId(null); setCouponForm(emptyCouponForm); };
   const deleteCoupon = async (id: string) => { if (!confirm('Supprimer ce coupon ?')) return; await supabase.from('coupons').delete().eq('id', id); showMsg('Coupon supprimé', 'success'); loadData(); };
+
+  // ─── Drag & Drop ───────────────────────────────
+  const handleDragStart = (id: string) => setDraggingId(id);
+  const handleDragOver = (e: React.DragEvent, id: string) => { e.preventDefault(); setDragOverId(id); };
+  const handleDrop = async (e: React.DragEvent, targetId: string) => {
+    e.preventDefault();
+    if (!draggingId || draggingId === targetId) { setDraggingId(null); setDragOverId(null); return; }
+    const newOrder = [...coupons];
+    const fromIdx = newOrder.findIndex(c => c.id === draggingId);
+    const toIdx = newOrder.findIndex(c => c.id === targetId);
+    const [moved] = newOrder.splice(fromIdx, 1);
+    newOrder.splice(toIdx, 0, moved);
+    setCoupons(newOrder);
+    setDraggingId(null);
+    setDragOverId(null);
+    // Persist order to Supabase
+    await Promise.all(newOrder.map((c, i) => supabase.from('coupons').update({ sort_order: i }).eq('id', c.id)));
+    showMsg('Ordre sauvegardé ✅', 'success');
+  };
+
+  // ─── Temu Pause ────────────────────────────────
+  const toggleTemuPause = async () => {
+    setPauseLoading(true);
+    const newVal = !temuPaused ? 'true' : 'false';
+    await supabase.from('settings').upsert({ key: 'temu_cron_paused', value: newVal, updated_at: new Date().toISOString() });
+    setTemuPaused(!temuPaused);
+    showMsg(newVal === 'true' ? '⏸️ Temu cron pausé' : '▶️ Temu cron relancé', 'success');
+    setPauseLoading(false);
+  };
 
   // ─── Store CRUD ────────────────────────────────
   const saveStore = async () => {
@@ -172,11 +207,36 @@ export default function AdminPage() {
                 {editingCouponId && <button onClick={cancelEditCoupon} className="bg-gray-200 text-text-main font-bold text-[14px] px-6 py-2.5 rounded-lg">Annuler</button>}
               </div>
             </div>
+            {/* Temu Cron Pause Banner */}
+            <div className={`rounded-xl border p-4 flex items-center justify-between ${temuPaused ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'}`}>
+              <div>
+                <p className="text-[14px] font-bold text-text-main">🤖 Mise à jour automatique Temu (daily cron)</p>
+                <p className="text-[12px] text-muted mt-0.5">{temuPaused ? '⏸️ En pause — les codes Temu ne seront pas mis à jour automatiquement' : '▶️ Actif — les codes Temu se mettent à jour chaque jour automatiquement'}</p>
+              </div>
+              <button onClick={toggleTemuPause} disabled={pauseLoading} className={`shrink-0 font-bold text-[13px] px-4 py-2 rounded-lg transition-colors ${temuPaused ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}>
+                {pauseLoading ? '...' : temuPaused ? '▶️ Relancer' : '⏸️ Mettre en pause'}
+              </button>
+            </div>
+
             <div className="bg-white rounded-xl border border-border overflow-hidden">
-              <div className="px-6 py-4 border-b border-border"><h2 className="text-text-main text-[16px] font-bold">Coupons ({coupons.length})</h2></div>
+              <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+                <h2 className="text-text-main text-[16px] font-bold">Coupons ({coupons.length})</h2>
+                <p className="text-muted text-[12px]">↕️ Glissez pour réordonner</p>
+              </div>
               <div className="divide-y divide-border">
-                {coupons.map((c) => { const store = stores.find((s) => s.id === c.store_id); return (
-                  <div key={c.id} className="px-6 py-4 flex items-center gap-4 hover:bg-gray-50">
+                {coupons.map((c, i) => { const store = stores.find((s) => s.id === c.store_id); return (
+                  <div key={c.id}
+                    draggable
+                    onDragStart={() => handleDragStart(c.id)}
+                    onDragOver={(e) => handleDragOver(e, c.id)}
+                    onDrop={(e) => handleDrop(e, c.id)}
+                    onDragEnd={() => { setDraggingId(null); setDragOverId(null); }}
+                    className={`px-6 py-4 flex items-center gap-4 transition-all cursor-grab active:cursor-grabbing
+                      ${draggingId === c.id ? 'opacity-40' : 'hover:bg-gray-50'}
+                      ${dragOverId === c.id && draggingId !== c.id ? 'border-t-2 border-primary bg-primary/5' : ''}`}>
+                    {/* Drag handle */}
+                    <div className="text-muted text-[18px] shrink-0 select-none">⠿</div>
+                    <div className="text-muted text-[11px] shrink-0 w-5 text-center font-bold">#{i + 1}</div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1"><span className="text-primary text-[12px] font-bold">{store?.name || '?'}</span>{c.is_best && <span className="text-[10px] bg-primary/10 text-primary px-1.5 py-0.5 rounded font-bold">BEST</span>}{c.code && <span className="text-[11px] bg-gray-100 text-muted px-2 py-0.5 rounded font-mono">{c.code}</span>}</div>
                       <p className="text-text-main text-[14px] font-medium truncate">{c.title}</p>

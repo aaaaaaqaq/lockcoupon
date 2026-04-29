@@ -121,6 +121,12 @@ export async function GET(request: Request) {
   }
 
   try {
+    // 0. Check pause flag
+    const { data: pauseSetting } = await supabase.from('settings').select('value').eq('key', 'temu_cron_paused').single();
+    if (pauseSetting?.value === 'true') {
+      return NextResponse.json({ success: false, message: 'Temu cron is paused — skipping update' });
+    }
+
     // 1. Find Temu store
     const { data: store, error: storeError } = await supabase
       .from('stores')
