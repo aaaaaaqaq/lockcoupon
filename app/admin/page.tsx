@@ -35,7 +35,7 @@ export default function AdminPage() {
 
   const loadData = useCallback(async () => {
     const { data: s } = await supabase.from('stores').select('*').order('name');
-    const { data: c } = await supabase.from('coupons').select('*').order('sort_order', { ascending: true });
+    const { data: c } = await supabase.from('coupons').select('*').order('created_at', { ascending: false });
     const { data: p } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
     const { data: sub } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false });
     if (s) setStores(s);
