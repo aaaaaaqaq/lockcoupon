@@ -52,6 +52,7 @@ export async function getCouponsByStoreId(storeId: string): Promise<Coupon[]> {
     .from('coupons')
     .select('*')
     .eq('store_id', storeId)
+    .order('sort_order', { ascending: true })
     .order('is_best', { ascending: false })
     .order('created_at', { ascending: false });
   if (error) return [];
