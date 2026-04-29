@@ -20,8 +20,6 @@ export default function AdminPage() {
   const [editingCouponId, setEditingCouponId] = useState<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
-  const [temuPaused, setTemuPaused] = useState(false);
-  const [pauseLoading, setPauseLoading] = useState(false);
   const [editingStoreId, setEditingStoreId] = useState<string | null>(null);
   const [editingPostId, setEditingPostId] = useState<string | null>(null);
 
@@ -40,12 +38,10 @@ export default function AdminPage() {
     const { data: c } = await supabase.from('coupons').select('*').order('sort_order', { ascending: true });
     const { data: p } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
     const { data: sub } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false });
-    const { data: setting } = await supabase.from('settings').select('value').eq('key', 'temu_cron_paused').single();
     if (s) setStores(s);
     if (c) setCoupons(c);
     if (p) setPosts(p);
     if (sub) setSubscribers(sub);
-    if (setting) setTemuPaused(setting.value === 'true');
   }, []);
 
   useEffect(() => { if (authed) loadData(); }, [authed, loadData]);
@@ -87,16 +83,6 @@ export default function AdminPage() {
     // Persist order to Supabase
     await Promise.all(newOrder.map((c, i) => supabase.from('coupons').update({ sort_order: i }).eq('id', c.id)));
     showMsg('Ordre sauvegardé ✅', 'success');
-  };
-
-  // ─── Temu Pause ────────────────────────────────
-  const toggleTemuPause = async () => {
-    setPauseLoading(true);
-    const newVal = !temuPaused ? 'true' : 'false';
-    await supabase.from('settings').upsert({ key: 'temu_cron_paused', value: newVal, updated_at: new Date().toISOString() });
-    setTemuPaused(!temuPaused);
-    showMsg(newVal === 'true' ? '⏸️ Temu cron pausé' : '▶️ Temu cron relancé', 'success');
-    setPauseLoading(false);
   };
 
   // ─── Store CRUD ────────────────────────────────
@@ -207,17 +193,6 @@ export default function AdminPage() {
                 {editingCouponId && <button onClick={cancelEditCoupon} className="bg-gray-200 text-text-main font-bold text-[14px] px-6 py-2.5 rounded-lg">Annuler</button>}
               </div>
             </div>
-            {/* Temu Cron Pause Banner */}
-            <div className={`rounded-xl border p-4 flex items-center justify-between ${temuPaused ? 'bg-orange-50 border-orange-200' : 'bg-green-50 border-green-200'}`}>
-              <div>
-                <p className="text-[14px] font-bold text-text-main">🤖 Mise à jour automatique Temu (daily cron)</p>
-                <p className="text-[12px] text-muted mt-0.5">{temuPaused ? '⏸️ En pause — les codes Temu ne seront pas mis à jour automatiquement' : '▶️ Actif — les codes Temu se mettent à jour chaque jour automatiquement'}</p>
-              </div>
-              <button onClick={toggleTemuPause} disabled={pauseLoading} className={`shrink-0 font-bold text-[13px] px-4 py-2 rounded-lg transition-colors ${temuPaused ? 'bg-green-500 hover:bg-green-600 text-white' : 'bg-orange-500 hover:bg-orange-600 text-white'}`}>
-                {pauseLoading ? '...' : temuPaused ? '▶️ Relancer' : '⏸️ Mettre en pause'}
-              </button>
-            </div>
-
             <div className="bg-white rounded-xl border border-border overflow-hidden">
               <div className="px-6 py-4 border-b border-border flex items-center justify-between">
                 <h2 className="text-text-main text-[16px] font-bold">Coupons ({coupons.length})</h2>
