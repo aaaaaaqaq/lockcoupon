@@ -32,7 +32,7 @@ export interface Coupon {
   is_verified: boolean;
  description: string | null;
 affiliate_url: string | null;
-  sort_order: number;
+  sort_order?: number | null;
   created_at: string;
 }
 
