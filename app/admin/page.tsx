@@ -195,11 +195,11 @@ export default function AdminPage() {
             </div>
             <div className="bg-white rounded-xl border border-border overflow-hidden">
               <div className="px-6 py-4 border-b border-border flex items-center justify-between">
-                <h2 className="text-text-main text-[16px] font-bold">Coupons ({coupons.length})</h2>
-                <p className="text-muted text-[12px]">↕️ Glissez pour réordonner</p>
+                <h2 className="text-text-main text-[16px] font-bold">Coupons ({couponForm.store_id ? coupons.filter(c => c.store_id === couponForm.store_id).length : coupons.length}){couponForm.store_id ? ` — ${stores.find(s => s.id === couponForm.store_id)?.name || ''}` : ''}</h2>
+                <div className="flex items-center gap-3">{couponForm.store_id && <button onClick={() => setCouponForm({ ...couponForm, store_id: '' })} className="text-[12px] text-primary font-semibold hover:underline">Voir tous</button>}<p className="text-muted text-[12px]">↕️ Glissez pour réordonner</p></div>
               </div>
               <div className="divide-y divide-border">
-                {coupons.map((c, i) => { const store = stores.find((s) => s.id === c.store_id); return (
+                {coupons.filter(c => !couponForm.store_id || c.store_id === couponForm.store_id).map((c, i) => { const store = stores.find((s) => s.id === c.store_id); return (
                   <div key={c.id}
                     draggable
                     onDragStart={() => handleDragStart(c.id)}
