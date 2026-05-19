@@ -80,9 +80,40 @@ const TOPICS = [
   (s: string) => `Reductions ${s} : ce que les autres sites ne vous disent pas`,
 ];
 
+// ─── Opening hook pool: 20 structurally diverse intros ──────────────────────
+// Each hook is a function that returns 2-3 sentences of raw HTML.
+// They vary in: register (anecdote / stat / question / provocation / scene-setting).
+// NEVER add "Vous connaissez ce moment où" — that phrase is banned.
+const OPENING_HOOKS: Array<(s: string, m: string) => string> = [
+  (s) => `<p>Franchement, on va pas se mentir : trouver un vrai bon plan sur ${s}, c'est souvent la croix et la bannière. On passe des heures à chercher, on finit sur des forums à moitié morts, et les codes qu'on trouve sont expirés depuis six mois. C'est pour ça qu'on a décidé de faire le travail à votre place.</p>`,
+  (s, m) => `<p>En ${m}, ${s} reste l'une des boutiques les plus recherchées par les acheteurs français. Sauf que entre les prix affichés et ce que vous payez vraiment, il y a souvent un écart qui fait mal au portefeuille. Notre équipe a creusé, testé, et voilà ce qu'on a trouvé.</p>`,
+  (s) => `<p>On a une règle chez LockCoupon : on ne publie pas un code promo tant qu'on ne l'a pas testé. ${s}, on connaît bien. Alors avant de vous lancer dans vos achats ce mois-ci, lisez ça — ça va vous faire économiser.</p>`,
+  (s) => `<p>Un collègue m'a envoyé un screenshot l'autre jour : il avait payé le même article ${s} 34 % plus cher que moi. Même produit, même taille, même livraison. La différence ? Un code promo et un peu de méthode. C'est exactement ce qu'on partage ici.</p>`,
+  (s) => `<p>Petit test : tapez "code promo ${s}" dans Google. Vous allez trouver des dizaines de sites avec des codes. La plupart ne fonctionnent pas. Quelques-uns si. On a fait ce tri pour vous — et on vous explique aussi pourquoi certains codes marchent et d'autres non.</p>`,
+  (s, m) => `<p>${s} en ${m}, c'est un peu comme les soldes : si vous savez où regarder, vous faites des affaires. Si vous foncez tête baissée, vous payez plein pot. Après avoir passé plusieurs heures sur la plateforme ce mois-ci, voici notre bilan honnête.</p>`,
+  (s) => `<p>Soyons directs : tout le monde ne paie pas le même prix sur ${s}. Ceux qui utilisent des codes promo, des alertes et les bonnes techniques paient souvent 15 à 30 % de moins. Ce guide, c'est pour rejoindre ce groupe-là.</p>`,
+  (s) => `<p>Notre équipe surveille ${s} depuis plusieurs mois. On note les hausses de prix, les promotions récurrentes, les périodes creuses. Ce mois-ci, on partage tout ce qu'on a observé — avec les codes qui fonctionnent vraiment au moment où vous lisez ces lignes.</p>`,
+  (s) => `<p>Trois minutes. C'est le temps qu'il faut pour appliquer un code promo ${s} et économiser parfois plus de vingt euros sur une commande. Si vous n'avez pas encore cette habitude, ce guide va changer ça.</p>`,
+  (s, m) => `<p>Le marché des codes promo en France a changé. Les bons plans sont de plus en plus éphémères, les conditions de plus en plus strictes. En ${m}, voici ce qui marche vraiment chez ${s} — et ce qui ne vaut plus la peine d'être essayé.</p>`,
+  (s) => `<p>On teste beaucoup de boutiques chez LockCoupon. ${s} fait partie de celles qui reviennent régulièrement dans nos tops — mais pas pour les raisons qu'on croit. Les vraies économies ne sont pas là où la plupart des gens regardent. Explications.</p>`,
+  (s) => `<p>Il y a deux types d'acheteurs sur ${s} : ceux qui paient le prix affiché, et ceux qui savent que ce prix est rarement définitif. Si vous lisez cet article, vous faites déjà partie de la deuxième catégorie. Reste à utiliser les bons outils.</p>`,
+  (s, m) => `<p>On a reçu plusieurs messages ce mois-ci de lecteurs qui cherchaient des bons plans ${s} valides en ${m}. Plutôt que de répondre au cas par cas, on a décidé de faire un guide complet. Voilà ce qu'il faut savoir.</p>`,
+  (s) => `<p>Le problème avec la plupart des guides sur ${s}, c'est qu'ils sont écrits par des gens qui n'ont jamais vraiment commandé là-bas. Chez LockCoupon, on passe commande. On teste les codes. On chronomètre les livraisons. Ce que vous lisez ici, c'est du concret.</p>`,
+  (s) => `<p>Avant de parler codes promo, un fait : ${s} pratique des prix qui varient régulièrement selon les périodes, les stocks et les segments de clientèle. Comprendre cette mécanique, c'est la première étape pour en profiter. La suite, c'est ce guide.</p>`,
+  (s) => `<p>On ne va pas vous vendre du rêve. Tous les codes promo ${s} ne fonctionnent pas à chaque commande. Certains ont des conditions, des minimums d'achat, des catégories exclues. On vous dit lesquels valent vraiment le coup — et comment les utiliser sans mauvaises surprises.</p>`,
+  (s, m) => `<p>Ce mois de ${m}, ${s} a lancé plusieurs promotions qu'on a décortiquées pour vous. Certaines sont des vraies opportunités. D'autres sont du marketing habillé en bonne affaire. Notre équipe a fait le tri — voici le résultat.</p>`,
+  (s) => `<p>Acheter sur ${s} sans code promo en 2026, c'est un peu comme prendre le train sans vérifier les tarifs Prem's. Ça arrive, mais c'est évitable. Ce guide compile tout ce qu'on sait sur les réductions disponibles en ce moment.</p>`,
+  (s) => `<p>La question qu'on nous pose souvent : "Est-ce que ça vaut vraiment le coup d'aller chercher un code promo avant chaque achat ?" Pour ${s}, la réponse courte est oui. La réponse longue, c'est cet article.</p>`,
+  (s) => `<p>On suit ${s} depuis longtemps. On connaît les pics de promo, les périodes à éviter, les types d'offres qui reviennent. Tout ça condensé dans un guide pratique — sans blabla inutile, juste ce dont vous avez besoin pour économiser.</p>`,
+];
+
 // ─── The mega prompt for 1500+ word articles ─────────────
 function buildPrompt(storeName: string, storeSlug: string, title: string, month: string): string {
-  return `Tu es un redacteur shopping francais chevronné qui travaille pour LockCoupon.com, un site de codes promo. Tu ecris comme un VRAI blogueur passionne, pas comme une IA.
+  // Pick a random opening hook — guarantees structural diversity across articles
+  const hookFn = OPENING_HOOKS[Math.floor(Math.random() * OPENING_HOOKS.length)];
+  const openingHook = hookFn(storeName, month);
+
+  return `Tu es un redacteur shopping francais chevronné qui travaille pour LockCoupon.com, un site de codes promo. Tu ecris comme un VRAI blogueur passionne, jamais comme une IA.
 
 PERSONNALITE :
 - Tu fais partie de l'equipe LockCoupon. Utilise "nous", "notre equipe", "on a teste"
@@ -94,9 +125,8 @@ PERSONNALITE :
 STYLE D'ECRITURE — ULTRA IMPORTANT :
 - Alterne phrases courtes percutantes et phrases longues detaillees
 - Commence certains paragraphes par : "Bon.", "Soyons honnetes.", "Petit secret.", "Entre nous.", "OK,", "Resultat ?", "Le truc,", "Attention.", "Pour etre franc,"
-- JAMAIS ces expressions : "En conclusion", "Il est important de noter", "N'hesitez pas", "Dans cet article", "Decouvrez", "Il convient de", "Force est de constater", "En somme", "En definitive", "Il va sans dire"
+- JAMAIS ces expressions : "En conclusion", "Il est important de noter", "N'hesitez pas", "Dans cet article", "Decouvrez", "Il convient de", "Force est de constater", "En somme", "En definitive", "Il va sans dire", "Vous connaissez ce moment ou"
 - Utilise des parentheses pour des apartes (comme si tu parlais a un pote)
-- Pose des questions au lecteur : "Vous connaissez ce moment ou...?"
 - Mets des exemples de prix reels : "un t-shirt a 12,99 euros au lieu de 29,99 euros"
 - Ajoute des anecdotes personnelles : "L'autre jour, un collegue m'a montre..."
 
@@ -105,7 +135,10 @@ Tu DOIS ecrire un article d'au minimum 1500 mots. Developpe en profondeur chaque
 
 STRUCTURE HTML OBLIGATOIRE :
 
-1. Introduction engageante (2-3 paragraphes, accroche forte, contexte)
+1. Introduction engageante (2-3 paragraphes)
+COMMENCE l'introduction EXACTEMENT par ce bloc HTML fourni (ne le modifie pas, copie-le mot pour mot) :
+${openingHook}
+Puis continue avec 1-2 paragraphes de contexte supplementaires dans le meme esprit.
 
 2. Section H2 : Presentation de ${storeName} et pourquoi c'est populaire (3-4 paragraphes)
 
@@ -204,7 +237,8 @@ export async function GET(request: Request) {
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
         max_tokens: 5000,
-        temperature: 0.9,
+        temperature: 1.0,
+        system: `Tu es Marc, redacteur senior chez LockCoupon.com. Tu as 8 ans d'experience en shopping en ligne et tu ecris pour de vraies personnes, pas pour des algorithmes. Ton style est direct, personnel, parfois ironique. Tu n'utilises JAMAIS de formules IA generiques. Chaque article que tu produis est unique dans sa structure et son accroche.`,
         messages: [{ role: 'user', content: prompt }],
       }),
     });

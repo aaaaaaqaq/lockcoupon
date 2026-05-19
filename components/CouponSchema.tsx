@@ -36,7 +36,7 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
     ],
   };
 
-  // ── 2. ItemList of Offers (valid schema) ─────────────
+  // ── 2. ItemList of Offers (Google Rich Snippets compliant) ───────
   const offersSchema = {
     '@context': 'https://schema.org',
     '@type': 'ItemList',
@@ -52,12 +52,22 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
           name: coupon.title,
           description: coupon.title,
           url: pageUrl,
+          // price + priceCurrency are required for Offer Rich Snippet eligibility
+          price: '0',
+          priceCurrency: 'EUR',
+          category: 'Coupon',
           availability: 'https://schema.org/InStock',
           validFrom: coupon.created_at || now,
           ...(coupon.expiry_date ? { validThrough: coupon.expiry_date } : {}),
           offeredBy: {
             '@type': 'Organization',
             name: store.name,
+            url: `https://www.lockcoupon.com/codes-promo/${store.slug}`,
+          },
+          seller: {
+            '@type': 'Organization',
+            name: 'LockCoupon',
+            url: 'https://www.lockcoupon.com',
           },
         },
       };

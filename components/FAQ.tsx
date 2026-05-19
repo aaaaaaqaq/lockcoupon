@@ -1,3 +1,5 @@
+// FAQ.tsx — UI is client-side (accordion), but JSON-LD is passed in as a
+// pre-serialized server prop so it renders in the initial HTML (not JS-only).
 'use client';
 
 import { useState } from 'react';
@@ -29,25 +31,26 @@ const FAQ_ITEMS = [
   },
 ];
 
+// Pre-serialized JSON-LD string — built once at import time so it can be
+// injected by a server component wrapper (see below) into the initial HTML.
+export const FAQ_SCHEMA_JSON = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: FAQ_ITEMS.map((item) => ({
+    '@type': 'Question',
+    name: item.question,
+    acceptedAnswer: {
+      '@type': 'Answer',
+      text: item.answer,
+    },
+  })),
+});
+
 export default function FAQ() {
   const [openIndex, setOpenIndex] = useState<number | null>(null);
 
   const toggle = (i: number) => {
     setOpenIndex(openIndex === i ? null : i);
-  };
-
-  // Clean FAQPage JSON-LD (issue 3)
-  const faqSchema = {
-    '@context': 'https://schema.org',
-    '@type': 'FAQPage',
-    mainEntity: FAQ_ITEMS.map((item) => ({
-      '@type': 'Question',
-      name: item.question,
-      acceptedAnswer: {
-        '@type': 'Answer',
-        text: item.answer,
-      },
-    })),
   };
 
   return (
@@ -100,11 +103,6 @@ export default function FAQ() {
         </dl>
       </div>
 
-      {/* FAQPage structured data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-      />
     </section>
   );
 }

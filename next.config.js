@@ -10,6 +10,28 @@ const nextConfig = {
   },
   async headers() {
     return [
+      // ── Force indexing on every production page ──────────────────────
+      // Overrides any X-Robots-Tag: noindex that Vercel may inject on
+      // preview deployments or misrouted traffic.
+      {
+        source: '/((?!api|_next|_vercel).*)',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'index, follow' },
+        ],
+      },
+      // ── Never index admin or API routes ─────────────────────────────
+      {
+        source: '/api/(.*)',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
+      {
+        source: '/admin(.*)',
+        headers: [
+          { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
       {
         source: '/llms.txt',
         headers: [

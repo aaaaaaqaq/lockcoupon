@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import FAQ from '@/components/FAQ';
+import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
@@ -42,6 +42,11 @@ export default async function HomePage() {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      {/* FAQ JSON-LD rendered server-side so Googlebot sees it in initial HTML */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: FAQ_SCHEMA_JSON }}
       />
 
       <Navbar />

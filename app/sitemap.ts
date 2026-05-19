@@ -9,15 +9,39 @@ function isValidSlug(slug: unknown): slug is string {
   return /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug);
 }
 
+/* ── Static pages always returned, even if Supabase is down ── */
+function staticPages(baseUrl: string): MetadataRoute.Sitemap {
+  const now = new Date();
+  return [
+    { url: baseUrl, lastModified: now, changeFrequency: 'daily', priority: 1 },
+    { url: `${baseUrl}/boutiques`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/top-codes-promo`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/guide-achat`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    { url: `${baseUrl}/a-propos`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+  ];
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com';
 
-  // Fetch & filter: only stores/posts with valid slugs
-  const allStores = await getAllStores();
-  const allPosts = await getPublishedPosts();
+  // Graceful degradation: if Supabase is unreachable during a Googlebot crawl,
+  // always return at minimum the static pages instead of throwing.
+  let stores: { slug: string }[] = [];
+  let posts: { slug: string; updated_at: string }[] = [];
 
-  const stores = allStores.filter((s) => s && isValidSlug(s.slug));
-  const posts = allPosts.filter((p) => p && isValidSlug(p.slug));
+  try {
+    const [allStores, allPosts] = await Promise.all([
+      getAllStores(),
+      getPublishedPosts(),
+    ]);
+    stores = allStores.filter((s) => s && isValidSlug(s.slug));
+    posts = allPosts.filter((p) => p && isValidSlug(p.slug));
+  } catch {
+    // Supabase down — return static pages only, do not crash sitemap
+    return staticPages(baseUrl);
+  }
 
   const storeUrls = stores.map((store) => ({
     url: `${baseUrl}/codes-promo/${store.slug}`,
@@ -33,15 +57,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
-  return [
-    { url: baseUrl, lastModified: new Date(), changeFrequency: 'daily', priority: 1 },
-    { url: `${baseUrl}/boutiques`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/top-codes-promo`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/guide-achat`, lastModified: new Date(), changeFrequency: 'weekly', priority: 0.8 },
-    { url: `${baseUrl}/blog`, lastModified: new Date(), changeFrequency: 'daily', priority: 0.9 },
-    { url: `${baseUrl}/a-propos`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    { url: `${baseUrl}/contact`, lastModified: new Date(), changeFrequency: 'monthly', priority: 0.5 },
-    ...storeUrls,
-    ...postUrls,
-  ];
+  return [...staticPages(baseUrl), ...storeUrls, ...postUrls];
 }
