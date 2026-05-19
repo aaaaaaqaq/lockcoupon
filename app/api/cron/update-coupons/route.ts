@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -399,6 +400,13 @@ export async function GET(request: Request) {
       await logUpdate(store.id, store.name, storeResult);
       await new Promise((resolve) => setTimeout(resolve, 1000));
     }
+
+    // ── Ping Google after coupon refresh ───────────────────────────────────
+    const updatedStoreUrls = selectedStores
+      .slice(0, 20) // cap at 20 to stay within daily Indexing API quota
+      .map((s: { slug: string }) => `https://www.lockcoupon.com/codes-promo/${s.slug}`);
+    await pingSitemap();
+    await notifyGoogle(updatedStoreUrls);
 
     return NextResponse.json({
       success: true,

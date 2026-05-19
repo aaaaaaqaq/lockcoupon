@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 
 export const maxDuration = 120;
 export const dynamic = 'force-dynamic';
@@ -278,12 +279,18 @@ export async function GET(request: Request) {
 
     if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
 
+    // ── Notify Google immediately after publishing ──────────────────────────
+    const newPostUrl = `https://www.lockcoupon.com/blog/${slug}`;
+    await pingSitemap();
+    await notifyGoogle([newPostUrl, 'https://www.lockcoupon.com/blog']);
+
     return NextResponse.json({
       success: true,
       title,
       store: store.name,
       slug,
       words: wordCount,
+      indexed: newPostUrl,
     });
 
   } catch (e: any) {
