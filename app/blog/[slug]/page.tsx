@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogRelated from '@/components/BlogRelated';
@@ -135,7 +136,7 @@ export default async function BlogPostPage({ params }: Props) {
 
             {post.cover_image && (
               <div className="rounded-xl overflow-hidden mb-8">
-                <img src={post.cover_image} alt={post.title} className="w-full h-auto" loading="eager" />
+                <Image src={post.cover_image} alt={post.title} width={800} height={450} className="w-full h-auto" priority />
               </div>
             )}
           </header>

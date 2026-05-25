@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import FooterNewsletter from './FooterNewsletter';
 
 export default function Footer() {
   return (
@@ -49,20 +50,7 @@ export default function Footer() {
           </div>
 
           {/* Newsletter */}
-          <div>
-            <h3 className="text-white font-bold text-[14px] mb-3">Newsletter</h3>
-            <p className="text-white/40 text-[13px] mb-3">Recevez nos bons plans chaque semaine.</p>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Votre email"
-                className="flex-1 bg-white/10 border border-white/10 text-white rounded-lg px-3 py-2 text-[13px] outline-none placeholder:text-white/30 focus:border-primary"
-              />
-              <button className="bg-primary hover:bg-primary-dark text-white text-[12px] font-bold px-3 py-2 rounded-lg transition-colors shrink-0">
-                OK
-              </button>
-            </div>
-          </div>
+          <FooterNewsletter />
         </div>
 
         {/* Bottom bar */}

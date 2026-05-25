@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 
 interface StoreLogoProps {
   logoUrl: string | null;
@@ -28,14 +29,15 @@ export default function StoreLogo({ logoUrl, logoColor, logoLetter, name, size =
   const isGoogleFavicon = logoUrl?.includes('google.com/s2/favicons') || logoUrl?.includes('t1.gstatic.com') || logoUrl?.includes('t2.gstatic.com');
   const effectiveUrl = (logoUrl && !isGoogleFavicon) ? logoUrl : null;
 
+  const imgSize = size === 'sm' ? 40 : size === 'lg' ? 72 : 48;
+
   if (effectiveUrl && !imgError) {
     return (
-      <img
+      <Image
         src={effectiveUrl}
         alt={`Logo ${name}`}
-        loading="lazy"
-        width={size === 'sm' ? 40 : size === 'lg' ? 72 : 48}
-        height={size === 'sm' ? 40 : size === 'lg' ? 72 : 48}
+        width={imgSize}
+        height={imgSize}
         className={`${sizeClass} rounded-xl object-contain ${className}`}
         onError={() => setImgError(true)}
       />

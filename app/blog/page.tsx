@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -69,10 +70,11 @@ export default async function BlogPage() {
                   >
                     {post.cover_image ? (
                       <div className="h-[200px] overflow-hidden">
-                        <img
+                        <Image
                           src={post.cover_image}
                           alt={post.title}
-                          loading="lazy"
+                          width={600}
+                          height={200}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                         />
                       </div>

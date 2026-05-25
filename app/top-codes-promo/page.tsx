@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -12,6 +13,13 @@ export const metadata: Metadata = {
   description: 'Notre sélection des 20 meilleurs codes promo vérifiés. Les réductions les plus utilisées par la communauté LockCoupon, mises à jour quotidiennement.',
   alternates: {
     canonical: '/top-codes-promo',
+  },
+  openGraph: {
+    title: 'Top 20 Codes Promo du Moment',
+    description: 'Notre sélection des 20 meilleurs codes promo vérifiés. Les réductions les plus utilisées par la communauté LockCoupon, mises à jour quotidiennement.',
+    url: '/top-codes-promo',
+    type: 'website',
+    images: [{ url: '/og-default.png', width: 1200, height: 630 }],
   },
 };
 
@@ -30,6 +38,20 @@ export default async function TopCodesPage() {
 
   const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
 
+  const itemListLd = {
+    '@context': 'https://schema.org',
+    '@type': 'ItemList',
+    name: 'Top 20 Codes Promo du Moment',
+    url: 'https://www.lockcoupon.com/top-codes-promo',
+    numberOfItems: coupons.length,
+    itemListElement: coupons.map((coupon: any, index: number) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      name: coupon.title,
+      url: `https://www.lockcoupon.com/codes-promo/${coupon.stores?.slug}`,
+    })),
+  };
+
   const breadcrumbLd = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -41,6 +63,7 @@ export default async function TopCodesPage() {
 
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListLd) }} />
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }} />
       <Navbar />
 
@@ -94,7 +117,7 @@ export default async function TopCodesPage() {
                           </span>
                         )}
                         {store?.logo_url ? (
-                          <img src={store.logo_url} alt={`Logo ${store.name}`} width={48} height={48} loading="lazy" className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-contain" />
+                          <Image src={store.logo_url} alt={`Logo ${store.name}`} width={48} height={48} className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl object-contain" />
                         ) : (
                           <div
                             className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center text-white text-[18px] font-bold"

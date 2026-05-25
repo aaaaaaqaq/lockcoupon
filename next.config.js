@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  compress: true,
   images: {
     remotePatterns: [
       {
@@ -7,16 +8,20 @@ const nextConfig = {
         hostname: '**',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
   },
   async headers() {
     return [
-      // ── Force indexing on every production page ──────────────────────
-      // Overrides any X-Robots-Tag: noindex that Vercel may inject on
-      // preview deployments or misrouted traffic.
+      // ── Security + indexing headers on all non-system routes ─────────
       {
         source: '/((?!api|_next|_vercel).*)',
         headers: [
           { key: 'X-Robots-Tag', value: 'index, follow' },
+          { key: 'X-Content-Type-Options', value: 'nosniff' },
+          { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
+          { key: 'X-XSS-Protection', value: '1; mode=block' },
+          { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
+          { key: 'Permissions-Policy', value: 'camera=(), microphone=(), geolocation=()' },
         ],
       },
       // ── Never index admin or API routes ─────────────────────────────
@@ -30,6 +35,19 @@ const nextConfig = {
         source: '/admin(.*)',
         headers: [
           { key: 'X-Robots-Tag', value: 'noindex, nofollow' },
+        ],
+      },
+      // ── Cache static assets aggressively ────────────────────────────
+      {
+        source: '/_next/static/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+        ],
+      },
+      {
+        source: '/static/(.*)',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
         ],
       },
       {

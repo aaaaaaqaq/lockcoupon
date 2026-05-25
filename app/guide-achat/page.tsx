@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -12,6 +13,13 @@ export const metadata: Metadata = {
   description: "Nos guides d'achat par catégorie : mode, tech, sport, beauté, voyage et maison. Conseils pratiques et astuces pour économiser sur chaque achat.",
   alternates: {
     canonical: '/guide-achat',
+  },
+  openGraph: {
+    title: "Guide d'Achat par Catégorie",
+    description: "Nos guides d'achat par catégorie : mode, tech, sport, beauté, voyage et maison. Conseils pratiques et astuces pour économiser sur chaque achat.",
+    url: '/guide-achat',
+    type: 'website',
+    images: [{ url: '/og-default.png', width: 1200, height: 630 }],
   },
 };
 
@@ -172,7 +180,7 @@ export default async function GuideAchatPage() {
                     {catStores.slice(0, 6).map((store) => (
                       <Link key={store.id} href={`/codes-promo/${store.slug}`} className="group" title={`Code promo ${store.name}`}>
                         {store.logo_url ? (
-                          <img src={store.logo_url} alt={`Logo ${store.name}`} width={40} height={40} loading="lazy" className="w-10 h-10 rounded-lg object-contain border border-border group-hover:scale-110 transition-transform" />
+                          <Image src={store.logo_url} alt={`Logo ${store.name}`} width={40} height={40} className="w-10 h-10 rounded-lg object-contain border border-border group-hover:scale-110 transition-transform" />
                         ) : (
                           <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-[14px] font-bold group-hover:scale-110 transition-transform" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
                             {store.logo_letter || store.name[0]}

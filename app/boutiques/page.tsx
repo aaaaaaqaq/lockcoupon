@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -91,12 +92,11 @@ export default async function BoutiquesPage() {
                     className="bg-white border border-border rounded-xl p-4 flex flex-col items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 transition-all group"
                   >
                     {store.logo_url ? (
-                      <img
+                      <Image
                         src={store.logo_url}
                         alt={`Logo ${store.name}`}
                         width={48}
                         height={48}
-                        loading="lazy"
                         className="w-12 h-12 rounded-xl object-contain group-hover:scale-105 transition-transform"
                       />
                     ) : (
