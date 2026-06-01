@@ -1,7 +1,9 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
+// Fallback values prevent crash during build when env vars aren't set.
+// Queries will simply fail and our error handlers return empty data.
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co';
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key';
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
@@ -30,8 +32,8 @@ export interface Coupon {
   is_best: boolean;
   is_exclusive: boolean;
   is_verified: boolean;
- description: string | null;
-affiliate_url: string | null;
+  description: string | null;
+  affiliate_url: string | null;
   sort_order?: number | null;
   created_at: string;
 }
