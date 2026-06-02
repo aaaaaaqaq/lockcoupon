@@ -205,13 +205,16 @@ export async function GET(request: Request) {
   }
 
   try {
-    // Avoid repeating topics written in the last 12 days
-    const { data: recentPosts } = await supabase
-      .from('blog_posts')
-      .select('title')
-      .gte('created_at', new Date(Date.now() - 12 * 86400000).toISOString());
-
-    const recentTitles = (recentPosts || []).map((p) => p.title.toLowerCase());
+    // Avoid repeating topics covered recently — best-effort, never blocks article generation
+    let recentTitles: string[] = [];
+    try {
+      const { data: recentPosts } = await supabase
+        .from('blog_posts')
+        .select('title')
+        .order('created_at', { ascending: false })
+        .limit(30);
+      recentTitles = (recentPosts || []).map((p: any) => p.title.toLowerCase());
+    } catch { /* table scan timed out — proceed without recency filter */ }
 
     const available = TEMU_TOPICS.filter(
       (t) => !recentTitles.some((rt) => rt.includes(t.category.toLowerCase()))
