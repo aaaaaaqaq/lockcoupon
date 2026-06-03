@@ -200,7 +200,9 @@ async function callClaude(
   }
 
   // Return all text concatenated
-  return textBlocks.join('\n');
+  const combined = textBlocks.join('\n');
+  console.log(`[temu-articles] callClaude: ${textBlocks.length} text blocks, total ${combined.length} chars, first 100: ${combined.substring(0, 100)}`);
+  return combined;
 }
 
 // ─── Extract HTML article from mixed text ─────────────────────────────────────
@@ -298,6 +300,8 @@ export async function GET(request: Request) {
       }, { status: 500 });
     }
 
+    console.log(`[temu-articles] Step 1 done. productList length: ${productList.length}, first 200: ${productList.substring(0, 200)}`);
+
     // ── Step 2: Write article (no web search — pure writing) ──
     const articleRaw = await callClaude(apiKey, {
       system: `Tu es Marc, rédacteur senior chez LockCoupon.com. Tu écris des articles HTML SEO. Ta réponse est UNIQUEMENT du HTML pur. Le premier caractère est toujours '<'. Aucun texte avant le HTML.`,
@@ -306,7 +310,10 @@ export async function GET(request: Request) {
       maxTokens: 16000,
     });
 
+    console.log(`[temu-articles] Step 2 done. articleRaw length: ${articleRaw.length}, first 300: ${articleRaw.substring(0, 300)}`);
+
     let content = extractHtml(articleRaw);
+    console.log(`[temu-articles] After extractHtml: ${content.length} chars, first 200: ${content.substring(0, 200)}`);
 
     if (!content || content.length < 500) {
       return NextResponse.json({
@@ -399,6 +406,9 @@ export async function GET(request: Request) {
 
     return NextResponse.json({
       success: true,
+      version: 'v3-3step',
+      debug_articleRawLength: articleRaw.length,
+      debug_contentLength: content.length,
       title,
       category: topic.category,
       slug,
