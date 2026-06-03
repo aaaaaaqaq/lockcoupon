@@ -26,38 +26,53 @@ const TEMU_TOPICS = [
   { category: 'animaux de compagnie',   title_fn: (m: string) => `Animalerie Temu ${m} : accessoires et jouets pour chats et chiens à tester`,    search_query: 'Temu produits animaux compagnie chiens chats best-sellers' },
 ];
 
-// ─── Extract first real image URL from article HTML (used as cover_image) ─────
+// ─── Extract first real product image URL from article HTML ───────────────────
 function extractCoverImage(html: string): string | null {
   const m = html.match(/<img[^>]+src=["']([^"']+)["']/i);
   if (!m) return null;
   const url = m[1];
-  if (url.startsWith('data:') || url.includes('unsplash') || url.includes('placeholder') || url.includes('picsum')) return null;
+  if (
+    url.startsWith('data:') ||
+    url.includes('unsplash') ||
+    url.includes('placeholder') ||
+    url.includes('picsum')
+  )
+    return null;
   return url;
 }
 
-// ─── Build the single prompt: search + write in one shot ──────────────────────
+// ─── Build the prompt ─────────────────────────────────────────────────────────
 function buildPrompt(topic: typeof TEMU_TOPICS[0], month: string): string {
-  return `Tu es Marc, rédacteur senior chez LockCoupon.com. Tu vas utiliser la recherche web pour trouver de vrais produits Temu puis écrire un article complet directement.
+  return `Tu es Marc, rédacteur senior chez LockCoupon.com. Tu vas utiliser la recherche web pour trouver de vrais produits Temu puis écrire un article complet.
 
-════ RECHERCHES À FAIRE ════
+════ ÉTAPE 1 : RECHERCHES WEB ════
 
-1. Cherche "${topic.search_query}" pour trouver les produits tendance du moment.
-2. Cherche "temu ${topic.category} avis 2026" pour trouver des vrais prix et retours clients.
-3. Pour trouver des images produits : cherche "temu ${topic.category} img.kwcdn.com" OU visite les pages de résultats pour trouver des URLs d'images Temu (domaine img.kwcdn.com ou s.kwcdn.com).
-4. Si tu trouves des URLs de pages temu.com dans les résultats, note-les — elles contiennent des images CDN.
+Fais ces recherches dans cet ordre pour collecter des vrais produits et images :
 
-Pour chaque produit : note le nom exact, le prix en euros, une description, les avis, et l'URL d'image si tu en trouves une (domaine img.kwcdn.com de préférence, ou tout autre site d'avis qui l'a intégrée).
+1. Cherche "site:temu.com ${topic.category}" pour trouver de vraies pages produits Temu.
+2. Cherche "${topic.search_query} site:temu.com" pour des résultats spécifiques.
+3. Cherche "temu ${topic.category} best sellers 2025 2026" pour des avis récents.
+4. Pour chaque produit intéressant, cherche son nom + "temu" pour trouver sa page et son image.
 
-════ ARTICLE À ÉCRIRE ════
+IMAGES PRODUITS — C'EST CRUCIAL :
+- Les images Temu sont sur img.kwcdn.com ou commencent par https://img.kwcdn.com/
+- Cherche "temu [nom produit] img.kwcdn.com" pour trouver les URLs d'images
+- Tu peux aussi trouver des images sur des sites d'avis, blogs, ou comparateurs
+- Chaque produit DOIT avoir une image — fais des recherches supplémentaires si nécessaire
+- N'utilise JAMAIS Unsplash, Pexels, ou des images stock
 
-Écris un article SEO HTML de 2000 mots minimum sur les produits ${topic.category} Temu que tu as trouvés.
+Collecte au moins 8-10 produits avec : nom exact, prix en €, description, avis si disponible, et URL d'image.
+
+════ ÉTAPE 2 : ÉCRIRE L'ARTICLE ════
+
+Écris un article SEO HTML de 2000+ mots sur les produits ${topic.category} Temu.
 
 STYLE :
 - Utilise "nous", "notre équipe", "on a testé" — LockCoupon.com
 - Direct, parfois drôle, toujours authentique
 - Phrases courtes et percutantes. Commence certains paragraphes par : "Bon.", "Soyons honnêtes.", "Petit secret.", "Entre nous.", "Résultat ?", "Le truc,", "Attention."
 - JAMAIS : "En conclusion", "Il est important de noter", "N'hésitez pas", "Dans cet article", "Découvrez"
-- Cite les vrais prix que tu as trouvés (ex : "3,99€", "12,50€")
+- Cite les vrais prix trouvés
 
 STRUCTURE HTML OBLIGATOIRE :
 
@@ -68,13 +83,15 @@ STRUCTURE HTML OBLIGATOIRE :
 
 <h2>Notre sélection : les meilleurs produits ${topic.category} Temu du moment</h2>
 
-Pour chaque produit (8 à 10) :
+Pour CHAQUE produit (8 à 10 minimum) — cette structure est obligatoire :
 <h3>[Nom exact du produit]</h3>
-[Si tu as trouvé une vraie URL d'image pour ce produit :]
-<img src="[URL_IMAGE_REELLE]" alt="[nom] Temu" style="max-width:100%;height:auto;border-radius:8px;margin:12px 0 20px 0" loading="lazy">
-[Si pas d'image trouvée : n'insère PAS de balise img, continue directement]
+<img src="[URL_IMAGE_REELLE_DU_PRODUIT]" alt="[nom] Temu" style="max-width:100%;height:auto;border-radius:8px;margin:12px 0 20px 0" loading="lazy">
 <p><strong>Prix : [X,XX]€</strong></p>
 [2-3 paragraphes de description et avis]
+
+⚠️ CHAQUE <h3> DOIT être suivi d'une <img> avec une VRAIE URL trouvée dans tes recherches.
+Si tu n'as pas d'image pour un produit, fais une recherche supplémentaire pour en trouver une.
+Minimum 5 images différentes dans l'article, idéalement une par produit.
 
 <h2>Tableau comparatif</h2>
 <table style="width:100%;border-collapse:collapse;margin:20px 0">
@@ -93,18 +110,129 @@ Pour chaque produit (8 à 10) :
 [5 questions avec réponses de 3-4 phrases]
 </div>
 
-LIENS INTERNES (2, placés naturellement dans le texte) :
+LIENS INTERNES (2, placés naturellement) :
 <a href="/codes-promo/temu">nos codes promo Temu vérifiés</a>
 <a href="/boutiques">toutes nos boutiques partenaires</a>
 
-MOTS-CLÉS À INTÉGRER : "Temu ${topic.category}", "produits Temu ${month}", "avis Temu ${topic.category}", "acheter sur Temu", "meilleurs produits Temu"
+MOTS-CLÉS : "Temu ${topic.category}", "produits Temu ${month}", "avis Temu ${topic.category}", "acheter sur Temu", "meilleurs produits Temu"
 
 RÈGLES ABSOLUES :
-- PAS de titre H1 (le CMS l'ajoute)
+- PAS de titre H1
 - Minimum 2000 mots
-- TON OUTPUT COMMENCE DIRECTEMENT PAR DU HTML — zéro phrase d'introduction, zéro texte de planification, zéro explication avant le <p> ou <h2> initial
-- Images : URLs réelles uniquement (trouvées via tes recherches) — jamais d'Unsplash, jamais inventées
-- Si tu ne trouves pas d'image pour un produit, saute la balise img pour ce produit`;
+- Ton output final est UNIQUEMENT du HTML — pas de texte avant le premier <p>
+- Le premier caractère de ta réponse finale DOIT être '<'
+- Images : URLs réelles uniquement trouvées via tes recherches — JAMAIS d'Unsplash ou inventées`;
+}
+
+// ─── Multi-turn Anthropic API with web_search tool ────────────────────────────
+async function callClaudeWithWebSearch(
+  apiKey: string,
+  systemPrompt: string,
+  userPrompt: string,
+  maxTurns = 25
+): Promise<string> {
+  const messages: any[] = [{ role: 'user', content: userPrompt }];
+
+  for (let turn = 0; turn < maxTurns; turn++) {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 16000,
+        system: systemPrompt,
+        tools: [
+          {
+            type: 'web_search_20250305',
+            name: 'web_search',
+            max_uses: 20,
+          },
+        ],
+        messages,
+      }),
+    });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Claude API ${res.status}: ${errText.substring(0, 500)}`);
+    }
+
+    const data = await res.json();
+    const stopReason = data.stop_reason;
+    const content = data.content || [];
+
+    // Append assistant response to conversation
+    messages.push({ role: 'assistant', content });
+
+    // If stop_reason is "end_turn" or no more tool use, we're done
+    if (stopReason === 'end_turn' || stopReason !== 'tool_use') {
+      // Extract final text
+      const textBlocks = content
+        .filter((b: any) => b.type === 'text')
+        .map((b: any) => b.text as string);
+
+      if (textBlocks.length === 0) {
+        // Check all messages for text blocks (sometimes text comes in earlier turns)
+        const allTexts: string[] = [];
+        for (const msg of messages) {
+          if (msg.role === 'assistant' && Array.isArray(msg.content)) {
+            for (const block of msg.content) {
+              if (block.type === 'text' && block.text) {
+                allTexts.push(block.text);
+              }
+            }
+          }
+        }
+        if (allTexts.length === 0) {
+          throw new Error('Claude returned no text blocks after all turns');
+        }
+        // Return last HTML block
+        const htmlBlock = [...allTexts].reverse().find((t) => t.trimStart().startsWith('<'));
+        return htmlBlock ?? allTexts[allTexts.length - 1];
+      }
+
+      const htmlBlock = [...textBlocks].reverse().find((t) => t.trimStart().startsWith('<'));
+      return htmlBlock ?? textBlocks[textBlocks.length - 1];
+    }
+
+    // Handle tool_use: web_search is server-side, results come back in the
+    // same response content as web_search_tool_result blocks.
+    // We just need to continue the conversation — the API handles search execution.
+    // For server-side tools, we don't need to send tool results back manually.
+    // But if there are tool_use blocks that need results, send empty acknowledgment.
+
+    const toolUseBlocks = content.filter((b: any) => b.type === 'tool_use');
+    if (toolUseBlocks.length > 0) {
+      // For web_search (server-side tool), the results are already in the content
+      // as web_search_tool_result blocks. We just continue the conversation.
+      // Check if there are already tool results in the content
+      const hasServerResults = content.some(
+        (b: any) => b.type === 'web_search_tool_result'
+      );
+
+      if (hasServerResults) {
+        // Server-side tool already executed, just continue by asking Claude to proceed
+        messages.push({
+          role: 'user',
+          content: 'Continue avec les résultats de recherche. Écris l\'article maintenant si tu as assez de données.',
+        });
+      } else {
+        // Should not happen with server-side web_search, but handle gracefully
+        const toolResults = toolUseBlocks.map((tb: any) => ({
+          type: 'tool_result' as const,
+          tool_use_id: tb.id,
+          content: 'Search completed.',
+        }));
+        messages.push({ role: 'user', content: toolResults });
+      }
+    }
+  }
+
+  throw new Error(`Exceeded max turns (${maxTurns}) without completing`);
 }
 
 // ─── Main handler ─────────────────────────────────────────────────────────────
@@ -117,7 +245,11 @@ export async function GET(request: Request) {
   }
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) return NextResponse.json({ error: 'ANTHROPIC_API_KEY not configured' }, { status: 500 });
+  if (!apiKey)
+    return NextResponse.json(
+      { error: 'ANTHROPIC_API_KEY not configured' },
+      { status: 500 }
+    );
 
   try {
     // Recency dedup — best-effort, never blocks generation
@@ -129,7 +261,9 @@ export async function GET(request: Request) {
         .order('created_at', { ascending: false })
         .limit(30);
       recentTitles = (data || []).map((p: any) => p.title.toLowerCase());
-    } catch { /* proceed without recency filter */ }
+    } catch {
+      /* proceed without recency filter */
+    }
 
     const available = TEMU_TOPICS.filter(
       (t) => !recentTitles.some((rt) => rt.includes(t.category.toLowerCase()))
@@ -137,70 +271,46 @@ export async function GET(request: Request) {
     const topicPool = available.length > 0 ? available : TEMU_TOPICS;
     const topic = topicPool[Math.floor(Math.random() * topicPool.length)];
 
-    const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+    const month = new Date().toLocaleString('fr-FR', {
+      month: 'long',
+      year: 'numeric',
+    });
     const title = topic.title_fn(month);
     const prompt = buildPrompt(topic, month);
 
-    // Single Claude call: web_search to find products + images, then write article
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 8000,
-        system: `Tu es Marc, rédacteur senior chez LockCoupon.com avec 8 ans d'expérience shopping en ligne. Tu utilises la recherche web pour trouver de vrais produits Temu avec leurs vraies images avant d'écrire. TON OUTPUT EST UNIQUEMENT DU HTML — tu ne commences JAMAIS par du texte explicatif, une introduction en prose, ou une description de ce que tu vas faire. Le premier caractère de ta réponse finale est toujours '<'.`,
-        tools: [{ type: 'web_search_20250305', name: 'web_search' }],
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
+    const systemPrompt = `Tu es Marc, rédacteur senior chez LockCoupon.com avec 8 ans d'expérience shopping en ligne. Tu utilises la recherche web pour trouver de vrais produits Temu avec leurs vraies images (img.kwcdn.com) avant d'écrire. TON OUTPUT FINAL EST UNIQUEMENT DU HTML — tu ne commences JAMAIS par du texte explicatif. Le premier caractère de ta réponse finale est toujours '<'. Tu fais autant de recherches web que nécessaire pour trouver des images réelles de chaque produit.`;
 
-    if (!response.ok) {
-      const errText = await response.text();
-      return NextResponse.json({ error: `Claude API error ${response.status}: ${errText.substring(0, 400)}` }, { status: 500 });
-    }
+    const rawArticle = await callClaudeWithWebSearch(apiKey, systemPrompt, prompt);
 
-    const data = await response.json();
-
-    // Collect all text blocks emitted across tool-use rounds
-    const textBlocks: string[] = (data.content || [])
-      .filter((b: any) => b.type === 'text')
-      .map((b: any) => b.text as string);
-
-    if (textBlocks.length === 0) {
-      return NextResponse.json({ error: 'Claude returned no text blocks', stop_reason: data.stop_reason }, { status: 500 });
-    }
-
-    // Take the last text block that starts with HTML.
-    // Earlier blocks are Claude's mid-search reasoning; the final block is the article.
-    const articleBlock =
-      [...textBlocks].reverse().find((t) => t.trimStart().startsWith('<')) ??
-      textBlocks[textBlocks.length - 1];
-
-    const content = articleBlock
+    const content = rawArticle
       .replace(/```html\n?/gi, '')
       .replace(/```\n?/g, '')
       .trimStart();
 
     if (!content) {
-      return NextResponse.json({ error: 'Article content is empty after cleaning' }, { status: 500 });
+      return NextResponse.json(
+        { error: 'Article content is empty after cleaning' },
+        { status: 500 }
+      );
     }
 
-    const plainText = content.replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+    const plainText = content
+      .replace(/<[^>]+>/g, '')
+      .replace(/\s+/g, ' ')
+      .trim();
     const wordCount = plainText.split(/\s+/).length;
     const excerpt = plainText.substring(0, 155) + '...';
 
     const coverImage = extractCoverImage(content);
-    const imageCount = (content.match(/<img[^>]+src=["'][^"']+["']/gi) || []).length;
+    const imageCount = (
+      content.match(/<img[^>]+src=["'][^"']+["']/gi) || []
+    ).length;
 
     const slug =
       title
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[̀-ͯ]/g, '')
+        .replace(/[\u0300-\u036f]/g, '')
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-|-$/g, '')
         .substring(0, 75) +
@@ -218,7 +328,8 @@ export async function GET(request: Request) {
       updated_at: new Date().toISOString(),
     });
 
-    if (dbError) return NextResponse.json({ error: dbError.message }, { status: 500 });
+    if (dbError)
+      return NextResponse.json({ error: dbError.message }, { status: 500 });
 
     const newPostUrl = `https://www.lockcoupon.com/blog/${slug}`;
     await pingSitemap();
