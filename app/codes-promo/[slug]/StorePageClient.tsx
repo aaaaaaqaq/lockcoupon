@@ -174,6 +174,14 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
 
       <main>
         <HeroSection store={store} coupons={coupons} onOpenBest={openBestOffer} />
+
+        {/* Freshness signal */}
+        <div className="max-w-[1200px] mx-auto px-4 pt-4 flex items-center gap-4 flex-wrap">
+          <p className="text-muted text-[13px]">✅ Vérifié le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <p className="text-muted text-[13px]">📊 {coupons.length} offres actives</p>
+          <p className="text-muted text-[13px]">🔥 {coupons.reduce((s, c) => s + (c.usage_count || 0), 0).toLocaleString('fr-FR')} utilisations</p>
+        </div>
+
         <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} counts={counts} />
 
         {/* Coupon list */}
@@ -191,9 +199,68 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
           )}
         </section>
 
+        {/* How-to steps */}
+        <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-12">
+          <div className="max-w-[800px] mx-auto">
+            <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">
+              Comment utiliser un code promo {store.name}
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[
+                { icon: '🔍', title: '1. Choisissez votre code', desc: `Parcourez les ${coupons.length} offres ${store.name} ci-dessus et trouvez celle qui correspond à vos achats.` },
+                { icon: '📋', title: '2. Copiez le code', desc: `Cliquez sur "Voir le code" pour le révéler. Il est automatiquement copié dans votre presse-papier.` },
+                { icon: '✅', title: '3. Profitez de la réduction', desc: `Rendez-vous sur ${store.name}, remplissez votre panier et collez le code au moment du paiement.` },
+              ].map((step, i) => (
+                <div key={i} className="bg-white border border-border rounded-xl p-5 text-center">
+                  <div className="text-[32px] mb-3">{step.icon}</div>
+                  <h3 className="text-text-main text-[15px] font-bold mb-2">{step.title}</h3>
+                  <p className="text-muted text-[13px] leading-relaxed">{step.desc}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Tips section */}
+        <section className="bg-bg border-t border-border">
+          <div className="max-w-[1200px] mx-auto px-4 py-8 md:py-12">
+            <div className="max-w-[800px] mx-auto">
+              <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">
+                Astuces pour économiser chez {store.name}
+              </h2>
+              <div className="space-y-4">
+                {[
+                  { icon: '📧', tip: `Inscrivez-vous à la newsletter ${store.name} pour recevoir des codes promo exclusifs directement dans votre boîte mail.` },
+                  { icon: '🛒', tip: `Ajoutez vos articles au panier et attendez 24-48h avant de finaliser — ${store.name} envoie parfois un code de relance.` },
+                  { icon: '📱', tip: `Téléchargez l'application ${store.name} si disponible : les promotions in-app sont souvent plus avantageuses.` },
+                  { icon: '🔔', tip: `Revenez régulièrement sur LockCoupon — nos codes promo ${store.name} sont mis à jour chaque jour.` },
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3 bg-white border border-border rounded-xl p-4">
+                    <span className="text-[24px] shrink-0">{item.icon}</span>
+                    <p className="text-muted text-[14px] leading-relaxed">{item.tip}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* SEO content sections */}
         <StoreAboutSection store={store} coupons={coupons} />
         <StoreFAQSection store={store} coupons={coupons} />
+
+        {/* Internal links */}
+        <section className="max-w-[1200px] mx-auto px-4 py-6">
+          <div className="flex flex-wrap gap-3 justify-center">
+            <Link href="/guide-achat" className="text-primary text-[13px] font-semibold hover:underline">📖 Guide d&apos;achat</Link>
+            <span className="text-muted">•</span>
+            <Link href="/top-codes-promo" className="text-primary text-[13px] font-semibold hover:underline">🏆 Top codes promo</Link>
+            <span className="text-muted">•</span>
+            <Link href="/boutiques" className="text-primary text-[13px] font-semibold hover:underline">🏪 Toutes les boutiques</Link>
+            <span className="text-muted">•</span>
+            <Link href="/blog" className="text-primary text-[13px] font-semibold hover:underline">📝 Blog</Link>
+          </div>
+        </section>
       </main>
 
       <Footer />

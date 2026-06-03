@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { getStoreBySlug, getCouponsByStoreId, getAllStores } from '@/lib/supabase';
 import StorePageClient from './StorePageClient';
 import CouponSchema from '@/components/CouponSchema';
+import HowToSchema from '@/components/HowToSchema';
 import RelatedStores from '@/components/RelatedStores';
 
 export const revalidate = 60;
@@ -92,6 +93,7 @@ export default async function StorePageSSR({ params }: Props) {
   return (
     <>
       <CouponSchema store={store} coupons={coupons} />
+      <HowToSchema store={store} />
       <StorePageClient store={store} coupons={coupons} />
       <RelatedStores currentSlug={store.slug} />
     </>

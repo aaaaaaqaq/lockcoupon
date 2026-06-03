@@ -107,6 +107,22 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
           text: `Oui, tous les codes promo ${store.name} sur LockCoupon sont vérifiés par notre équipe. Nous affichons le nombre d'utilisations pour chaque code.`,
         },
       },
+      {
+        '@type': 'Question',
+        name: `Est-ce que ${store.name} offre la livraison gratuite ?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Les offres de livraison gratuite ${store.name} varient selon les périodes. Consultez notre page ${store.name} sur LockCoupon pour voir les codes promo livraison gratuite actuellement disponibles.`,
+        },
+      },
+      {
+        '@type': 'Question',
+        name: `Que faire si mon code promo ${store.name} ne fonctionne pas ?`,
+        acceptedAnswer: {
+          '@type': 'Answer',
+          text: `Vérifiez les conditions du code (montant minimum, catégories éligibles, date d'expiration). Si le code est expiré, essayez un autre code disponible sur LockCoupon. Nos offres sont mises à jour quotidiennement.`,
+        },
+      },
     ],
   };
 
