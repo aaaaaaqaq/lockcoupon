@@ -7,6 +7,7 @@ import FAQ from '@/components/FAQ';
 import { supabase } from '@/lib/supabase';
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Top 20 Codes Promo du Moment',

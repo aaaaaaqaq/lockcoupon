@@ -5,6 +5,7 @@ import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export default async function HomePage() {
   const stores = await getAllStores();

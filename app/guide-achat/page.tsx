@@ -7,6 +7,7 @@ import FAQ from '@/components/FAQ';
 import { getAllStores } from '@/lib/supabase';
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: "Guide d'Achat par Catégorie",

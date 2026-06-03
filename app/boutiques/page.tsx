@@ -6,6 +6,7 @@ import Footer from '@/components/Footer';
 import { getAllStores } from '@/lib/supabase';
 
 export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Toutes les Boutiques avec Codes Promo',
