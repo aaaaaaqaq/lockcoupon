@@ -223,13 +223,19 @@ function extractHtml(raw: string): string {
 
 // ─── Parse product names from article H3 tags ────────────────────────────────
 function getH3Names(html: string): string[] {
-  return [...html.matchAll(/<h3[^>]*>([^<]+)<\/h3>/gi)].map((m) => m[1].trim());
+  const results: string[] = [];
+  let match: RegExpExecArray | null;
+  const re = /<h3[^>]*>([^<]+)<\/h3>/gi;
+  while ((match = re.exec(html)) !== null) {
+    results.push(match[1].trim());
+  }
+  return results;
 }
 
 // ─── Inject images after H3 tags ──────────────────────────────────────────────
 function injectImages(html: string, imageMap: Map<string, string>): string {
   let result = html;
-  for (const [name, url] of imageMap) {
+  imageMap.forEach((url, name) => {
     // Escape regex chars in name
     const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     // Match H3 containing this name (fuzzy — check if H3 text includes name)
@@ -243,7 +249,7 @@ function injectImages(html: string, imageMap: Map<string, string>): string {
         `$1\n<img src="${url}" alt="${name} Temu" style="max-width:100%;height:auto;border-radius:8px;margin:12px 0 20px 0" loading="lazy">`
       );
     }
-  }
+  });
   return result;
 }
 
