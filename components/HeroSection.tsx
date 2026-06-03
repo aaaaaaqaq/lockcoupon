@@ -68,10 +68,10 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
 
             {/* Title */}
             <h1 className="text-white text-[32px] md:text-[40px] font-extrabold leading-tight mb-2">
-              Code promo <span className="text-primary">{store.name}</span>
+              Code promo <span className="text-primary">{store.name}</span> — {now.getDate()} {currentMonth.toLowerCase()} {currentYear}
             </h1>
             <p className="text-white/60 text-[15px] mb-6">
-              {totalCodes} réductions vérifiées · {currentMonth} {currentYear}
+              {totalCodes} réductions vérifiées et mises à jour aujourd&apos;hui
             </p>
 
             {/* Stats */}

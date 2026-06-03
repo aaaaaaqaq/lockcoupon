@@ -1,5 +1,6 @@
 import { MetadataRoute } from 'next';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
+import { CATEGORIES } from '@/lib/categories';
 
 /* ── Validate a slug: only lowercase alphanumeric + hyphens ── */
 function isValidSlug(slug: unknown): slug is string {
@@ -18,6 +19,12 @@ function staticPages(baseUrl: string): MetadataRoute.Sitemap {
     { url: `${baseUrl}/top-codes-promo`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/guide-achat`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/blog`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
+    ...CATEGORIES.map((c) => ({
+      url: `${baseUrl}/codes-promo/categorie/${c.slug}`,
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    })),
     { url: `${baseUrl}/codes-promo/temu/nouveau-client`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/codes-promo/temu/livraison-gratuite`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/codes-promo/temu/parrainage`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },

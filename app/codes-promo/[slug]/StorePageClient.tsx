@@ -11,6 +11,10 @@ import Toast from '@/components/Toast';
 import Footer from '@/components/Footer';
 import { Store, Coupon } from '@/lib/supabase';
 
+function frenchDate(): string {
+  return new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
 interface StorePageClientProps {
   store: Store;
   coupons: Coupon[];
@@ -125,6 +129,27 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
                 <strong>À propos de {store.name} :</strong> {store.description}
               </p>
             )}
+
+            <h3 className="text-text-main text-[17px] font-bold mt-6 mb-2">Types de codes promo {store.name} disponibles</h3>
+            <p>
+              Sur LockCoupon, vous trouverez différents types d&apos;offres {store.name} : des <strong>codes promo</strong> à saisir lors du paiement,
+              des <strong>bons plans</strong> (réductions automatiques sans code), et parfois du <strong>cashback</strong> pour récupérer une partie de vos achats.
+              Les codes promo sont les plus courants et offrent généralement les meilleures réductions.
+            </p>
+
+            <h3 className="text-text-main text-[17px] font-bold mt-6 mb-2">Quand utiliser un code promo {store.name} ?</h3>
+            <p>
+              Les meilleurs moments pour utiliser un code promo {store.name} sont pendant les périodes de soldes (janvier et juin),
+              le Black Friday (fin novembre), le Cyber Monday, et les ventes privées. Cependant, LockCoupon propose des codes actifs toute l&apos;année.
+              Pensez à vérifier cette page régulièrement pour ne pas manquer les dernières offres {store.name}.
+            </p>
+
+            <h3 className="text-text-main text-[17px] font-bold mt-6 mb-2">Garantie codes vérifiés</h3>
+            <p>
+              Chaque code promo {store.name} sur LockCoupon est vérifié par notre équipe. Nous testons les codes régulièrement et retirons ceux qui ne fonctionnent plus.
+              Le nombre d&apos;utilisations affiché sur chaque code vous donne une indication de sa popularité et de sa fiabilité.
+              Si un code ne fonctionne pas, essayez-en un autre — nous en avons toujours plusieurs actifs.
+            </p>
             <p>
               Vous cherchez d&apos;autres bons plans ? Consultez le{' '}
               <Link href="/top-codes-promo" className="text-primary hover:underline">top 20 des codes promo</Link>,

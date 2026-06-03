@@ -3,6 +3,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
+import { CATEGORIES } from '@/lib/categories';
 
 export const revalidate = 60;
 export const dynamic = 'force-dynamic';
@@ -77,6 +78,19 @@ export default async function HomePage() {
                 📖 Guide d&apos;achat
               </Link>
             </div>
+          </div>
+        </section>
+
+        {/* Categories */}
+        <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-10" aria-label="Catégories">
+          <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">Catégories populaires</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
+            {CATEGORIES.map((cat) => (
+              <Link key={cat.slug} href={`/codes-promo/categorie/${cat.slug}`} className="bg-white border border-border rounded-xl p-3 text-center hover:shadow-md hover:-translate-y-0.5 transition-all">
+                <div className="text-[28px] mb-1">{cat.emoji}</div>
+                <span className="text-text-main text-[12px] md:text-[13px] font-semibold">{cat.name}</span>
+              </Link>
+            ))}
           </div>
         </section>
 
