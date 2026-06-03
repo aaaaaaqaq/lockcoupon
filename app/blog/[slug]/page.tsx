@@ -52,8 +52,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export async function generateStaticParams() {
-  const posts = await getPublishedPosts();
-  return posts.map((p) => ({ slug: p.slug }));
+  // Return empty array — pages are generated on-demand with ISR (revalidate=60)
+  // This avoids build timeouts when there are many blog posts
+  return [];
 }
 
 export default async function BlogPostPage({ params }: Props) {
