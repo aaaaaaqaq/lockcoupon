@@ -8,7 +8,7 @@ import BlogRelated from '@/components/BlogRelated';
 import { getPostBySlug, getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
-export const dynamicParams = true;
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: { slug: string };
@@ -51,11 +51,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  // Return empty array — pages are generated on-demand with ISR (revalidate=60)
-  // This avoids build timeouts when there are many blog posts
-  return [];
-}
+// No generateStaticParams — all blog pages render on-demand
 
 export default async function BlogPostPage({ params }: Props) {
   const post = await getPostBySlug(params.slug);
