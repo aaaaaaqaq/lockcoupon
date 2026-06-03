@@ -76,28 +76,37 @@ Trouve au minimum 8 produits. Si rien trouvé, retourne un tableau vide [].`;
     }),
   });
 
-  if (!res.ok) return [];
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Research API ${res.status}: ${errText.substring(0, 300)}`);
+  }
 
   const data = await res.json();
   const texts = (data.content || [])
     .filter((b: any) => b.type === 'text')
     .map((b: any) => b.text as string);
 
-  // Join all blocks, strip code fences, then find the JSON array.
-  // Claude may prepend a sentence even when asked not to, so we scan for
-  // the last occurrence of "[{" (an array-of-objects always starts there).
+  // Join all text blocks, strip code fences.
   const allText = texts.join('\n').replace(/```json\n?/gi, '').replace(/```\n?/g, '');
 
-  const startIdx = allText.lastIndexOf('[{');
-  if (startIdx === -1) {
-    // Maybe an explicit empty array was returned
-    return [];
+  // Find every '[' that could start a JSON array (followed by optional
+  // whitespace then '{' or ']'). Try from last to first so we get the
+  // most complete list Claude emitted.
+  const candidates: number[] = [];
+  for (let i = 0; i < allText.length; i++) {
+    if (allText[i] === '[') {
+      const peek = allText.slice(i + 1).trimStart();
+      if (peek.startsWith('{') || peek.startsWith(']')) candidates.push(i);
+    }
   }
 
-  try {
-    const arr = JSON.parse(allText.slice(startIdx));
-    return Array.isArray(arr) ? arr.slice(0, 10) : [];
-  } catch { return []; }
+  for (const pos of candidates.reverse()) {
+    try {
+      const arr = JSON.parse(allText.slice(pos));
+      if (Array.isArray(arr) && arr.length > 0) return arr.slice(0, 10);
+    } catch { /* keep trying earlier positions */ }
+  }
+  return [];
 }
 
 // ─── Phase 2: fetch og:image from real Temu product pages ────────────────────
@@ -265,9 +274,14 @@ export async function GET(request: Request) {
     const title = topic.title_fn(month);
 
     // ── Phase 1: research real products (Claude + web_search) ──────────────
-    const products = await researchProducts(topic, apiKey);
+    let products: ProductData[] = [];
+    try {
+      products = await researchProducts(topic, apiKey);
+    } catch (researchErr: any) {
+      return NextResponse.json({ error: `Research phase failed: ${researchErr.message}` }, { status: 500 });
+    }
     if (products.length === 0) {
-      return NextResponse.json({ error: 'Research phase returned no products' }, { status: 500 });
+      return NextResponse.json({ error: 'Research phase returned no products — check Anthropic web_search quota or model name' }, { status: 500 });
     }
 
     // ── Phase 2: enrich products with real Temu og:image URLs ──────────────
