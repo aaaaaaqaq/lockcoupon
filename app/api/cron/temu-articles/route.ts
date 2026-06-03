@@ -52,7 +52,7 @@ Pour chaque produit trouvé, extrait :
 - avis clients / points positifs et négatifs
 - URL de la page produit temu.com si tu la vois dans les résultats (format : https://www.temu.com/...)
 
-Réponds UNIQUEMENT avec un JSON valide — aucun texte avant ou après, aucun bloc \`\`\` :
+Après tes recherches, termine ta réponse avec le JSON — mets-le EN DERNIER, après tout texte éventuel :
 [
   {
     "name": "Nom exact du produit",
@@ -63,7 +63,7 @@ Réponds UNIQUEMENT avec un JSON valide — aucun texte avant ou après, aucun b
   }
 ]
 
-Trouve au minimum 8 produits. Si rien trouvé, réponds : []`;
+Trouve au minimum 8 produits. Si rien trouvé, retourne un tableau vide [].`;
 
   const res = await fetch('https://api.anthropic.com/v1/messages', {
     method: 'POST',
@@ -83,13 +83,19 @@ Trouve au minimum 8 produits. Si rien trouvé, réponds : []`;
     .filter((b: any) => b.type === 'text')
     .map((b: any) => b.text as string);
 
-  // Take the last text block that looks like a JSON array
-  const jsonBlock = [...texts].reverse().find(t => t.trim().startsWith('['));
-  if (!jsonBlock) return [];
+  // Join all blocks, strip code fences, then find the JSON array.
+  // Claude may prepend a sentence even when asked not to, so we scan for
+  // the last occurrence of "[{" (an array-of-objects always starts there).
+  const allText = texts.join('\n').replace(/```json\n?/gi, '').replace(/```\n?/g, '');
+
+  const startIdx = allText.lastIndexOf('[{');
+  if (startIdx === -1) {
+    // Maybe an explicit empty array was returned
+    return [];
+  }
 
   try {
-    const cleaned = jsonBlock.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    const arr = JSON.parse(cleaned);
+    const arr = JSON.parse(allText.slice(startIdx));
     return Array.isArray(arr) ? arr.slice(0, 10) : [];
   } catch { return []; }
 }
