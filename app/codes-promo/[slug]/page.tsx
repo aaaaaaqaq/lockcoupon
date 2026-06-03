@@ -6,7 +6,7 @@ import CouponSchema from '@/components/CouponSchema';
 import RelatedStores from '@/components/RelatedStores';
 
 export const revalidate = 60;
-export const dynamicParams = true;
+export const dynamic = 'force-dynamic';
 
 interface Props {
   params: { slug: string };
@@ -81,10 +81,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-export async function generateStaticParams() {
-  const stores = await getAllStores();
-  return stores.map((s) => ({ slug: s.slug }));
-}
+// No generateStaticParams — pages render on-demand with ISR
 
 export default async function StorePageSSR({ params }: Props) {
   const store = await getStoreBySlug(params.slug);
