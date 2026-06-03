@@ -127,30 +127,107 @@ RÈGLES :
 - Pas d'images (elles seront ajoutées séparément)`;
 }
 
-// Step 3: Find images for the products
-function buildImageSearchPrompt(topic: typeof TEMU_TOPICS[0], productNames: string[]): string {
-  return `I need to find real product image URLs for these Temu ${topic.category} products. Search the web for each one.
+// Step 3: Find product images via Bing image search scraping
+async function searchProductImages(
+  productNames: string[],
+  category: string
+): Promise<Map<string, string>> {
+  const imageMap = new Map<string, string>();
 
-Products:
-${productNames.map((n, i) => `${i + 1}. ${n}`).join('\n')}
+  for (const name of productNames.slice(0, 10)) {
+    if (imageMap.size >= 8) break;
+    try {
+      const query = encodeURIComponent(`${name} temu product`);
+      const res = await fetch(
+        `https://www.bing.com/images/search?q=${query}&first=1&count=10&qft=+filterui:photo-photo`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html',
+          },
+          signal: AbortSignal.timeout(8000),
+        }
+      );
+      const html = await res.text();
 
-For each product, search:
-- "[product name] temu" on image search
-- "[product name] review photo"  
-- Look for image URLs from: img.kwcdn.com, s.kwcdn.com, temu.com, or any review/blog site
+      // Extract image URLs from Bing results (murl = media URL)
+      const murlMatches = html.matchAll(/murl&quot;:&quot;(https?:\/\/[^&]+)/gi);
+      let match: IteratorResult<RegExpMatchArray>;
+      const iter = murlMatches;
+      while (!(match = iter.next()).done) {
+        const url = match.value[1]
+          .replace(/&amp;/g, '&')
+          .replace(/\\u002f/gi, '/');
+        // Filter: prefer Temu/kwcdn images, accept others, block stock sites
+        if (
+          url.includes('unsplash') ||
+          url.includes('pexels') ||
+          url.includes('pixabay') ||
+          url.includes('placeholder') ||
+          url.includes('shutterstock') ||
+          url.includes('istockphoto') ||
+          url.includes('gettyimages')
+        ) continue;
 
-Return ONLY this exact format — no other text:
+        // Prefer kwcdn/temu images
+        if (
+          url.includes('kwcdn.com') ||
+          url.includes('temu.com') ||
+          url.includes('aliexpress') ||
+          url.includes('alicdn') ||
+          url.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)
+        ) {
+          imageMap.set(name, url);
+          break;
+        }
+      }
+    } catch {
+      // Individual product search failed, continue
+    }
+  }
 
-IMAGE_LIST_START
-1. [product name] ||| [full image URL]
-2. [product name] ||| [full image URL]
-IMAGE_LIST_END
+  // Fallback: search the whole category if we got fewer than 3 images
+  if (imageMap.size < 3) {
+    try {
+      const query = encodeURIComponent(`temu ${category} products`);
+      const res = await fetch(
+        `https://www.bing.com/images/search?q=${query}&first=1&count=20&qft=+filterui:photo-photo`,
+        {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept': 'text/html',
+          },
+          signal: AbortSignal.timeout(8000),
+        }
+      );
+      const html = await res.text();
+      const murlMatches = html.matchAll(/murl&quot;:&quot;(https?:\/\/[^&]+)/gi);
+      let match: IteratorResult<RegExpMatchArray>;
+      const iter = murlMatches;
+      let idx = 0;
+      while (!(match = iter.next()).done) {
+        const url = match.value[1].replace(/&amp;/g, '&');
+        if (
+          url.includes('unsplash') || url.includes('pexels') ||
+          url.includes('pixabay') || url.includes('shutterstock') ||
+          url.includes('istockphoto') || url.includes('gettyimages')
+        ) continue;
 
-Rules:
-- Only include products where you actually found a real image URL
-- The URL must be a direct link to an image file (ending in .jpg, .png, .webp, or from a known CDN)
-- Never use unsplash.com, pexels.com, pixabay.com, or placeholder images
-- If you can't find an image for a product, skip it`;
+        // Assign to products that don't have images yet
+        for (const pn of productNames) {
+          if (!imageMap.has(pn) && url.match(/\.(jpg|jpeg|png|webp)(\?|$)/i)) {
+            imageMap.set(pn, url);
+            break;
+          }
+        }
+        if (imageMap.size >= 8) break;
+      }
+    } catch {
+      // Category fallback search failed
+    }
+  }
+
+  return imageMap;
 }
 
 // ─── Claude API call helper ───────────────────────────────────────────────────
@@ -330,47 +407,20 @@ export async function GET(request: Request) {
       }, { status: 500 });
     }
 
-    // ── Step 3: Find product images with web search ──
+    // ── Step 3: Find product images via Bing image search ──
     const productNames = getH3Names(content);
+    console.log(`[temu-articles] Step 3: searching images for ${productNames.length} products`);
 
     if (productNames.length > 0) {
       try {
-        const imageRaw = await callClaude(apiKey, {
-          prompt: buildImageSearchPrompt(topic, productNames.slice(0, 10)),
-          useWebSearch: true,
-          maxTokens: 4000,
-        });
-
-        // Parse image results
-        const imgListMatch = imageRaw.match(/IMAGE_LIST_START([\s\S]*?)IMAGE_LIST_END/);
-        const imgList = imgListMatch ? imgListMatch[1].trim() : '';
-
-        if (imgList) {
-          const imageMap = new Map<string, string>();
-          const lines = imgList.split('\n').filter((l) => l.includes('|||'));
-          for (const line of lines) {
-            const parts = line.split('|||').map((s) => s.trim());
-            if (parts.length === 2) {
-              const name = parts[0].replace(/^\d+\.\s*/, '');
-              const url = parts[1];
-              if (
-                url.startsWith('http') &&
-                !url.includes('unsplash') &&
-                !url.includes('placeholder') &&
-                !url.includes('pexels') &&
-                !url.includes('pixabay')
-              ) {
-                imageMap.set(name, url);
-              }
-            }
-          }
-
-          if (imageMap.size > 0) {
-            content = injectImages(content, imageMap);
-          }
+        const imageMap = await searchProductImages(productNames, topic.category);
+        console.log(`[temu-articles] Found ${imageMap.size} images`);
+        if (imageMap.size > 0) {
+          content = injectImages(content, imageMap);
         }
-      } catch {
-        // Image search failed — article still usable without images
+      } catch (imgErr: any) {
+        console.log(`[temu-articles] Image search error: ${imgErr.message}`);
+        // Article still usable without images
       }
     }
 
