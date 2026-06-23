@@ -77,6 +77,10 @@ export default async function BlogPostPage({ params }: Props) {
       '@id': postUrl,
     },
     url: postUrl,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', 'article p:first-of-type', 'article h2'],
+    },
     publisher: {
       '@type': 'Organization',
       name: 'LockCoupon',

@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Toutes les Boutiques avec Codes Promo',
-  description: 'Parcourez toutes nos boutiques partenaires et trouvez des codes promo vérifiés. Plus de 98 enseignes françaises avec des réductions exclusives.',
+  description: 'Parcourez les 98+ boutiques avec codes promo vérifiés sur LockCoupon : mode, tech, sport, beauté, voyage. Chaque code est testé quotidiennement. Trouvez votre boutique et économisez.',
   alternates: {
     canonical: '/boutiques',
   },

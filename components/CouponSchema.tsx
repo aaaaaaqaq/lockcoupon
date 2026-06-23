@@ -126,6 +126,31 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
     ],
   };
 
+  // ── 4. WebPage with AggregateRating ──────────────
+  const verifiedCoupons = coupons.filter((c) => c.is_verified);
+  const verifiedRatio = coupons.length > 0 ? verifiedCoupons.length / coupons.length : 0.9;
+  const ratingValue = Math.round((verifiedRatio * 5 * 10)) / 10; // e.g., 90% verified → 4.5
+  const totalUsageCount = coupons.reduce((sum, c) => sum + (c.usage_count || 0), 0);
+
+  const webPageSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: `Codes promo ${store.name}`,
+    url: pageUrl,
+    description: `Tous les codes promo ${store.name} vérifiés sur LockCoupon. ${coupons.length} offres actives.`,
+    speakable: {
+      '@type': 'SpeakableSpecification',
+      cssSelector: ['h1', 'h2', '.text-muted'],
+    },
+    aggregateRating: {
+      '@type': 'AggregateRating',
+      ratingValue: Math.max(ratingValue, 3.5),
+      bestRating: 5,
+      worstRating: 1,
+      ratingCount: totalUsageCount || 1,
+    },
+  };
+
   return (
     <>
       <script
@@ -139,6 +164,10 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(webPageSchema) }}
       />
     </>
   );

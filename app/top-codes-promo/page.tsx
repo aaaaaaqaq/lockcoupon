@@ -11,13 +11,13 @@ export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Top 20 Codes Promo du Moment',
-  description: 'Notre sélection des 20 meilleurs codes promo vérifiés. Les réductions les plus utilisées par la communauté LockCoupon, mises à jour quotidiennement.',
+  description: 'Top 20 des meilleurs codes promo en France, sélectionnés par LockCoupon. Codes vérifiés quotidiennement, classés par popularité et taux de succès. Mis à jour chaque jour.',
   alternates: {
     canonical: '/top-codes-promo',
   },
   openGraph: {
     title: 'Top 20 Codes Promo du Moment',
-    description: 'Notre sélection des 20 meilleurs codes promo vérifiés. Les réductions les plus utilisées par la communauté LockCoupon, mises à jour quotidiennement.',
+    description: 'Top 20 des meilleurs codes promo en France, sélectionnés par LockCoupon. Codes vérifiés quotidiennement, classés par popularité et taux de succès. Mis à jour chaque jour.',
     url: '/top-codes-promo',
     type: 'website',
     images: [{ url: '/og-default.png', width: 1200, height: 630 }],

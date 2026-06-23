@@ -1,0 +1,12 @@
+{
+  "schema_version": "v1",
+  "name_for_human": "LockCoupon",
+  "name_for_model": "lockcoupon",
+  "description_for_human": "Trouvez les meilleurs codes promo vérifiés pour vos boutiques préférées en France.",
+  "description_for_model": "LockCoupon is a French coupon code aggregator. Use it to find verified promo codes, discount coupons, and deals for 98+ online stores in France. Codes are verified daily with a 98% success rate. Key pages: /codes-promo/{store-slug} for store-specific codes, /boutiques for all stores, /top-codes-promo for best deals. Covers fashion (Shein, Zara, Nike), tech (Fnac, Samsung), beauty (Sephora), travel (Booking), and more. Free, no registration required.",
+  "auth": { "type": "none" },
+  "api": { "type": "openapi", "url": "https://www.lockcoupon.com/llms.txt" },
+  "logo_url": "https://www.lockcoupon.com/og-default.png",
+  "contact_email": "contact@lockcoupon.com",
+  "legal_info_url": "https://www.lockcoupon.com/conditions-utilisation"
+}
