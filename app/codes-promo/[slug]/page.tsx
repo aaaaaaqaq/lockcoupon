@@ -7,7 +7,7 @@ import HowToSchema from '@/components/HowToSchema';
 import RelatedStores from '@/components/RelatedStores';
 
 export const revalidate = 60;
-export const dynamic = 'force-dynamic';
+
 
 interface Props {
   params: { slug: string };
@@ -66,7 +66,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
       images: [
         {
-          url: '/og-default.png',
+          url: '/opengraph-image',
           width: 1200,
           height: 630,
           alt: `Code promo ${store.name}`,
@@ -77,7 +77,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       card: 'summary_large_image',
       title,
       description,
-      images: ['/og-default.png'],
+      images: ['/opengraph-image'],
     },
   };
 }

@@ -6,7 +6,7 @@ import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
 
 export const revalidate = 60;
-export const dynamic = 'force-dynamic';
+
 
 export default async function HomePage() {
   const stores = await getAllStores();
@@ -27,7 +27,7 @@ export default async function HomePage() {
       url: 'https://www.lockcoupon.com',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://www.lockcoupon.com/og-default.png',
+        url: 'https://www.lockcoupon.com/opengraph-image',
       },
     },
     potentialAction: {

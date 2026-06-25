@@ -8,7 +8,7 @@ import BlogRelated from '@/components/BlogRelated';
 import { getPostBySlug, getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
-export const dynamic = 'force-dynamic';
+
 
 interface Props {
   params: { slug: string };
@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `/blog/${post.slug}`,
       type: 'article',
-      images: post.cover_image ? [{ url: post.cover_image }] : ['/og-default.png'],
+      images: post.cover_image ? [{ url: post.cover_image }] : ['/opengraph-image'],
     },
   };
 }
@@ -68,7 +68,7 @@ export default async function BlogPostPage({ params }: Props) {
     description: post.excerpt || post.title,
     ...(post.cover_image
       ? { image: post.cover_image }
-      : { image: `${baseUrl}/og-default.png` }),
+      : { image: `${baseUrl}/opengraph-image` }),
     author: { '@type': 'Person', name: post.author },
     datePublished: post.created_at,
     dateModified: post.updated_at,
@@ -87,7 +87,7 @@ export default async function BlogPostPage({ params }: Props) {
       url: baseUrl,
       logo: {
         '@type': 'ImageObject',
-        url: `${baseUrl}/og-default.png`,
+        url: `${baseUrl}/opengraph-image`,
       },
     },
   };

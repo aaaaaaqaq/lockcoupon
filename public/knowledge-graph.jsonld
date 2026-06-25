@@ -6,7 +6,7 @@
       "@id": "https://www.lockcoupon.com/#organization",
       "name": "LockCoupon",
       "url": "https://www.lockcoupon.com",
-      "logo": "https://www.lockcoupon.com/og-default.png",
+      "logo": "https://www.lockcoupon.com/opengraph-image",
       "description": "LockCoupon est la plateforme française de référence pour les codes promo et coupons de réduction vérifiés. Plus de 98 boutiques, codes testés quotidiennement avec un taux de succès de 98%.",
       "foundingDate": "2026",
       "areaServed": {

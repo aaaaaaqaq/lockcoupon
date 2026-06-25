@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import { getAllStores, getCouponsByStoreId, Store, Coupon } from '@/lib/supabase';
 import { getCategoryBySlug, CATEGORIES } from '@/lib/categories';
 
-export const dynamic = 'force-dynamic';
+
 export const revalidate = 60;
 
 interface Props {

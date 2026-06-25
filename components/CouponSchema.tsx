@@ -9,6 +9,7 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com';
   const pageUrl = `${baseUrl}/codes-promo/${store.slug}`;
   const now = new Date().toISOString();
+  const nowDate = new Date();
 
   // ── 1. BreadcrumbList ────────────────────────────────
   const breadcrumbSchema = {
@@ -58,7 +59,7 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
           category: 'Coupon',
           availability: 'https://schema.org/InStock',
           validFrom: coupon.created_at || now,
-          ...(coupon.expiry_date ? { validThrough: coupon.expiry_date } : {}),
+          ...(coupon.expiry_date && new Date(coupon.expiry_date) > nowDate ? { validThrough: coupon.expiry_date } : {}),
           offeredBy: {
             '@type': 'Organization',
             name: store.name,

@@ -281,8 +281,24 @@ export async function GET(request: Request) {
 
     // ── Notify Google immediately after publishing ──────────────────────────
     const newPostUrl = `https://www.lockcoupon.com/blog/${slug}`;
+    const storePageUrl = `https://www.lockcoupon.com/codes-promo/${store.slug}`;
     await pingSitemap();
     await notifyGoogle([newPostUrl, 'https://www.lockcoupon.com/blog']);
+
+    // ── IndexNow: submit new post + related store page to Bing/Yandex ────────
+    const indexNowSecret = process.env.CRON_SECRET;
+    if (indexNowSecret) {
+      await fetch(
+        `https://www.lockcoupon.com/api/indexnow?secret=${encodeURIComponent(indexNowSecret)}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            urls: [newPostUrl, storePageUrl, 'https://www.lockcoupon.com/blog'],
+          }),
+        },
+      ).catch(() => { /* non-fatal */ });
+    }
 
     return NextResponse.json({
       success: true,

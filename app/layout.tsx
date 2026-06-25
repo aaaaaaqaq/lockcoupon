@@ -12,6 +12,10 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com'),
   alternates: {
     canonical: '/',
+    languages: {
+      'fr-FR': 'https://www.lockcoupon.com',
+      'x-default': 'https://www.lockcoupon.com',
+    },
   },
   openGraph: {
     title: 'LockCoupon — Codes Promo Vérifiés 2026',
@@ -23,7 +27,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/og-default.png',
+        url: '/opengraph-image',
         width: 1200,
         height: 630,
         alt: 'LockCoupon — Codes Promo Vérifiés',
@@ -34,7 +38,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'LockCoupon — Codes Promo Vérifiés 2026',
     description: 'Codes promo, coupons et réductions vérifiés chaque jour.',
-    images: ['/og-default.png'],
+    images: ['/opengraph-image'],
   },
   robots: {
     index: true,
@@ -48,7 +52,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     '@type': 'Organization',
     name: 'LockCoupon',
     url: 'https://www.lockcoupon.com',
-    logo: 'https://www.lockcoupon.com/og-default.png',
+    logo: 'https://www.lockcoupon.com/opengraph-image',
     sameAs: [],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -68,22 +72,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
         <link rel="preconnect" href="https://xbkiebmzxvksbdhcixbj.supabase.co" />
+        <meta name="geo.region" content="FR" />
+        <meta name="geo.placename" content="France" />
         <link rel="alternate" type="application/ld+json" href="/knowledge-graph.jsonld" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
         />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify({
-            '@context': 'https://schema.org',
-            '@type': 'WebPage',
-            speakable: {
-              '@type': 'SpeakableSpecification',
-              cssSelector: ['h1', 'h2', '.text-muted'],
-            },
-          }) }}
-        />
+
       </head>
       <body className="min-h-screen bg-bg">
         {children}

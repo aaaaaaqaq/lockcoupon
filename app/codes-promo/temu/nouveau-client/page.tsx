@@ -5,7 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getStoreBySlug, getCouponsByStoreId } from '@/lib/supabase';
 
-export const dynamic = 'force-dynamic';
+
 export const revalidate = 60;
 
 const month = () => new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });

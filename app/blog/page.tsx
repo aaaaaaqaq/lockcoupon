@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import { getPublishedPosts } from '@/lib/supabase';
 
 export const revalidate = 60;
-export const dynamic = 'force-dynamic';
+
 
 export const metadata: Metadata = {
   title: 'Blog — Astuces & Bons Plans',

@@ -7,7 +7,7 @@ import FAQ from '@/components/FAQ';
 import { supabase } from '@/lib/supabase';
 
 export const revalidate = 60;
-export const dynamic = 'force-dynamic';
+
 
 export const metadata: Metadata = {
   title: 'Top 20 Codes Promo du Moment',
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     description: 'Top 20 des meilleurs codes promo en France, sélectionnés par LockCoupon. Codes vérifiés quotidiennement, classés par popularité et taux de succès. Mis à jour chaque jour.',
     url: '/top-codes-promo',
     type: 'website',
-    images: [{ url: '/og-default.png', width: 1200, height: 630 }],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
   },
 };
 

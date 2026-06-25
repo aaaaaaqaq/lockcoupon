@@ -103,6 +103,11 @@ function StoreFAQSection({ store, coupons }: { store: Store; coupons: Coupon[] }
 function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[] }) {
   const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
   const totalUsage = coupons.reduce((sum, c) => sum + (c.usage_count || 0), 0);
+  const codeCoupons = coupons.filter((c) => c.type === 'code');
+  const bestDiscount = coupons.reduce((max, c) => {
+    const val = c.discount_value ? parseInt(c.discount_value) : 0;
+    return val > max ? val : max;
+  }, 0);
 
   return (
     <section className="bg-bg border-t border-border">
@@ -112,23 +117,39 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
             Codes promo {store.name} — {month}
           </h2>
           <div className="text-muted text-[14px] md:text-[15px] leading-relaxed space-y-3">
+            {/* Unique stats intro — different for every store based on live data */}
             <p>
-              Retrouvez sur cette page toutes les réductions et codes promo {store.name} vérifiés par l&apos;équipe LockCoupon.
-              Nous proposons actuellement <strong>{coupons.length} offres actives</strong> pour {store.name}
-              {totalUsage > 0 && <>, utilisées par plus de <strong>{totalUsage.toLocaleString('fr-FR')} personnes</strong></>}.
-              Chaque code est testé régulièrement pour garantir son fonctionnement.
+              En {month}, LockCoupon référence{' '}
+              <strong>{coupons.length} offre{coupons.length !== 1 ? 's' : ''} active{coupons.length !== 1 ? 's' : ''}</strong>
+              {' '}pour {store.name}
+              {codeCoupons.length > 0 && (
+                <>, dont <strong>{codeCoupons.length} code{codeCoupons.length !== 1 ? 's' : ''} promo</strong> à saisir au paiement</>
+              )}
+              {bestDiscount > 0 && (
+                <> — avec des réductions allant jusqu&apos;à <strong>{bestDiscount}%</strong></>
+              )}
+              {totalUsage > 0 && (
+                <>, utilisées par plus de <strong>{totalUsage.toLocaleString('fr-FR')} personnes</strong></>
+              )}
+              . Toutes nos offres sont vérifiées et mises à jour quotidiennement.
             </p>
+
+            {/* Store description as primary content when available, generic fallback otherwise */}
+            {store.description ? (
+              <p>{store.description}</p>
+            ) : (
+              <p>
+                Retrouvez sur cette page toutes les réductions et codes promo {store.name} vérifiés par l&apos;équipe LockCoupon.
+                Chaque code est testé régulièrement pour garantir son fonctionnement.
+              </p>
+            )}
+
             <p>
               Pour profiter d&apos;une réduction {store.name}, il vous suffit de copier le code promo de votre choix,
               de vous rendre sur le site officiel {store.name}, d&apos;ajouter vos articles au panier et de coller le code
               dans le champ prévu lors du paiement. La remise s&apos;applique immédiatement. Pensez à vérifier les conditions
               d&apos;utilisation de chaque offre (montant minimum, catégories éligibles, date d&apos;expiration).
             </p>
-            {store.description && (
-              <p>
-                <strong>À propos de {store.name} :</strong> {store.description}
-              </p>
-            )}
 
             <h3 className="text-text-main text-[17px] font-bold mt-6 mb-2">Types de codes promo {store.name} disponibles</h3>
             <p>

@@ -60,12 +60,38 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  const postUrls = posts.map((post) => ({
-    url: `${baseUrl}/blog/${post.slug}`,
-    lastModified: new Date(post.updated_at),
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
+  const now = Date.now();
+  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
+  const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
+
+  const postUrls = posts.map((post) => {
+    const postDate = new Date(post.updated_at);
+    const ageMs = now - postDate.getTime();
+
+    let priority: number;
+    let changeFrequency: 'weekly' | 'monthly';
+
+    if (ageMs < thirtyDaysMs) {
+      // Fresh content — crawl frequently, high priority
+      priority = 0.7;
+      changeFrequency = 'weekly';
+    } else if (ageMs < ninetyDaysMs) {
+      // Mid-age content — reduced priority
+      priority = 0.4;
+      changeFrequency = 'monthly';
+    } else {
+      // Older content — low priority, save crawl budget
+      priority = 0.3;
+      changeFrequency = 'monthly';
+    }
+
+    return {
+      url: `${baseUrl}/blog/${post.slug}`,
+      lastModified: postDate,
+      changeFrequency,
+      priority,
+    };
+  });
 
   return [...staticPages(baseUrl), ...storeUrls, ...postUrls];
 }
