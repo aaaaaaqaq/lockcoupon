@@ -17,8 +17,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const cat = getCategoryBySlug(params.slug);
   if (!cat) return {};
   const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+  // Keep title ≤60 chars (including " | LockCoupon" suffix from template)
+  const suffix = ' | LockCoupon';
+  const fullTitle = `${cat.title} — ${month}`;
+  const title = (fullTitle + suffix).length <= 60 ? fullTitle : cat.title;
   return {
-    title: `${cat.title} — ${month}`,
+    title,
     description: cat.description,
     alternates: { canonical: `/codes-promo/categorie/${params.slug}` },
     openGraph: {

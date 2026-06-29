@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 export const metadata: Metadata = {
   title: 'Toutes les Boutiques avec Codes Promo',
-  description: 'Parcourez les 98+ boutiques avec codes promo vérifiés sur LockCoupon : mode, tech, sport, beauté, voyage. Chaque code est testé quotidiennement. Trouvez votre boutique et économisez.',
+  description: '98+ boutiques avec codes promo vérifiés : mode, tech, sport, beauté, voyage. Codes testés chaque jour. Trouvez votre boutique.',
   alternates: {
     canonical: '/boutiques',
   },

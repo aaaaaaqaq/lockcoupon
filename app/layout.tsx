@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: '%s | LockCoupon',
   },
   description:
-    'LockCoupon est le site français #1 pour les codes promo vérifiés. Plus de 98 boutiques, codes testés quotidiennement, taux de succès de 98%. Trouvez des réductions pour Amazon, Shein, Nike, Fnac et plus. 100% gratuit.',
+    'Codes promo vérifiés pour 98+ boutiques en France. Testés chaque jour, taux de succès 98%. Amazon, Shein, Nike, Fnac et plus. 100% gratuit.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com'),
   alternates: {
     canonical: '/',
