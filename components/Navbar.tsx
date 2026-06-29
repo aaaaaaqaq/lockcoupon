@@ -77,14 +77,15 @@ export default function Navbar() {
           </Link>
 
           {/* Search bar */}
-          <div className="hidden sm:flex flex-1 max-w-[500px] mx-4" ref={searchRef}>
+          <div className="hidden sm:flex flex-1 max-w-[500px] mx-4" ref={searchRef} role="search" aria-label="Rechercher une boutique">
             <div className="relative w-full">
               <input
-                type="text"
+                type="search"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onFocus={() => { if (results.length > 0) setShowResults(true); }}
                 placeholder="Rechercher une boutique..."
+                aria-label="Rechercher une boutique"
                 className="w-full bg-white rounded-full pl-5 pr-12 py-2.5 text-[14px] text-text-main outline-none placeholder:text-muted"
               />
               <div className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg flex items-center justify-center">

@@ -27,7 +27,7 @@ export default function Footer() {
           </div>
 
           {/* Navigation */}
-          <div>
+          <nav aria-label="Navigation du site">
             <h3 className="text-white font-bold text-[14px] mb-3">Navigation</h3>
             <div className="space-y-2">
               <Link href="/" className="block text-white/50 hover:text-white text-[13px] transition-colors">Accueil</Link>
@@ -36,10 +36,10 @@ export default function Footer() {
               <Link href="/guide-achat" className="block text-white/50 hover:text-white text-[13px] transition-colors">Guide d&apos;achat</Link>
               <Link href="/blog" className="block text-white/50 hover:text-white text-[13px] transition-colors">Blog</Link>
             </div>
-          </div>
+          </nav>
 
           {/* Informations */}
-          <div>
+          <nav aria-label="Informations">
             <h3 className="text-white font-bold text-[14px] mb-3">Informations</h3>
             <div className="space-y-2">
               <Link href="/a-propos" className="block text-white/50 hover:text-white text-[13px] transition-colors">À propos</Link>
@@ -47,7 +47,7 @@ export default function Footer() {
               <Link href="/politique-de-confidentialite" className="block text-white/50 hover:text-white text-[13px] transition-colors">Politique de confidentialité</Link>
               <Link href="/conditions-utilisation" className="block text-white/50 hover:text-white text-[13px] transition-colors">Conditions d&apos;utilisation</Link>
             </div>
-          </div>
+          </nav>
 
           {/* Newsletter */}
           <FooterNewsletter />

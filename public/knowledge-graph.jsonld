@@ -6,7 +6,12 @@
       "@id": "https://www.lockcoupon.com/#organization",
       "name": "LockCoupon",
       "url": "https://www.lockcoupon.com",
-      "logo": "https://www.lockcoupon.com/opengraph-image",
+      "logo": {
+        "@type": "ImageObject",
+        "url": "https://www.lockcoupon.com/opengraph-image",
+        "width": 1200,
+        "height": 630
+      },
       "description": "LockCoupon est la plateforme française de référence pour les codes promo et coupons de réduction vérifiés. Plus de 98 boutiques, codes testés quotidiennement avec un taux de succès de 98%.",
       "foundingDate": "2026",
       "areaServed": {
@@ -20,8 +25,7 @@
         "contactType": "customer service",
         "email": "contact@lockcoupon.com",
         "availableLanguage": "French"
-      },
-      "sameAs": []
+      }
     },
     {
       "@type": "WebSite",
@@ -38,21 +42,6 @@
         "target": "https://www.lockcoupon.com/boutiques?q={search_term_string}",
         "query-input": "required name=search_term_string"
       }
-    },
-    {
-      "@type": "ItemList",
-      "@id": "https://www.lockcoupon.com/#categories",
-      "name": "Catégories de codes promo",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Mode & Vêtements", "url": "https://www.lockcoupon.com/codes-promo/categorie/mode" },
-        { "@type": "ListItem", "position": 2, "name": "High-Tech & Électronique", "url": "https://www.lockcoupon.com/codes-promo/categorie/high-tech" },
-        { "@type": "ListItem", "position": 3, "name": "Maison & Déco", "url": "https://www.lockcoupon.com/codes-promo/categorie/maison" },
-        { "@type": "ListItem", "position": 4, "name": "Beauté & Parfums", "url": "https://www.lockcoupon.com/codes-promo/categorie/beaute" },
-        { "@type": "ListItem", "position": 5, "name": "Voyage & Hôtels", "url": "https://www.lockcoupon.com/codes-promo/categorie/voyage" },
-        { "@type": "ListItem", "position": 6, "name": "Sport & Outdoor", "url": "https://www.lockcoupon.com/codes-promo/categorie/sport" },
-        { "@type": "ListItem", "position": 7, "name": "Alimentation", "url": "https://www.lockcoupon.com/codes-promo/categorie/alimentation" },
-        { "@type": "ListItem", "position": 8, "name": "Marketplace", "url": "https://www.lockcoupon.com/codes-promo/categorie/marketplace" }
-      ]
     }
   ]
 }

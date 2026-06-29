@@ -82,13 +82,11 @@ export default async function BlogPostPage({ params }: Props) {
       cssSelector: ['h1', 'article p:first-of-type', 'article h2'],
     },
     publisher: {
-      '@type': 'Organization',
-      name: 'LockCoupon',
-      url: baseUrl,
-      logo: {
-        '@type': 'ImageObject',
-        url: `${baseUrl}/opengraph-image`,
-      },
+      '@id': 'https://www.lockcoupon.com/#organization',
+    },
+    inLanguage: 'fr-FR',
+    isPartOf: {
+      '@id': 'https://www.lockcoupon.com/#website',
     },
   };
 

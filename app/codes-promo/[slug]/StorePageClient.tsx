@@ -232,9 +232,11 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
 
         {/* Coupon list */}
         <section className="max-w-[1200px] mx-auto px-4 py-6" aria-label={`Codes promo ${store.name}`}>
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4" role="list" aria-label={`${filtered.length} offres ${store.name}`}>
             {filtered.map((coupon) => (
-              <CouponCard key={coupon.id} coupon={coupon} onOpenPopup={openPopup} />
+              <div key={coupon.id} role="listitem">
+                <CouponCard coupon={coupon} onOpenPopup={openPopup} />
+              </div>
             ))}
           </div>
 
@@ -296,7 +298,7 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
         <StoreFAQSection store={store} coupons={coupons} />
 
         {/* Internal links */}
-        <section className="max-w-[1200px] mx-auto px-4 py-6">
+        <nav aria-label="Pages utiles" className="max-w-[1200px] mx-auto px-4 py-6">
           <div className="flex flex-wrap gap-3 justify-center">
             <Link href="/guide-achat" className="text-primary text-[13px] font-semibold hover:underline">📖 Guide d&apos;achat</Link>
             <span className="text-muted">•</span>
@@ -306,7 +308,7 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
             <span className="text-muted">•</span>
             <Link href="/blog" className="text-primary text-[13px] font-semibold hover:underline">📝 Blog</Link>
           </div>
-        </section>
+        </nav>
       </main>
 
       <Footer />

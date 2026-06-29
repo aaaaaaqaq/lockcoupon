@@ -43,6 +43,9 @@ export const metadata: Metadata = {
   robots: {
     index: true,
     follow: true,
+    'max-snippet': -1,
+    'max-image-preview': 'large',
+    'max-video-preview': -1,
   },
 };
 
@@ -50,9 +53,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const orgSchema = {
     '@context': 'https://schema.org',
     '@type': 'Organization',
+    '@id': 'https://www.lockcoupon.com/#organization',
     name: 'LockCoupon',
     url: 'https://www.lockcoupon.com',
-    logo: 'https://www.lockcoupon.com/opengraph-image',
+    logo: {
+      '@type': 'ImageObject',
+      url: 'https://www.lockcoupon.com/opengraph-image',
+      width: 1200,
+      height: 630,
+    },
+    description: 'LockCoupon est la plateforme française de référence pour les codes promo et coupons de réduction vérifiés. Plus de 98 boutiques, codes testés quotidiennement avec un taux de succès de 98%.',
+    foundingDate: '2026',
+    areaServed: {
+      '@type': 'Country',
+      name: 'France',
+    },
+    knowsLanguage: 'fr',
+    slogan: 'Économisez avec les meilleurs codes promo vérifiés',
     sameAs: [],
     contactPoint: {
       '@type': 'ContactPoint',
@@ -74,7 +91,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="preconnect" href="https://xbkiebmzxvksbdhcixbj.supabase.co" />
         <meta name="geo.region" content="FR" />
         <meta name="geo.placename" content="France" />
-        <link rel="alternate" type="application/ld+json" href="/knowledge-graph.jsonld" />
+
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}

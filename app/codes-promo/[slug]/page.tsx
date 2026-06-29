@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import { getStoreBySlug, getCouponsByStoreId, getAllStores } from '@/lib/supabase';
 import StorePageClient from './StorePageClient';
 import CouponSchema from '@/components/CouponSchema';
