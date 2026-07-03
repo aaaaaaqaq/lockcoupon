@@ -99,7 +99,7 @@ export default function CategoryIcon({ slug }: { slug: string }) {
       viewBox="0 0 24 24"
       fill="none"
       stroke={`url(#${gradId})`}
-      strokeWidth="1.7"
+      strokeWidth="1.9"
       strokeLinecap="round"
       strokeLinejoin="round"
       aria-hidden

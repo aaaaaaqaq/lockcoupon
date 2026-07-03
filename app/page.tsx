@@ -89,12 +89,12 @@ export default async function HomePage() {
                 <Link
                   key={cat.slug}
                   href={`/codes-promo/categorie/${cat.slug}`}
-                  className="cat-card group relative bg-white rounded-[22px] px-2 pt-7 pb-5 text-center flex flex-col items-center"
+                  className="cat-card group relative rounded-[22px] px-2 pt-7 pb-5 text-center flex flex-col items-center"
                   style={{
                     '--glow': `${theme.to}59`,
                     '--delay': `${i * 0.4}s`,
-                    border: `1.5px solid ${theme.to}2e`,
-                    background: `linear-gradient(180deg, ${theme.from}0a 0%, #ffffff 55%)`,
+                    border: '2px solid transparent',
+                    background: `linear-gradient(180deg, ${theme.from}17 0%, #ffffff 60%) padding-box, linear-gradient(135deg, ${theme.from}, ${theme.to}) border-box`,
                   } as React.CSSProperties}
                 >
                   <div className="cat-orb flex items-center justify-center h-12 group-hover:scale-110 transition-transform duration-300">
