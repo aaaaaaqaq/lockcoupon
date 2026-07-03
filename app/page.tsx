@@ -1,9 +1,22 @@
 import Link from 'next/link';
+import type React from 'react';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
+
+/* Per-category glow colors — each category has its own identity */
+const CATEGORY_GLOWS: Record<string, string> = {
+  mode: '#ec4899',         // rose
+  'high-tech': '#0ea5e9',  // bleu électrique
+  maison: '#f59e0b',       // ambre chaleureux
+  beaute: '#d946ef',       // fuchsia
+  voyage: '#06b6d4',       // cyan horizon
+  sport: '#10b981',        // vert énergie
+  alimentation: '#f97316', // orange appétit
+  marketplace: '#8b5cf6',  // violet premium
+};
 
 export const revalidate = 60;
 
@@ -81,12 +94,38 @@ export default async function HomePage() {
         <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-10" aria-label="Catégories">
           <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">Catégories populaires</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-            {CATEGORIES.map((cat) => (
-              <Link key={cat.slug} href={`/codes-promo/categorie/${cat.slug}`} className="bg-white border border-border rounded-xl p-3 text-center hover:shadow-md hover:-translate-y-0.5 transition-all">
-                <div className="text-[28px] mb-1">{cat.emoji}</div>
-                <span className="text-text-main text-[12px] md:text-[13px] font-semibold">{cat.name}</span>
-              </Link>
-            ))}
+            {CATEGORIES.map((cat, i) => {
+              const glow = CATEGORY_GLOWS[cat.slug] || '#C0392B';
+              return (
+                <Link
+                  key={cat.slug}
+                  href={`/codes-promo/categorie/${cat.slug}`}
+                  className="cat-card group relative border border-border rounded-2xl px-3 pt-4 pb-3.5 text-center"
+                  style={{
+                    '--glow': `${glow}66`,
+                    '--delay': `${i * 0.4}s`,
+                    background: `linear-gradient(180deg, ${glow}14 0%, #ffffff 65%)`,
+                  } as React.CSSProperties}
+                >
+                  <div className="cat-orb relative mx-auto w-14 h-14 mb-2.5">
+                    <span
+                      aria-hidden
+                      className="cat-halo absolute inset-0 rounded-full blur-lg"
+                      style={{ background: glow }}
+                    />
+                    <span
+                      className="relative flex items-center justify-center w-14 h-14 rounded-full bg-white/85 text-[26px] shadow-sm border border-white group-hover:scale-110 transition-transform duration-300"
+                      style={{ boxShadow: `0 4px 14px -4px ${glow}55, inset 0 0 0 1px #ffffffcc` }}
+                    >
+                      {cat.emoji}
+                    </span>
+                  </div>
+                  <span className="text-text-main text-[12px] md:text-[13px] font-semibold group-hover:text-primary transition-colors">
+                    {cat.name}
+                  </span>
+                </Link>
+              );
+            })}
           </div>
         </section>
 
