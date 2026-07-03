@@ -28,6 +28,7 @@ function staticPages(baseUrl: string): MetadataRoute.Sitemap {
     { url: `${baseUrl}/codes-promo/temu/nouveau-client`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/codes-promo/temu/livraison-gratuite`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/codes-promo/temu/parrainage`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
+    { url: `${baseUrl}/codes-promo/amazon/prime-day`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/a-propos`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
   ];

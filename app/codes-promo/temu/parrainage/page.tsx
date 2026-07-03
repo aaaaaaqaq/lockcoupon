@@ -8,8 +8,14 @@ import { getStoreBySlug, getCouponsByStoreId } from '@/lib/supabase';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'Code Parrainage Temu — Juin 2026',
+function monthYearCap(): string {
+  const s = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export function generateMetadata(): Metadata {
+  return {
+  title: `Code Parrainage Temu — ${monthYearCap()}`,
   description: 'Code parrainage Temu : parrainez vos amis et gagnez des crédits. Guide complet du programme de parrainage Temu.',
   alternates: { canonical: '/codes-promo/temu/parrainage' },
   openGraph: {
@@ -20,7 +26,8 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     type: 'website',
   },
-};
+  };
+}
 
 export default async function TemuParrainagePage() {
   const store = await getStoreBySlug('temu');

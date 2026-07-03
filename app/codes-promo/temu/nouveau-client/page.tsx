@@ -10,8 +10,14 @@ export const revalidate = 60;
 
 const month = () => new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
 
-export const metadata: Metadata = {
-  title: 'Code Promo Temu Nouveau Client — Juin 2026',
+function monthYearCap(): string {
+  const s = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export function generateMetadata(): Metadata {
+  return {
+  title: `Code Promo Temu Nouveau Client — ${monthYearCap()}`,
   description: 'Code promo Temu nouveau client : jusqu\'à 90% sur votre première commande. Offres vérifiées pour les nouveaux utilisateurs.',
   alternates: { canonical: '/codes-promo/temu/nouveau-client' },
   openGraph: {
@@ -22,7 +28,8 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     type: 'website',
   },
-};
+  };
+}
 
 export default async function TemuNouveauClientPage() {
   const store = await getStoreBySlug('temu');

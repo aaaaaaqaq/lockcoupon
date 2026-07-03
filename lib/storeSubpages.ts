@@ -9,6 +9,14 @@ export interface StoreSubpage {
 }
 
 export const STORE_SUBPAGES: Record<string, StoreSubpage[]> = {
+  amazon: [
+    {
+      href: '/codes-promo/amazon/prime-day',
+      title: 'Amazon Prime Day 2026',
+      desc: 'Dates, meilleures offres et astuces pour profiter du plus gros événement promo Amazon.',
+      icon: '⚡',
+    },
+  ],
   temu: [
     {
       href: '/codes-promo/temu/nouveau-client',

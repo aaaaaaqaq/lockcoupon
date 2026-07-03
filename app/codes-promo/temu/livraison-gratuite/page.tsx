@@ -8,8 +8,14 @@ import { getStoreBySlug, getCouponsByStoreId } from '@/lib/supabase';
 
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  title: 'Temu Livraison Gratuite — Code Promo Juin 2026',
+function monthYearCap(): string {
+  const s = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+export function generateMetadata(): Metadata {
+  return {
+  title: `Temu Livraison Gratuite — Code Promo ${monthYearCap()}`,
   description: 'Temu livraison gratuite en France : codes promo, seuils, délais. Tout savoir pour ne pas payer les frais de port.',
   alternates: { canonical: '/codes-promo/temu/livraison-gratuite' },
   openGraph: {
@@ -20,7 +26,8 @@ export const metadata: Metadata = {
     locale: 'fr_FR',
     type: 'website',
   },
-};
+  };
+}
 
 export default async function TemuLivraisonGratuitePage() {
   const store = await getStoreBySlug('temu');
