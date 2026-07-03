@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getStoreBySlug, getCouponsByStoreId, getAllStores } from '@/lib/supabase';
+import { bestDiscountLabel } from '@/lib/discount';
 import StorePageClient from './StorePageClient';
 import CouponSchema from '@/components/CouponSchema';
 import HowToSchema from '@/components/HowToSchema';
@@ -15,8 +16,9 @@ interface Props {
   params: { slug: string };
 }
 
-/* ── SEO helper: build title ≤ 60 chars ─────────────── */
-function buildTitle(storeName: string): string {
+/* ── SEO helper: build CTR-optimized title ≤ 60 chars ───────────
+   Includes real numbers (offer count, best discount) — proven CTR lever. */
+function buildTitle(storeName: string, offerCount: number, discount: string | null): string {
   const now = new Date();
   const monthNames = [
     'Janvier','Février','Mars','Avril','Mai','Juin',
@@ -25,19 +27,27 @@ function buildTitle(storeName: string): string {
   const month = monthNames[now.getMonth()];
   const year = now.getFullYear();
 
-  // Try: "Code Promo StoreName — Mai 2026" (ideal)
-  const full = `Code Promo ${storeName} — ${month} ${year}`;
-  if (full.length <= 60) return full;
+  const base = `Code Promo ${storeName} ${month} ${year}`;
 
-  // Fallback: "Code Promo StoreName — 2026"
+  // Best: "Code Promo Temu Juillet 2026 : 35 offres (-200€)"
+  if (discount && offerCount > 1) {
+    const rich = `${base} : ${offerCount} offres (-${discount})`;
+    if (rich.length <= 60) return rich;
+  }
+  if (offerCount > 1) {
+    const withCount = `${base} : ${offerCount} offres vérifiées`;
+    if (withCount.length <= 60) return withCount;
+    const short = `${base} : ${offerCount} offres`;
+    if (short.length <= 60) return short;
+  }
+  if (base.length <= 60) return base;
+
   const withYear = `Code Promo ${storeName} — ${year}`;
   if (withYear.length <= 60) return withYear;
 
-  // Ultra-long store names: "Code Promo StoreName"
   const minimal = `Code Promo ${storeName}`;
   if (minimal.length <= 60) return minimal;
 
-  // Truncate store name as last resort
   const maxName = 60 - 'Code Promo  …'.length;
   return `Code Promo ${storeName.slice(0, maxName)}…`;
 }
@@ -46,12 +56,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const store = await getStoreBySlug(params.slug);
   if (!store) return {};
 
+  const coupons = await getCouponsByStoreId(store.id).catch(() => []);
+  const discount = bestDiscountLabel(coupons);
+  const codeCount = coupons.filter((c) => c.type === 'code').length;
+
   const now = new Date();
   const month = now.toLocaleString('fr-FR', { month: 'long' });
   const year = now.getFullYear();
 
-  const title = buildTitle(store.name);
-  const description = `${store.name} : codes promo vérifiés en ${month} ${year}. Économisez avec des réductions exclusives mises à jour chaque jour.`;
+  const title = buildTitle(store.name, coupons.length, discount);
+  const description = discount
+    ? `✅ ${codeCount > 0 ? `${codeCount} codes promo` : `${coupons.length} offres`} ${store.name} testés et vérifiés en ${month} ${year} · Jusqu'à ${discount} de réduction · Mis à jour aujourd'hui. Copiez votre code et économisez !`
+    : `✅ Codes promo ${store.name} vérifiés en ${month} ${year} · Offres testées et mises à jour aujourd'hui. Copiez votre code et économisez sur votre commande !`;
 
   return {
     title,

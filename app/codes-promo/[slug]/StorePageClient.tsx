@@ -11,35 +11,10 @@ import Toast from '@/components/Toast';
 import Footer from '@/components/Footer';
 import { Store, Coupon } from '@/lib/supabase';
 import { STORE_SUBPAGES } from '@/lib/storeSubpages';
+import { bestDiscountLabel } from '@/lib/discount';
 
 function frenchDate(): string {
   return new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-/** Best discount as a human label ("70%" or "200€"), respecting discount_type.
- *  Percent values are capped at 90 to avoid absurd claims; values > 100 without
- *  an explicit type are treated as euro amounts (e.g. Temu 200€ coupon packs). */
-function bestDiscountLabel(coupons: Coupon[]): string | null {
-  let bestPct = 0;
-  let bestEur = 0;
-  for (const c of coupons) {
-    const val = c.discount_value ? parseInt(c.discount_value) : 0;
-    if (!val || val <= 0) continue;
-    if (c.discount_type === 'euro') {
-      if (val > bestEur) bestEur = val;
-    } else if (c.discount_type === 'percent') {
-      if (val <= 90 && val > bestPct) bestPct = val;
-      else if (val > 90 && val <= 100 && bestPct < 90) bestPct = 90;
-      else if (val > 100 && val > bestEur) bestEur = val; // mistyped euro amount
-    } else {
-      // no type: guess — >100 can only be euros
-      if (val > 100) { if (val > bestEur) bestEur = val; }
-      else if (val <= 90 && val > bestPct) bestPct = val;
-    }
-  }
-  if (bestEur > 0 && bestEur >= bestPct) return `${bestEur}€`;
-  if (bestPct > 0) return `${bestPct}%`;
-  return null;
 }
 
 interface StorePageClientProps {

@@ -209,7 +209,21 @@ export async function GET(request: Request) {
       (t) => !recentTitles.some((rt) => rt.includes(t.slug.replace(/-/g, ' ')))
     );
     const topicPool = available.length > 0 ? available : TEMU_TOPICS;
-    const topic = topicPool[Math.floor(Math.random() * topicPool.length)];
+
+    // ── Anti-duplicate guard: never regenerate a topic whose slug base already
+    // exists (the old behavior created competing copies — cannibalization).
+    let topic: (typeof TEMU_TOPICS)[number] | null = null;
+    for (const candidate of [...topicPool].sort(() => Math.random() - 0.5)) {
+      const { data: dup } = await supabase
+        .from('blog_posts')
+        .select('id')
+        .like('slug', `${candidate.slug}%`)
+        .limit(1);
+      if (!dup || dup.length === 0) { topic = candidate; break; }
+    }
+    if (!topic) {
+      return NextResponse.json({ skipped: 'all Temu topics already covered — no duplicate created' });
+    }
 
     const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
     const title = topic.title_fn(month);

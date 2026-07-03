@@ -223,8 +223,41 @@ export async function GET(request: Request) {
     }
 
     const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-    const topicFn = TOPICS[Math.floor(Math.random() * TOPICS.length)];
-    const title = topicFn(store.name, month);
+
+    // ── Anti-duplicate guard ──────────────────────────────────────────
+    // The old behavior regenerated the same topic with a new timestamp
+    // suffix after 3 days, creating 2-5 near-identical articles competing
+    // in Google (cannibalization). Now: try up to 10 store+topic combos,
+    // skip any whose slug base already exists in blog_posts.
+    const slugBase = (t: string) => t
+      .toLowerCase()
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '')
+      .substring(0, 75);
+
+    let title = '';
+    let found = false;
+    for (let attempt = 0; attempt < 10; attempt++) {
+      const candidateStore = attempt === 0 ? store : storePool[Math.floor(Math.random() * storePool.length)];
+      const topicFn = TOPICS[Math.floor(Math.random() * TOPICS.length)];
+      const candidateTitle = topicFn(candidateStore.name, month);
+      const { data: dup } = await supabase
+        .from('blog_posts')
+        .select('id')
+        .like('slug', `${slugBase(candidateTitle)}%`)
+        .limit(1);
+      if (!dup || dup.length === 0) {
+        store = candidateStore;
+        title = candidateTitle;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      return NextResponse.json({ skipped: 'all candidate topics already covered — no duplicate created' });
+    }
+
     const prompt = buildPrompt(store.name, store.slug, title, month);
 
     // Call Claude API with high max_tokens for long articles
