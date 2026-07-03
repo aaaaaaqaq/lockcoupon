@@ -89,24 +89,25 @@ export default async function HomePage() {
                 <Link
                   key={cat.slug}
                   href={`/codes-promo/categorie/${cat.slug}`}
-                  className="cat-card group relative border border-border rounded-2xl px-3 pt-4 pb-3.5 text-center"
+                  className="cat-card group relative bg-white rounded-[22px] px-2 pt-7 pb-5 text-center flex flex-col items-center"
                   style={{
-                    '--glow': `${theme.to}66`,
+                    '--glow': `${theme.to}59`,
                     '--delay': `${i * 0.4}s`,
-                    background: `linear-gradient(180deg, ${theme.from}12 0%, #ffffff 65%)`,
+                    border: `1.5px solid ${theme.to}2e`,
+                    background: `linear-gradient(180deg, ${theme.from}0a 0%, #ffffff 55%)`,
                   } as React.CSSProperties}
                 >
-                  <div className="cat-orb relative mx-auto w-14 h-14 mb-2.5">
-                    <span
-                      aria-hidden
-                      className="cat-halo absolute inset-0 rounded-2xl blur-lg"
-                      style={{ background: `linear-gradient(135deg, ${theme.from}, ${theme.to})` }}
-                    />
+                  <div className="cat-orb flex items-center justify-center h-12 group-hover:scale-110 transition-transform duration-300">
                     <CategoryIcon slug={cat.slug} />
                   </div>
-                  <span className="text-text-main text-[12px] md:text-[13px] font-semibold group-hover:text-primary transition-colors">
+                  <span className="mt-3.5 text-text-main text-[12px] md:text-[13px] font-bold leading-tight px-1">
                     {cat.name}
                   </span>
+                  <span
+                    aria-hidden
+                    className="mt-3.5 h-[3.5px] w-8 rounded-full group-hover:w-12 transition-all duration-300"
+                    style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
+                  />
                 </Link>
               );
             })}
