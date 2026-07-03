@@ -6,16 +6,20 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogRelated from '@/components/BlogRelated';
 import { getPostBySlug, getPublishedPosts, getPostsLight } from '@/lib/supabase';
-import { baseSlug } from '@/lib/slugs';
+import { slugFromTitle } from '@/lib/slugs';
 
 /** Duplicate-article consolidation: the article cron used to regenerate the
  *  same topic with a new timestamp suffix, creating 2-5 copies competing in
- *  Google (cannibalization). The canonical copy = the OLDEST one (most likely
- *  indexed/aged). Any other copy 308-redirects to it. */
+ *  Google (cannibalization). Cluster key = slug derived from the title (the
+ *  exact transform the generator uses), so identical titles = one cluster.
+ *  The canonical copy = the OLDEST one (most likely indexed/aged); any other
+ *  copy 308-redirects to it. */
 async function canonicalSlugFor(slug: string): Promise<string | null> {
-  const base = baseSlug(slug);
   const posts = await getPostsLight();
-  const cluster = posts.filter((p) => baseSlug(p.slug) === base);
+  const current = posts.find((p) => p.slug === slug);
+  if (!current) return null;
+  const key = slugFromTitle(current.title);
+  const cluster = posts.filter((p) => slugFromTitle(p.title) === key);
   if (cluster.length <= 1) return null;
   cluster.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
   const canonical = cluster[0].slug;

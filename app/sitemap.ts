@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 import { getAllStores, getPublishedPosts } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
-import { baseSlug } from '@/lib/slugs';
+import { slugFromTitle } from '@/lib/slugs';
 
 /* ── Validate a slug: only lowercase alphanumeric + hyphens ── */
 function isValidSlug(slug: unknown): slug is string {
@@ -49,18 +49,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       getPublishedPosts(),
     ]);
     stores = allStores.filter((s) => s && isValidSlug(s.slug));
-    // Deduplicate article clusters: keep only the OLDEST copy per base slug
+    // Deduplicate article clusters: keep only the OLDEST copy per title-slug
     // (duplicates 308-redirect to it, so they must not appear in the sitemap).
     const validPosts = allPosts.filter((p) => p && isValidSlug(p.slug));
-    const byBase = new Map<string, (typeof validPosts)[number]>();
+    const byKey = new Map<string, (typeof validPosts)[number]>();
     for (const p of validPosts) {
-      const base = baseSlug(p.slug);
-      const existing = byBase.get(base);
+      const key = slugFromTitle(p.title);
+      const existing = byKey.get(key);
       if (!existing || new Date(p.created_at) < new Date(existing.created_at)) {
-        byBase.set(base, p);
+        byKey.set(key, p);
       }
     }
-    posts = Array.from(byBase.values());
+    posts = Array.from(byKey.values());
   } catch {
     // Supabase down — return static pages only, do not crash sitemap
     return staticPages(baseUrl);
