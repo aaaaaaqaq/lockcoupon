@@ -201,6 +201,8 @@ export default async function HomePage() {
                 Consultez notre <Link href="/blog" className="text-primary hover:underline">blog</Link> pour des guides d&apos;achat détaillés,
                 nos <Link href="/guide-achat" className="text-primary hover:underline">conseils pour économiser</Link> toute l&apos;année,
                 ou découvrez le <Link href="/top-codes-promo" className="text-primary hover:underline">top 20 des codes promo</Link> les plus utilisés ce mois-ci.
+                Boutique star du moment : retrouvez notre sélection de <Link href="/codes-promo/temu" className="text-primary hover:underline">codes promo Temu</Link> vérifiés,
+                avec des offres <Link href="/codes-promo/temu/nouveau-client" className="text-primary hover:underline">nouveau client</Link> et de <Link href="/codes-promo/temu/parrainage" className="text-primary hover:underline">parrainage Temu</Link> mises à jour chaque jour.
               </p>
             </div>
           </div>

@@ -10,9 +10,36 @@ import CouponPopup from '@/components/CouponPopup';
 import Toast from '@/components/Toast';
 import Footer from '@/components/Footer';
 import { Store, Coupon } from '@/lib/supabase';
+import { STORE_SUBPAGES } from '@/lib/storeSubpages';
 
 function frenchDate(): string {
   return new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+}
+
+/** Best discount as a human label ("70%" or "200€"), respecting discount_type.
+ *  Percent values are capped at 90 to avoid absurd claims; values > 100 without
+ *  an explicit type are treated as euro amounts (e.g. Temu 200€ coupon packs). */
+function bestDiscountLabel(coupons: Coupon[]): string | null {
+  let bestPct = 0;
+  let bestEur = 0;
+  for (const c of coupons) {
+    const val = c.discount_value ? parseInt(c.discount_value) : 0;
+    if (!val || val <= 0) continue;
+    if (c.discount_type === 'euro') {
+      if (val > bestEur) bestEur = val;
+    } else if (c.discount_type === 'percent') {
+      if (val <= 90 && val > bestPct) bestPct = val;
+      else if (val > 90 && val <= 100 && bestPct < 90) bestPct = 90;
+      else if (val > 100 && val > bestEur) bestEur = val; // mistyped euro amount
+    } else {
+      // no type: guess — >100 can only be euros
+      if (val > 100) { if (val > bestEur) bestEur = val; }
+      else if (val <= 90 && val > bestPct) bestPct = val;
+    }
+  }
+  if (bestEur > 0 && bestEur >= bestPct) return `${bestEur}€`;
+  if (bestPct > 0) return `${bestPct}%`;
+  return null;
 }
 
 interface StorePageClientProps {
@@ -24,10 +51,7 @@ function StoreFAQSection({ store, coupons }: { store: Store; coupons: Coupon[] }
   const [openIndex, setOpenIndex] = useState<number | null>(null);
   const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
   const codeCoupons = coupons.filter((c) => c.type === 'code');
-  const bestDiscount = coupons.reduce((max, c) => {
-    const val = c.discount_value ? parseInt(c.discount_value) : 0;
-    return val > max ? val : max;
-  }, 0);
+  const bestDiscount = bestDiscountLabel(coupons);
 
   const faqItems = [
     {
@@ -40,8 +64,8 @@ function StoreFAQSection({ store, coupons }: { store: Store; coupons: Coupon[] }
     },
     {
       question: `Quelle est la meilleure réduction ${store.name} en ce moment ?`,
-      answer: bestDiscount > 0
-        ? `La meilleure réduction ${store.name} actuellement disponible sur LockCoupon peut atteindre jusqu'à ${bestDiscount}%. Consultez la liste ci-dessus pour voir toutes les offres classées par pertinence et vérifiez les conditions de chaque code promo.`
+      answer: bestDiscount
+        ? `La meilleure réduction ${store.name} actuellement disponible sur LockCoupon peut atteindre jusqu'à ${bestDiscount}. Consultez la liste ci-dessus pour voir toutes les offres classées par pertinence et vérifiez les conditions de chaque code promo.`
         : `Plusieurs bons plans ${store.name} sont actuellement disponibles sur LockCoupon. Consultez la liste ci-dessus pour découvrir toutes les réductions en cours, incluant la livraison gratuite et les offres spéciales.`,
     },
     {
@@ -104,10 +128,7 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
   const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
   const totalUsage = coupons.reduce((sum, c) => sum + (c.usage_count || 0), 0);
   const codeCoupons = coupons.filter((c) => c.type === 'code');
-  const bestDiscount = coupons.reduce((max, c) => {
-    const val = c.discount_value ? parseInt(c.discount_value) : 0;
-    return val > max ? val : max;
-  }, 0);
+  const bestDiscount = bestDiscountLabel(coupons);
 
   return (
     <section className="bg-bg border-t border-border">
@@ -125,8 +146,8 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
               {codeCoupons.length > 0 && (
                 <>, dont <strong>{codeCoupons.length} code{codeCoupons.length !== 1 ? 's' : ''} promo</strong> à saisir au paiement</>
               )}
-              {bestDiscount > 0 && (
-                <> — avec des réductions allant jusqu&apos;à <strong>{bestDiscount}%</strong></>
+              {bestDiscount && (
+                <> — avec des réductions allant jusqu&apos;à <strong>{bestDiscount}</strong></>
               )}
               {totalUsage > 0 && (
                 <>, utilisées par plus de <strong>{totalUsage.toLocaleString('fr-FR')} personnes</strong></>
@@ -292,6 +313,32 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
             </div>
           </div>
         </section>
+
+        {/* Store-specific subpages — SEO silo hub */}
+        {STORE_SUBPAGES[store.slug] && (
+          <section className="max-w-[1200px] mx-auto px-4 py-8" aria-label={`Offres ${store.name} par catégorie`}>
+            <div className="max-w-[800px] mx-auto">
+              <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">
+                Toutes les offres {store.name} par catégorie
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {STORE_SUBPAGES[store.slug].map((sub) => (
+                  <Link
+                    key={sub.href}
+                    href={sub.href}
+                    className="bg-white border border-border rounded-xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all group"
+                  >
+                    <div className="text-[28px] mb-2">{sub.icon}</div>
+                    <h3 className="text-text-main text-[15px] font-bold mb-1.5 group-hover:text-primary transition-colors">
+                      {sub.title}
+                    </h3>
+                    <p className="text-muted text-[13px] leading-relaxed">{sub.desc}</p>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
 
         {/* SEO content sections */}
         <StoreAboutSection store={store} coupons={coupons} />
