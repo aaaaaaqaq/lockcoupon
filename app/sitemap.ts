@@ -54,9 +54,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     return staticPages(baseUrl);
   }
 
+  // Stable daily stamp (after the 07:00 Paris coupon refresh) — honest lastmod
+  // instead of a new timestamp on every sitemap fetch, which erodes Google's
+  // trust in lastmod and wastes crawl budget.
+  const dailyStamp = new Date();
+  dailyStamp.setUTCHours(5, 30, 0, 0);
+  if (dailyStamp.getTime() > Date.now()) dailyStamp.setUTCDate(dailyStamp.getUTCDate() - 1);
+
   const storeUrls = stores.map((store) => ({
     url: `${baseUrl}/codes-promo/${store.slug}`,
-    lastModified: new Date(),
+    lastModified: dailyStamp,
     changeFrequency: 'daily' as const,
     priority: 0.8,
   }));

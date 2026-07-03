@@ -88,6 +88,17 @@ export interface BlogPost {
   updated_at: string;
 }
 
+/** Lightweight post list (no content) — for internal-linking widgets. */
+export async function getPostsLight(): Promise<Pick<BlogPost, 'slug' | 'title' | 'created_at'>[]> {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('slug,title,created_at')
+    .eq('is_published', true)
+    .order('created_at', { ascending: false });
+  if (error) return [];
+  return data || [];
+}
+
 export async function getPublishedPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase
     .from('blog_posts')

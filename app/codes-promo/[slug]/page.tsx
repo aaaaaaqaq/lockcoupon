@@ -6,6 +6,7 @@ import StorePageClient from './StorePageClient';
 import CouponSchema from '@/components/CouponSchema';
 import HowToSchema from '@/components/HowToSchema';
 import RelatedStores from '@/components/RelatedStores';
+import RelatedArticles from '@/components/RelatedArticles';
 
 export const revalidate = 60;
 
@@ -96,6 +97,7 @@ export default async function StorePageSSR({ params }: Props) {
       <CouponSchema store={store} coupons={coupons} />
       <HowToSchema store={store} />
       <StorePageClient store={store} coupons={coupons} />
+      <RelatedArticles storeName={store.name} storeSlug={store.slug} />
       <RelatedStores currentSlug={store.slug} />
     </>
   );
