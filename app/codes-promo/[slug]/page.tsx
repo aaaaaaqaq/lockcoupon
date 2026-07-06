@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { getStoreBySlug, getCouponsByStoreId, getAllStores } from '@/lib/supabase';
 import { bestDiscountLabel } from '@/lib/discount';
+import { absoluteUrl } from '@/lib/site';
 import StorePageClient from './StorePageClient';
 import CouponSchema from '@/components/CouponSchema';
 import HowToSchema from '@/components/HowToSchema';
@@ -69,16 +70,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     ? `✅ ${codeCount > 0 ? `${codeCount} codes promo` : `${coupons.length} offres`} ${store.name} testés et vérifiés en ${month} ${year} · Jusqu'à ${discount} de réduction · Mis à jour aujourd'hui. Copiez votre code et économisez !`
     : `✅ Codes promo ${store.name} vérifiés en ${month} ${year} · Offres testées et mises à jour aujourd'hui. Copiez votre code et économisez sur votre commande !`;
 
+  const canonical = absoluteUrl(`/codes-promo/${params.slug}`);
+
   return {
     title,
     description,
     alternates: {
-      canonical: `/codes-promo/${params.slug}`,
+      canonical,
     },
+    // Thin-content strategy (GSC "Explorée/Détectée, actuellement non indexée"):
+    // stores with ZERO active offers are noindexed (and excluded from the
+    // sitemap) until offers come back. `follow: true` keeps link equity flowing.
+    robots: coupons.length === 0
+      ? { index: false, follow: true }
+      : { index: true, follow: true },
     openGraph: {
       title,
       description,
-      url: `/codes-promo/${params.slug}`,
+      url: canonical,
       siteName: 'LockCoupon',
       locale: 'fr_FR',
       type: 'website',
@@ -100,7 +109,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// No generateStaticParams — pages render on-demand with ISR
+/** Pre-render every store page at build time; ISR (revalidate above) keeps
+ *  them fresh. Unknown slugs still render on-demand, then 404 via notFound. */
+export async function generateStaticParams() {
+  const stores = await getAllStores();
+  return stores
+    .filter((s) => s.slug)
+    .map((s) => ({ slug: s.slug }));
+}
 
 export default async function StorePageSSR({ params }: Props) {
   const store = await getStoreBySlug(params.slug);

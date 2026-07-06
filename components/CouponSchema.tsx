@@ -1,4 +1,6 @@
 import { Store, Coupon } from '@/lib/supabase';
+import { storeFaqItems } from '@/lib/storeContent';
+import { SITE_URL } from '@/lib/site';
 
 interface CouponSchemaProps {
   store: Store;
@@ -6,7 +8,7 @@ interface CouponSchemaProps {
 }
 
 export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com';
+  const baseUrl = SITE_URL;
   const pageUrl = `${baseUrl}/codes-promo/${store.slug}`;
   const now = new Date().toISOString();
   const nowDate = new Date();
@@ -76,55 +78,20 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
     }),
   };
 
-  // ── 3. FAQPage (clean, no duplicates) ────────────────
-  const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-  const codeCoupons = coupons.filter((c) => c.type === 'code');
-
+  // ── 3. FAQPage — generated from the SAME source as the visible on-page FAQ
+  // (lib/storeContent.ts) so structured data always matches rendered content,
+  // as required by Google's FAQ rich-result guidelines. ──────────────────
   const faqSchema = {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
-    mainEntity: [
-      {
-        '@type': 'Question',
-        name: `Comment utiliser un code promo ${store.name} ?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Copiez le code sur LockCoupon, rendez-vous sur ${store.name}, ajoutez vos articles au panier et collez le code dans le champ prévu lors du paiement.`,
-        },
+    mainEntity: storeFaqItems(store, coupons).map((item) => ({
+      '@type': 'Question',
+      name: item.question,
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: item.answer,
       },
-      {
-        '@type': 'Question',
-        name: `Combien de codes promo ${store.name} sont disponibles en ${month} ?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `En ${month}, ${coupons.length} offres ${store.name} sont disponibles sur LockCoupon, dont ${codeCoupons.length} codes promo actifs vérifiés.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `Les codes promo ${store.name} sont-ils fiables ?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Oui, tous les codes promo ${store.name} sur LockCoupon sont vérifiés par notre équipe. Nous affichons le nombre d'utilisations pour chaque code.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `Est-ce que ${store.name} offre la livraison gratuite ?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Les offres de livraison gratuite ${store.name} varient selon les périodes. Consultez notre page ${store.name} sur LockCoupon pour voir les codes promo livraison gratuite actuellement disponibles.`,
-        },
-      },
-      {
-        '@type': 'Question',
-        name: `Que faire si mon code promo ${store.name} ne fonctionne pas ?`,
-        acceptedAnswer: {
-          '@type': 'Answer',
-          text: `Vérifiez les conditions du code (montant minimum, catégories éligibles, date d'expiration). Si le code est expiré, essayez un autre code disponible sur LockCoupon. Nos offres sont mises à jour quotidiennement.`,
-        },
-      },
-    ],
+    })),
   };
 
   // ── 4. WebPage with Speakable (no fake AggregateRating) ──────────────
