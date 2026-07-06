@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: 'Contact',
   description: 'Contactez l\'équipe LockCoupon pour vos questions, partenariats ou suggestions. Réponse sous 24h.',
   alternates: {
-    canonical: '/contact',
+    canonical: 'https://www.lockcoupon.com/contact',
   },
 };
 

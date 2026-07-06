@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   title: 'Top 20 Codes Promo du Moment',
   description: 'Top 20 des meilleurs codes promo en France. Vérifiés chaque jour, classés par popularité et taux de succès. Mis à jour quotidiennement.',
   alternates: {
-    canonical: '/top-codes-promo',
+    canonical: 'https://www.lockcoupon.com/top-codes-promo',
   },
   openGraph: {
     title: 'Top 20 Codes Promo du Moment',

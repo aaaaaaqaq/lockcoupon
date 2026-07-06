@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: 'Toutes les Boutiques avec Codes Promo',
   description: '98+ boutiques avec codes promo vérifiés : mode, tech, sport, beauté, voyage. Codes testés chaque jour. Trouvez votre boutique.',
   alternates: {
-    canonical: '/boutiques',
+    canonical: 'https://www.lockcoupon.com/boutiques',
   },
 };
 

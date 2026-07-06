@@ -10,13 +10,10 @@ export const metadata: Metadata = {
   description:
     'Codes promo vérifiés pour 98+ boutiques en France. Testés chaque jour, taux de succès 98%. Amazon, Shein, Nike, Fnac et plus. 100% gratuit.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com'),
-  alternates: {
-    canonical: '/',
-    languages: {
-      'fr-FR': 'https://www.lockcoupon.com',
-      'x-default': 'https://www.lockcoupon.com',
-    },
-  },
+  // NOTE: no `alternates.canonical` here — a canonical in the root layout
+  // cascades to every page that doesn't override it, telling Google those
+  // pages are duplicates of the homepage (GSC "duplicate sans URL canonique").
+  // Each page declares its own absolute self-canonical instead.
   openGraph: {
     title: 'LockCoupon — Codes Promo Vérifiés 2026',
     description:

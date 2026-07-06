@@ -1,5 +1,7 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import type React from 'react';
+import { SITE_URL } from '@/lib/site';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
@@ -9,6 +11,15 @@ import CategoryIcon, { CATEGORY_THEMES } from '@/components/CategoryIcon';
 
 export const revalidate = 60;
 
+export const metadata: Metadata = {
+  alternates: {
+    canonical: SITE_URL,
+    languages: {
+      'fr-FR': SITE_URL,
+      'x-default': SITE_URL,
+    },
+  },
+};
 
 export default async function HomePage() {
   const stores = await getAllStores();

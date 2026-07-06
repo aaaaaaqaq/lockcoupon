@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: 'À propos',
   description: 'LockCoupon est la plateforme française de codes promo vérifiés. Découvrez notre mission, notre fonctionnement et notre engagement qualité.',
   alternates: {
-    canonical: '/a-propos',
+    canonical: 'https://www.lockcoupon.com/a-propos',
   },
 };
 

@@ -19,7 +19,7 @@ export function generateMetadata(): Metadata {
   return {
   title: `Code Promo Temu Nouveau Client — ${monthYearCap()}`,
   description: 'Code promo Temu nouveau client : jusqu\'à 90% sur votre première commande. Offres vérifiées pour les nouveaux utilisateurs.',
-  alternates: { canonical: '/codes-promo/temu/nouveau-client' },
+  alternates: { canonical: 'https://www.lockcoupon.com/codes-promo/temu/nouveau-client' },
   openGraph: {
     title: 'Code Promo Temu Nouveau Client',
     description: 'Offres exclusives Temu pour les nouveaux clients. Codes vérifiés.',

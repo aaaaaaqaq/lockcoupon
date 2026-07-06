@@ -18,7 +18,7 @@ export function generateMetadata(): Metadata {
   return {
     title: `Amazon Prime Day 2026 — Bons Plans & Codes Promo`,
     description: `Amazon Prime Day 2026 en France : dates, meilleures offres, astuces pour en profiter sans rien payer de plus. Codes promo Amazon vérifiés en ${monthYearCap()}.`,
-    alternates: { canonical: '/codes-promo/amazon/prime-day' },
+    alternates: { canonical: 'https://www.lockcoupon.com/codes-promo/amazon/prime-day' },
     openGraph: {
       title: 'Amazon Prime Day 2026 — Bons Plans & Codes Promo',
       description: 'Dates, offres et astuces pour le Prime Day Amazon en France. Guide complet.',

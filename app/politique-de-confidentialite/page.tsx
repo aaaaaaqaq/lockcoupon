@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: 'Politique de Confidentialité',
   description: 'Comment LockCoupon protège vos données personnelles : collecte, utilisation, cookies, droits RGPD et sécurité de vos informations.',
   alternates: {
-    canonical: '/politique-de-confidentialite',
+    canonical: 'https://www.lockcoupon.com/politique-de-confidentialite',
   },
 };
 

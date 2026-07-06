@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   title: 'Blog — Astuces & Bons Plans',
   description: 'Découvrez nos articles sur les meilleures astuces pour économiser en ligne, les codes promo du moment et les guides d\'achat détaillés.',
   alternates: {
-    canonical: '/blog',
+    canonical: 'https://www.lockcoupon.com/blog',
   },
 };
 

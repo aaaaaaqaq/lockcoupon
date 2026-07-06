@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import BlogRelated from '@/components/BlogRelated';
 import { getPostBySlug, getPublishedPosts, getPostsLight } from '@/lib/supabase';
 import { slugFromTitle } from '@/lib/slugs';
+import { absoluteUrl } from '@/lib/site';
 
 /** Duplicate-article consolidation: the article cron used to regenerate the
  *  same topic with a new timestamp suffix, creating 2-5 copies competing in
@@ -58,7 +59,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: {
-      canonical: `/blog/${post.slug}`,
+      canonical: absoluteUrl(`/blog/${post.slug}`),
     },
     openGraph: {
       title: safeTitle,
@@ -70,7 +71,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
-// No generateStaticParams — all blog pages render on-demand
+/** Pre-render the 50 most recent posts at build time (the ones most likely
+ *  to be crawled); older posts render on-demand and are then cached by ISR.
+ *  Keeps builds fast while making hot pages statically available. */
+export async function generateStaticParams() {
+  const posts = await getPostsLight();
+  return posts.slice(0, 50).map((p) => ({ slug: p.slug }));
+}
 
 export default async function BlogPostPage({ params }: Props) {
   const redirectTo = await canonicalSlugFor(params.slug);

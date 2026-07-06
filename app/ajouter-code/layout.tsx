@@ -4,7 +4,7 @@ export const metadata: Metadata = {
   title: 'Ajouter un Code Promo',
   description: 'Partagez vos codes promo et bons plans avec la communauté LockCoupon. Soumettez un code vérifié par notre équipe.',
   alternates: {
-    canonical: '/ajouter-code',
+    canonical: 'https://www.lockcoupon.com/ajouter-code',
   },
   robots: {
     index: false,

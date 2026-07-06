@@ -7,7 +7,7 @@ export const metadata: Metadata = {
   title: "Conditions Générales d'Utilisation",
   description: "Conditions générales d'utilisation du site LockCoupon.com : règles d'usage, liens d'affiliation, propriété intellectuelle et responsabilité.",
   alternates: {
-    canonical: '/conditions-utilisation',
+    canonical: 'https://www.lockcoupon.com/conditions-utilisation',
   },
 };
 

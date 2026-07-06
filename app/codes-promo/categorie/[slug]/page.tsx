@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getAllStores, getCouponsByStoreId, Store, Coupon } from '@/lib/supabase';
 import { getCategoryBySlug, CATEGORIES } from '@/lib/categories';
+import { absoluteUrl } from '@/lib/site';
 
 
 export const revalidate = 60;
@@ -24,7 +25,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description: cat.description,
-    alternates: { canonical: `/codes-promo/categorie/${params.slug}` },
+    alternates: { canonical: absoluteUrl(`/codes-promo/categorie/${params.slug}`) },
     openGraph: {
       title: cat.title,
       description: cat.description,

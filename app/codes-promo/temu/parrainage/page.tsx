@@ -17,7 +17,7 @@ export function generateMetadata(): Metadata {
   return {
   title: `Code Parrainage Temu — ${monthYearCap()}`,
   description: 'Code parrainage Temu : parrainez vos amis et gagnez des crédits. Guide complet du programme de parrainage Temu.',
-  alternates: { canonical: '/codes-promo/temu/parrainage' },
+  alternates: { canonical: 'https://www.lockcoupon.com/codes-promo/temu/parrainage' },
   openGraph: {
     title: 'Code Parrainage Temu',
     description: 'Programme de parrainage Temu : comment ça marche, combien vous gagnez.',

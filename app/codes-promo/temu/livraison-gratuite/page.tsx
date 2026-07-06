@@ -17,7 +17,7 @@ export function generateMetadata(): Metadata {
   return {
   title: `Temu Livraison Gratuite — Code Promo ${monthYearCap()}`,
   description: 'Temu livraison gratuite en France : codes promo, seuils, délais. Tout savoir pour ne pas payer les frais de port.',
-  alternates: { canonical: '/codes-promo/temu/livraison-gratuite' },
+  alternates: { canonical: 'https://www.lockcoupon.com/codes-promo/temu/livraison-gratuite' },
   openGraph: {
     title: 'Temu Livraison Gratuite — Codes Promo',
     description: 'Codes promo livraison gratuite Temu vérifiés. Expédition France.',
