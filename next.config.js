@@ -12,11 +12,13 @@ const nextConfig = {
   },
   async headers() {
     return [
-      // ── Security + indexing headers on all non-system routes ─────────
+      // ── Security headers on all non-system routes ───────────────────
+      // NOTE: no blanket "X-Robots-Tag: index, follow" here — it conflicted
+      // with per-page noindex (zero-offer store pages). Indexing directives
+      // are handled per-page via metadata.robots.
       {
         source: '/((?!api|_next|_vercel).*)',
         headers: [
-          { key: 'X-Robots-Tag', value: 'index, follow' },
           { key: 'X-Content-Type-Options', value: 'nosniff' },
           { key: 'X-Frame-Options', value: 'SAMEORIGIN' },
           { key: 'X-XSS-Protection', value: '1; mode=block' },
