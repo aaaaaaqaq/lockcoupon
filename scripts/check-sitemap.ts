@@ -57,6 +57,7 @@ async function checkUrl(url: string): Promise<CheckResult> {
     const res = await fetch(url, {
       redirect: 'manual',
       headers: { 'user-agent': 'LockCoupon-SitemapChecker/1.0' },
+      signal: AbortSignal.timeout(30_000), // ISR cold pages can be slow; don't hang forever
     });
     const result: CheckResult = { url, status: res.status };
     if (res.status >= 300 && res.status < 400) {
