@@ -70,6 +70,18 @@ export async function getAllStores(): Promise<Store[]> {
   return data || [];
 }
 
+/** Offer count per store_id in ONE query — used by the sitemap to exclude
+ *  zero-offer (thin) store pages until they have offers again. */
+export async function getCouponCountsByStore(): Promise<Record<string, number>> {
+  const { data, error } = await supabase.from('coupons').select('store_id');
+  if (error || !data) return {};
+  const counts: Record<string, number> = {};
+  for (const row of data as { store_id: string }[]) {
+    counts[row.store_id] = (counts[row.store_id] || 0) + 1;
+  }
+  return counts;
+}
+
 export async function incrementCouponUsage(couponId: string): Promise<void> {
   await supabase.rpc('increment_usage', { coupon_id: couponId });
 }

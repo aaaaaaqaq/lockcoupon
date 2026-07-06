@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
-import { getAllStores, getPublishedPosts } from '@/lib/supabase';
+import { getAllStores, getPublishedPosts, getCouponCountsByStore, type BlogPost, type Store } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
 import { slugFromTitle } from '@/lib/slugs';
+import { SITE_URL } from '@/lib/site';
 
 /* ── Validate a slug: only lowercase alphanumeric + hyphens ── */
 function isValidSlug(slug: unknown): slug is string {
@@ -36,19 +37,26 @@ function staticPages(baseUrl: string): MetadataRoute.Sitemap {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com';
+  // Canonical origin: always https + www, no trailing slash (lib/site.ts).
+  const baseUrl = SITE_URL;
 
   // Graceful degradation: if Supabase is unreachable during a Googlebot crawl,
   // always return at minimum the static pages instead of throwing.
-  let stores: { slug: string }[] = [];
-  let posts: { slug: string; updated_at: string }[] = [];
+  let stores: Store[] = [];
+  let posts: BlogPost[] = [];
 
   try {
-    const [allStores, allPosts] = await Promise.all([
+    const [allStores, allPosts, couponCounts] = await Promise.all([
       getAllStores(),
       getPublishedPosts(),
+      getCouponCountsByStore(),
     ]);
-    stores = allStores.filter((s) => s && isValidSlug(s.slug));
+    // Only stores that exist in Supabase right now, with a valid slug AND at
+    // least one active offer. Zero-offer stores are noindexed on-page and
+    // kept out of the sitemap until they have offers (thin-content fix).
+    stores = allStores.filter(
+      (s) => s && isValidSlug(s.slug) && (couponCounts[s.id] || 0) > 0
+    );
     // Deduplicate article clusters: keep only the OLDEST copy per title-slug
     // (duplicates 308-redirect to it, so they must not appear in the sitemap).
     const validPosts = allPosts.filter((p) => p && isValidSlug(p.slug));
