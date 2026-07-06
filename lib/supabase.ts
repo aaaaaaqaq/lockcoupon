@@ -49,7 +49,10 @@ export async function getStoreBySlug(slug: string): Promise<Store | null> {
     .order('created_at', { ascending: true })
     .limit(1)
     .maybeSingle();
-  if (error) return null;
+  // Real query failure must THROW (→ HTTP 500, Google retries later), never
+  // return null (→ notFound() → cacheable 404 → page gets deindexed).
+  // maybeSingle() returns data:null WITHOUT error when the row simply doesn't exist.
+  if (error) throw new Error(`getStoreBySlug(${slug}) failed: ${error.message}`);
   return data;
 }
 
@@ -137,6 +140,7 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
     .order('created_at', { ascending: true })
     .limit(1)
     .maybeSingle();
-  if (error) return null;
+  // Same rule as getStoreBySlug: DB failure ⇒ throw (500), not a cacheable 404.
+  if (error) throw new Error(`getPostBySlug(${slug}) failed: ${error.message}`);
   return data;
 }
