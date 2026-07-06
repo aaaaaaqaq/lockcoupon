@@ -1,4 +1,6 @@
 import { createClient } from '@supabase/supabase-js';
+import { cache } from 'react';
+import { unstable_cache } from 'next/cache';
 
 // Fallback values prevent crash during build when env vars aren't set.
 // Queries will simply fail and our error handlers return empty data.
@@ -39,7 +41,17 @@ export interface Coupon {
 }
 
 // ─── Data fetchers ───────────────────────────────────────────
-export async function getStoreBySlug(slug: string): Promise<Store | null> {
+// Two-layer caching strategy (fixes slow cold-ISR blog/store renders):
+//   • React cache()      → dedupes identical calls WITHIN a single request
+//                          (e.g. getPostBySlug runs in both generateMetadata
+//                          and the page body → 1 query instead of 2).
+//   • unstable_cache()   → shares the result ACROSS requests via the Next data
+//                          cache, so N concurrent cold renders of different
+//                          slugs don't each re-fetch the whole post index /
+//                          store list. Errors are thrown inside so failures are
+//                          never cached; the outer wrapper degrades to [].
+
+export const getStoreBySlug = cache(async (slug: string): Promise<Store | null> => {
   // .maybeSingle() + limit(1): .single() errors out (→ page 404s) when the
   // table accidentally contains duplicate slugs. Oldest row wins (canonical).
   const { data, error } = await supabase
@@ -54,9 +66,9 @@ export async function getStoreBySlug(slug: string): Promise<Store | null> {
   // maybeSingle() returns data:null WITHOUT error when the row simply doesn't exist.
   if (error) throw new Error(`getStoreBySlug(${slug}) failed: ${error.message}`);
   return data;
-}
+});
 
-export async function getCouponsByStoreId(storeId: string): Promise<Coupon[]> {
+export const getCouponsByStoreId = cache(async (storeId: string): Promise<Coupon[]> => {
   const { data, error } = await supabase
     .from('coupons')
     .select('*')
@@ -66,16 +78,24 @@ export async function getCouponsByStoreId(storeId: string): Promise<Coupon[]> {
     .order('created_at', { ascending: false });
   if (error) return [];
   return data || [];
-}
+});
 
-export async function getAllStores(): Promise<Store[]> {
-  const { data, error } = await supabase
-    .from('stores')
-    .select('*')
-    .order('name');
-  if (error) return [];
-  return data || [];
-}
+const _getAllStoresCached = unstable_cache(
+  async (): Promise<Store[]> => {
+    const { data, error } = await supabase.from('stores').select('*').order('name');
+    if (error) throw new Error(`getAllStores failed: ${error.message}`); // don't cache failures
+    return data || [];
+  },
+  ['all-stores'],
+  { revalidate: 300, tags: ['stores'] }
+);
+export const getAllStores = cache(async (): Promise<Store[]> => {
+  try {
+    return await _getAllStoresCached();
+  } catch {
+    return [];
+  }
+});
 
 /** Offer count per store_id in ONE query — used by the sitemap to exclude
  *  zero-offer (thin) store pages until they have offers again. */
@@ -107,16 +127,36 @@ export interface BlogPost {
   updated_at: string;
 }
 
-/** Lightweight post list (no content) — for internal-linking widgets. */
-export async function getPostsLight(): Promise<Pick<BlogPost, 'slug' | 'title' | 'created_at'>[]> {
-  const { data, error } = await supabase
-    .from('blog_posts')
-    .select('slug,title,created_at')
-    .eq('is_published', true)
-    .order('created_at', { ascending: false });
-  if (error) return [];
-  return data || [];
-}
+/** Lightweight post list — every column EXCEPT the heavy `content` HTML.
+ *  This one list serves the sitemap, canonical-slug clustering, related-post
+ *  widgets and the homepage teaser, so no hot path ever needs to pull the
+ *  full content of all ~300 posts. Cross-request cached (300s) + per-render
+ *  deduped, so concurrent cold blog renders share a single DB round-trip. */
+export type PostLight = Pick<
+  BlogPost,
+  'id' | 'slug' | 'title' | 'excerpt' | 'cover_image' | 'author' | 'created_at' | 'updated_at'
+>;
+
+const _getPostsLightCached = unstable_cache(
+  async (): Promise<PostLight[]> => {
+    const { data, error } = await supabase
+      .from('blog_posts')
+      .select('id,slug,title,excerpt,cover_image,author,created_at,updated_at')
+      .eq('is_published', true)
+      .order('created_at', { ascending: false });
+    if (error) throw new Error(`getPostsLight failed: ${error.message}`); // don't cache failures
+    return data || [];
+  },
+  ['posts-light'],
+  { revalidate: 300, tags: ['posts'] }
+);
+export const getPostsLight = cache(async (): Promise<PostLight[]> => {
+  try {
+    return await _getPostsLightCached();
+  } catch {
+    return [];
+  }
+});
 
 export async function getPublishedPosts(): Promise<BlogPost[]> {
   const { data, error } = await supabase
@@ -128,7 +168,7 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
   return data || [];
 }
 
-export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+export const getPostBySlug = cache(async (slug: string): Promise<BlogPost | null> => {
   // .maybeSingle() + limit(1): .single() errors out (→ page 404s, and the URL
   // is still in the sitemap — GSC "Introuvable 404") when the article cron
   // created duplicate slug rows. Oldest row wins (canonical copy).
@@ -143,4 +183,4 @@ export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
   // Same rule as getStoreBySlug: DB failure ⇒ throw (500), not a cacheable 404.
   if (error) throw new Error(`getPostBySlug(${slug}) failed: ${error.message}`);
   return data;
-}
+});

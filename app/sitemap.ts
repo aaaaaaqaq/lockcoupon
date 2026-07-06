@@ -1,5 +1,5 @@
 import { MetadataRoute } from 'next';
-import { getAllStores, getPublishedPosts, getCouponCountsByStore, type BlogPost, type Store } from '@/lib/supabase';
+import { getAllStores, getPostsLight, getCouponCountsByStore, type PostLight, type Store } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
 import { slugFromTitle } from '@/lib/slugs';
 import { SITE_URL } from '@/lib/site';
@@ -48,12 +48,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Graceful degradation: if Supabase is unreachable during a Googlebot crawl,
   // always return at minimum the static pages instead of throwing.
   let stores: Store[] = [];
-  let posts: BlogPost[] = [];
+  let posts: PostLight[] = [];
 
   try {
+    // Light post index (no full content) — the sitemap only needs slug/title/dates.
     const [allStores, allPosts, couponCounts] = await Promise.all([
       getAllStores(),
-      getPublishedPosts(),
+      getPostsLight(),
       getCouponCountsByStore(),
     ]);
     // Only stores that exist in Supabase right now, with a valid slug AND at

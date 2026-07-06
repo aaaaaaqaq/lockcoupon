@@ -5,7 +5,7 @@ import { SITE_URL } from '@/lib/site';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
-import { getAllStores, getPublishedPosts } from '@/lib/supabase';
+import { getAllStores, getPostsLight } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
 import CategoryIcon, { CATEGORY_THEMES } from '@/components/CategoryIcon';
 
@@ -22,8 +22,7 @@ export const metadata: Metadata = {
 };
 
 export default async function HomePage() {
-  const stores = await getAllStores();
-  const posts = await getPublishedPosts();
+  const [stores, posts] = await Promise.all([getAllStores(), getPostsLight()]);
   const displayStores = stores.slice(0, 12);
   const displayPosts = posts.slice(0, 3);
 

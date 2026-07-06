@@ -5,7 +5,7 @@ import Image from 'next/image';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogRelated from '@/components/BlogRelated';
-import { getPostBySlug, getPublishedPosts, getPostsLight } from '@/lib/supabase';
+import { getPostBySlug, getPostsLight } from '@/lib/supabase';
 import { slugFromTitle } from '@/lib/slugs';
 import { absoluteUrl } from '@/lib/site';
 

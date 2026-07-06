@@ -3,7 +3,7 @@ import Image from 'next/image';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { getPublishedPosts } from '@/lib/supabase';
+import { getPostsLight } from '@/lib/supabase';
 
 export const revalidate = 60;
 
@@ -17,7 +17,8 @@ export const metadata: Metadata = {
 };
 
 export default async function BlogPage() {
-  const posts = await getPublishedPosts();
+  // Light index (no full content) — the listing only needs card metadata.
+  const posts = await getPostsLight();
 
   const breadcrumbLd = {
     '@context': 'https://schema.org',

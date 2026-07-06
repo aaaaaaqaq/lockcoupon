@@ -1,13 +1,16 @@
 import Link from 'next/link';
-import { getPublishedPosts, getAllStores } from '@/lib/supabase';
+import { getPostsLight, getAllStores } from '@/lib/supabase';
 
 interface Props {
   currentSlug: string;
 }
 
-// Adds internal links to blog posts: related articles + popular stores
+// Adds internal links to blog posts: related articles + popular stores.
+// Uses the light post index (no full `content` HTML) — previously this pulled
+// getPublishedPosts() which fetched the entire content of all ~300 posts on
+// every blog render, the main cause of >30s cold-ISR latency under load.
 export default async function BlogRelated({ currentSlug }: Props) {
-  const [posts, stores] = await Promise.all([getPublishedPosts(), getAllStores()]);
+  const [posts, stores] = await Promise.all([getPostsLight(), getAllStores()]);
 
   const relatedPosts = posts.filter((p) => p.slug && p.slug !== currentSlug).slice(0, 4);
   const popularStores = stores.filter((s) => s.slug).slice(0, 8);
@@ -19,7 +22,7 @@ export default async function BlogRelated({ currentSlug }: Props) {
           <h2 className="text-text-main text-[22px] font-extrabold mb-4">Articles similaires</h2>
           <ul className="space-y-2">
             {relatedPosts.map((p) => (
-              <li key={p.id}>
+              <li key={p.slug}>
                 <Link
                   href={`/blog/${p.slug}`}
                   className="block px-4 py-3 rounded-lg border border-border hover:border-primary hover:bg-gray-50 text-[14px] font-semibold text-text-main transition"
