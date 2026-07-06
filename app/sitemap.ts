@@ -4,6 +4,11 @@ import { CATEGORIES } from '@/lib/categories';
 import { slugFromTitle } from '@/lib/slugs';
 import { SITE_URL } from '@/lib/site';
 
+// Regenerate the sitemap every hour instead of only at deploy time — a static
+// sitemap kept emitting stores/posts deleted from Supabase between deploys
+// (GSC "Introuvable 404" / "Page avec redirection").
+export const revalidate = 3600;
+
 /* ── Validate a slug: only lowercase alphanumeric + hyphens ── */
 function isValidSlug(slug: unknown): slug is string {
   if (typeof slug !== 'string') return false;

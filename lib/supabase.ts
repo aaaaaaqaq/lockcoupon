@@ -40,11 +40,15 @@ export interface Coupon {
 
 // ─── Data fetchers ───────────────────────────────────────────
 export async function getStoreBySlug(slug: string): Promise<Store | null> {
+  // .maybeSingle() + limit(1): .single() errors out (→ page 404s) when the
+  // table accidentally contains duplicate slugs. Oldest row wins (canonical).
   const { data, error } = await supabase
     .from('stores')
     .select('*')
     .eq('slug', slug)
-    .single();
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
   if (error) return null;
   return data;
 }
@@ -122,12 +126,17 @@ export async function getPublishedPosts(): Promise<BlogPost[]> {
 }
 
 export async function getPostBySlug(slug: string): Promise<BlogPost | null> {
+  // .maybeSingle() + limit(1): .single() errors out (→ page 404s, and the URL
+  // is still in the sitemap — GSC "Introuvable 404") when the article cron
+  // created duplicate slug rows. Oldest row wins (canonical copy).
   const { data, error } = await supabase
     .from('blog_posts')
     .select('*')
     .eq('slug', slug)
     .eq('is_published', true)
-    .single();
+    .order('created_at', { ascending: true })
+    .limit(1)
+    .maybeSingle();
   if (error) return null;
   return data;
 }
