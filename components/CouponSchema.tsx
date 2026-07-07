@@ -13,6 +13,13 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
   const now = new Date().toISOString();
   const nowDate = new Date();
 
+  // Honest dateModified: the most recent coupon verification (created_at),
+  // i.e. when the page content actually last changed — not render time.
+  const lastVerified = coupons.reduce<string | null>(
+    (max, c) => (c.created_at && (!max || c.created_at > max) ? c.created_at : max),
+    null,
+  );
+
   // ── 1. BreadcrumbList ────────────────────────────────
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
@@ -102,7 +109,7 @@ export default function CouponSchema({ store, coupons }: CouponSchemaProps) {
     name: `Codes promo ${store.name}`,
     url: pageUrl,
     description: `Tous les codes promo ${store.name} vérifiés sur LockCoupon. ${coupons.length} offres actives.`,
-    dateModified: now,
+    dateModified: lastVerified || now,
     inLanguage: 'fr-FR',
     isPartOf: {
       '@type': 'WebSite',

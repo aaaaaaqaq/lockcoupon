@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
+import { submitIndexNow } from '@/lib/indexnow';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -407,6 +408,8 @@ export async function GET(request: Request) {
       .map((s: { slug: string }) => `https://www.lockcoupon.com/codes-promo/${s.slug}`);
     await pingSitemap();
     await notifyGoogle(updatedStoreUrls);
+    // IndexNow → Bing/Yandex instant recrawl (Bing powers ChatGPT search)
+    await submitIndexNow(updatedStoreUrls);
 
     return NextResponse.json({
       success: true,

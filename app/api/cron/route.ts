@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
+import { submitIndexNow } from '@/lib/indexnow';
 
 export const maxDuration = 120;
 export const dynamic = 'force-dynamic';
@@ -319,19 +320,7 @@ export async function GET(request: Request) {
     await notifyGoogle([newPostUrl, 'https://www.lockcoupon.com/blog']);
 
     // ── IndexNow: submit new post + related store page to Bing/Yandex ────────
-    const indexNowSecret = process.env.CRON_SECRET;
-    if (indexNowSecret) {
-      await fetch(
-        `https://www.lockcoupon.com/api/indexnow?secret=${encodeURIComponent(indexNowSecret)}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            urls: [newPostUrl, storePageUrl, 'https://www.lockcoupon.com/blog'],
-          }),
-        },
-      ).catch(() => { /* non-fatal */ });
-    }
+    await submitIndexNow([newPostUrl, storePageUrl, 'https://www.lockcoupon.com/blog']);
 
     return NextResponse.json({
       success: true,

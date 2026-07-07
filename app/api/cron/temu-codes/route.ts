@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
+import { submitIndexNow } from '@/lib/indexnow';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -187,9 +189,25 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Insert failed', detail: insertError.message }, { status: 500 });
     }
 
+    // ── Notify search engines: codes just changed on these pages ──────────
+    // IndexNow → Bing/Yandex (Bing index powers ChatGPT search).
+    // Indexing API + sitemap ping → Google.
+    const temuUrls = [
+      'https://www.lockcoupon.com/codes-promo/temu',
+      'https://www.lockcoupon.com/codes-promo/temu/nouveau-client',
+      'https://www.lockcoupon.com/codes-promo/temu/livraison-gratuite',
+      'https://www.lockcoupon.com/codes-promo/temu/parrainage',
+    ];
+    await Promise.all([
+      submitIndexNow(temuUrls),
+      pingSitemap(),
+      notifyGoogle([temuUrls[0]]),
+    ]);
+
     return NextResponse.json({
       success: true,
       message: `${inserted?.length || 0} Temu codes published`,
+      pinged: { indexnow: temuUrls.length, google: 1 },
       deleted: existingCoupons?.length || 0,
       inserted: inserted?.length || 0,
       codes: inserted?.map(c => ({ title: c.title, code: c.code, value: `${c.discount_value}${c.discount_type === 'percent' ? '%' : '€'}` })),
