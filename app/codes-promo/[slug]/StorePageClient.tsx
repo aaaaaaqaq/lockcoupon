@@ -10,7 +10,8 @@ import CouponPopup from '@/components/CouponPopup';
 import Toast from '@/components/Toast';
 import Footer from '@/components/Footer';
 import { Store, Coupon } from '@/lib/supabase';
-import { STORE_SUBPAGES } from '@/lib/storeSubpages';
+import { allSubpagesFor } from '@/lib/storeSubpages';
+import AnswerBox from '@/components/AnswerBox';
 import { storeFaqItems, storeAboutSections, storeTips, storeStats } from '@/lib/storeContent';
 
 interface StorePageClientProps {
@@ -111,6 +112,7 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
 
 export default function StorePageClient({ store, coupons }: StorePageClientProps) {
   const [activeFilter, setActiveFilter] = useState('all');
+  const subpages = allSubpagesFor(store.slug, store.name, coupons.length);
   const [popupCoupon, setPopupCoupon] = useState<Coupon | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
 
@@ -152,6 +154,9 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
           <p className="text-muted text-[13px]">📊 {coupons.length} offres actives</p>
           <p className="text-muted text-[13px]">🔥 {coupons.reduce((s, c) => s + (c.usage_count || 0), 0).toLocaleString('fr-FR')} utilisations</p>
         </div>
+
+        {/* Answer-first block — dated, self-contained, AI-search quotable */}
+        <AnswerBox store={store} coupons={coupons} />
 
         <FilterTabs activeFilter={activeFilter} onFilterChange={setActiveFilter} counts={counts} />
 
@@ -213,15 +218,15 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
           </div>
         </section>
 
-        {/* Store-specific subpages — SEO silo hub */}
-        {STORE_SUBPAGES[store.slug] && (
+        {/* Store-specific subpages — SEO silo hub (manual + programmatic intents) */}
+        {subpages.length > 0 && (
           <section className="max-w-[1200px] mx-auto px-4 py-8" aria-label={`Offres ${store.name} par catégorie`}>
             <div className="max-w-[800px] mx-auto">
               <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">
                 Toutes les offres {store.name} par catégorie
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                {STORE_SUBPAGES[store.slug].map((sub) => (
+                {subpages.map((sub) => (
                   <Link
                     key={sub.href}
                     href={sub.href}

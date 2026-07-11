@@ -20,12 +20,12 @@ import { bestDiscountLabel } from './discount';
 import type { Store, Coupon } from './supabase';
 
 /* ── deterministic seed from slug ──────────────────────────────── */
-function hashSlug(slug: string): number {
+export function hashSlug(slug: string): number {
   let h = 7;
   for (let i = 0; i < slug.length; i++) h = ((h * 31) + slug.charCodeAt(i)) >>> 0;
   return h;
 }
-function pick<T>(arr: readonly T[], seed: number, salt: number): T {
+export function pick<T>(arr: readonly T[], seed: number, salt: number): T {
   return arr[(seed + salt * 13) % arr.length];
 }
 

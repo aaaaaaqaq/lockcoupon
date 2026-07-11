@@ -3,6 +3,7 @@ import { getAllStores, getPostsLight, getCouponCountsByStore, type PostLight, ty
 import { CATEGORIES } from '@/lib/categories';
 import { slugFromTitle } from '@/lib/slugs';
 import { SITE_URL } from '@/lib/site';
+import { INTENTS, isSuppressed, intentIndexable } from '@/lib/intentContent';
 
 // Regenerate the sitemap every hour instead of only at deploy time — a static
 // sitemap kept emitting stores/posts deleted from Supabase between deploys
@@ -49,6 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // always return at minimum the static pages instead of throwing.
   let stores: Store[] = [];
   let posts: PostLight[] = [];
+  let counts: Record<string, number> = {};
 
   try {
     // Light post index (no full content) — the sitemap only needs slug/title/dates.
@@ -60,6 +62,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // Only stores that exist in Supabase right now, with a valid slug AND at
     // least one active offer. Zero-offer stores are noindexed on-page and
     // kept out of the sitemap until they have offers (thin-content fix).
+    counts = couponCounts;
     stores = allStores.filter(
       (s) => s && isValidSlug(s.slug) && (couponCounts[s.id] || 0) > 0
     );
@@ -94,6 +97,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Programmatic intent pages (/codes-promo/[store]/[intent]) — only for
+  // stores with enough offers to be indexable (same thin-content policy).
+  const intentUrls: MetadataRoute.Sitemap = [];
+  for (const store of stores) {
+    if (!intentIndexable(counts[store.id] || 0)) continue;
+    for (const intent of Object.values(INTENTS)) {
+      if (isSuppressed(store.slug, intent.slug)) continue;
+      intentUrls.push({
+        url: `${baseUrl}/codes-promo/${store.slug}/${intent.slug}`,
+        lastModified: dailyStamp,
+        changeFrequency: 'daily' as const,
+        priority: 0.7,
+      });
+    }
+  }
+
   const now = Date.now();
   const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
   const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
@@ -127,5 +146,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
-  return [...staticPages(baseUrl), ...storeUrls, ...postUrls];
+  return [...staticPages(baseUrl), ...storeUrls, ...intentUrls, ...postUrls];
 }
