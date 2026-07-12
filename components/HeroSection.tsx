@@ -12,6 +12,14 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
   const totalCodes = coupons.length;
   const bestCoupon = coupons.find((c) => c.is_best);
   const now = new Date();
+
+  // Honest visible freshness date: most recent coupon verification (created_at).
+  // Mirrors the dateModified logic in CouponSchema so on-page text matches JSON-LD.
+  const lastVerifiedStr = coupons.reduce<string | null>(
+    (max, c) => (c.created_at && (!max || c.created_at > max) ? c.created_at : max),
+    null,
+  );
+  const lastVerified = lastVerifiedStr ? new Date(lastVerifiedStr) : now;
   const monthNames = [
     'Janvier','Février','Mars','Avril','Mai','Juin',
     'Juillet','Août','Septembre','Octobre','Novembre','Décembre',
@@ -43,7 +51,10 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
             {/* Badge + Logo row */}
             <div className="flex items-center gap-4 mb-5">
               <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-[13px] font-medium px-3 py-1.5 rounded-full">
-                🔥 Mis à jour aujourd&apos;hui
+                ✅ Mis à jour le{' '}
+                <time dateTime={lastVerified.toISOString().slice(0, 10)}>
+                  {lastVerified.getDate()} {monthNames[lastVerified.getMonth()].toLowerCase()} {lastVerified.getFullYear()}
+                </time>
               </span>
 
               {/* Store logo */}
@@ -71,7 +82,8 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
               Code promo <span className="text-primary">{store.name}</span> — {now.getDate()} {currentMonth.toLowerCase()} {currentYear}
             </h1>
             <p className="text-white/60 text-[15px] mb-6">
-              {totalCodes} réductions vérifiées et mises à jour aujourd&apos;hui
+              {totalCodes} réductions vérifiées — dernière vérification le {lastVerified.getDate()}{' '}
+              {monthNames[lastVerified.getMonth()].toLowerCase()} {lastVerified.getFullYear()}
             </p>
 
             {/* Stats */}
