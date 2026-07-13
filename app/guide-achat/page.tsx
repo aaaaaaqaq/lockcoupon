@@ -66,7 +66,7 @@ const CATEGORIES = [
     emoji: '💄',
     color: '#9C27B0',
     description: 'Sephora, Yves Rocher, Nocibé et plus',
-    slugs: ['sephora', 'nocibe', 'yves-rocher', 'marionnaud', 'aroma-zone'],
+    slugs: ['sephora', 'nocibe-fr', 'yves-rocher', 'marionnaud', 'aroma-zone'],
     tips: [
       "Les coffrets cadeaux offrent un meilleur rapport qualité/prix",
       "Profitez des échantillons gratuits à chaque commande",

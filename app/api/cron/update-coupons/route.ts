@@ -77,7 +77,7 @@ const STORE_URLS: Record<string, string> = {
   'expedia': 'https://www.expedia.fr',
   'airbnb': 'https://www.airbnb.fr',
   'sephora': 'https://www.sephora.fr',
-  'nocibe': 'https://www.nocibe.fr',
+  'nocibe-fr': 'https://www.nocibe.fr',
   'yves-rocher': 'https://www.yves-rocher.fr',
   'marionnaud': 'https://www.marionnaud.fr',
   'aroma-zone': 'https://www.aroma-zone.com',

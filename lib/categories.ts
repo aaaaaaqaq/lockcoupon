@@ -38,7 +38,7 @@ export const CATEGORIES: Category[] = [
     title: 'Codes Promo Beauté & Parfums',
     description: 'Codes promo beauté vérifiés : maquillage, soins, parfums. Sephora, Yves Rocher, Nocibé, Marionnaud.',
     emoji: '💄',
-    storeSlugs: ['aroma-zone', 'marionnaud', 'nocibe', 'sephora', 'yves-rocher', 'douglas'],
+    storeSlugs: ['aroma-zone', 'marionnaud', 'nocibe-fr', 'sephora', 'yves-rocher', 'douglas'],
   },
   {
     slug: 'voyage',

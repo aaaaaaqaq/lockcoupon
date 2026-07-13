@@ -97,6 +97,20 @@ const nextConfig = {
         destination: 'https://www.lockcoupon.com/:path*',
         permanent: true,
       },
+      // Duplicate-store merge (GSC "Duplicate without user-selected canonical"):
+      // /codes-promo/nocibe and /codes-promo/nocibe-fr served the same store.
+      // nocibe-fr holds the traffic → it is the canonical; the nocibe row was
+      // removed from Supabase and every old URL 301s permanently.
+      {
+        source: '/codes-promo/nocibe',
+        destination: '/codes-promo/nocibe-fr',
+        permanent: true,
+      },
+      {
+        source: '/codes-promo/nocibe/:path*',
+        destination: '/codes-promo/nocibe-fr/:path*',
+        permanent: true,
+      },
     ];
   },
 };

@@ -56,7 +56,7 @@ const STORE_CAT: Record<string, string> = {
   'samsung':'tech','apple':'tech','xiaomi':'tech','fnac':'tech','darty':'tech',
   'boulanger':'tech','ldlc':'tech','back-market':'tech','cdiscount':'tech',
   'booking':'voyage','expedia':'voyage','airbnb':'voyage','lastminute':'voyage',
-  'sephora':'beaute','nocibe':'beaute','yves-rocher':'beaute','marionnaud':'beaute',
+  'sephora':'beaute','nocibe-fr':'beaute','yves-rocher':'beaute','marionnaud':'beaute',
   'ikea':'maison','leroy-merlin':'maison','conforama':'maison','but':'maison',
   'temu':'general','amazon':'general','aliexpress':'general','ebay':'general','rakuten':'general',
 };
