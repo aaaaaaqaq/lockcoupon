@@ -4,6 +4,8 @@ import Link from 'next/link';
 import { getStoreBySlug, getCouponsByStoreId, getAllStores } from '@/lib/supabase';
 import { bestDiscountLabel } from '@/lib/discount';
 import { absoluteUrl } from '@/lib/site';
+import { getEditorial } from '@/lib/storeEditorial';
+import { storeStats } from '@/lib/storeContent';
 import StorePageClient from './StorePageClient';
 import CouponSchema from '@/components/CouponSchema';
 import HowToSchema from '@/components/HowToSchema';
@@ -20,7 +22,7 @@ interface Props {
 
 /* ── SEO helper: build CTR-optimized title ≤ 60 chars ───────────
    Includes real numbers (offer count, best discount) — proven CTR lever. */
-function buildTitle(storeName: string, offerCount: number, discount: string | null): string {
+function buildTitle(storeName: string, offerCount: number, codeCount: number, discount: string | null): string {
   const now = new Date();
   const monthNames = [
     'Janvier','Février','Mars','Avril','Mai','Juin',
@@ -31,7 +33,16 @@ function buildTitle(storeName: string, offerCount: number, discount: string | nu
 
   const base = `Code Promo ${storeName} ${month} ${year}`;
 
-  // Best: "Code Promo Temu Juillet 2026 : 35 offres (-200€)"
+  // Top pick: "Code Promo Temu → 65 codes vérifiés (-50%) | Juillet 2026"
+  // — live verified-count + best discount, the strongest CTR combination.
+  if (codeCount > 1 && discount) {
+    const verified = `Code Promo ${storeName} → ${codeCount} codes vérifiés (-${discount}) | ${month} ${year}`;
+    if (verified.length <= 62) return verified;
+    const verifiedShort = `Code Promo ${storeName} → ${codeCount} codes vérifiés | ${month} ${year}`;
+    if (verifiedShort.length <= 62) return verifiedShort;
+  }
+
+  // Rich fallback: "Code Promo Temu Juillet 2026 : 35 offres (-200€)"
   if (discount && offerCount > 1) {
     const rich = `${base} : ${offerCount} offres (-${discount})`;
     if (rich.length <= 60) return rich;
@@ -66,8 +77,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const month = now.toLocaleString('fr-FR', { month: 'long' });
   const year = now.getFullYear();
 
-  const title = buildTitle(store.name, coupons.length, discount);
-  const description = discount
+  const title = buildTitle(store.name, coupons.length, codeCount, discount);
+
+  // Priority stores: hand-written meta description (CTR rescue — temu was at
+  // 0.1% CTR with the generic template); everyone else keeps the generated one.
+  const editorial = getEditorial(params.slug);
+  const description = editorial
+    ? editorial.metaDescription(storeStats(coupons))
+    : discount
     ? `✅ ${codeCount > 0 ? `${codeCount} codes promo` : `${coupons.length} offres`} ${store.name} testés et vérifiés en ${month} ${year} · Jusqu'à ${discount} de réduction · Mis à jour aujourd'hui. Copiez votre code et économisez !`
     : `✅ Codes promo ${store.name} vérifiés en ${month} ${year} · Offres testées et mises à jour aujourd'hui. Copiez votre code et économisez sur votre commande !`;
 

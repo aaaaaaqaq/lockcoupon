@@ -18,6 +18,7 @@
 import { getCategoriesForStore, type Category } from './categories';
 import { bestDiscountLabel } from './discount';
 import type { Store, Coupon } from './supabase';
+import { getEditorial } from './storeEditorial';
 
 /* ── deterministic seed from slug ──────────────────────────────── */
 export function hashSlug(slug: string): number {
@@ -124,9 +125,16 @@ export function storeStats(coupons: Coupon[]): StoreStats {
 
 /* ── intro paragraph (hero/about lead) ─────────────────────────── */
 export function storeIntro(store: Store, coupons: Coupon[]): string {
+  const s = storeStats(coupons);
+
+  // Priority stores get hand-written, store-specific copy (storeEditorial.ts)
+  // — the template variants below are shared across ~20 stores each, which
+  // proved too boilerplate-like for competitive queries (temu/shein/hm).
+  const editorial = getEditorial(store.slug);
+  if (editorial) return editorial.intro(s);
+
   const seed = hashSlug(store.slug);
   const { flavor, category } = storeFlavor(store.slug);
-  const s = storeStats(coupons);
 
   const openers = [
     `${store.name} fait partie des boutiques ${category ? category.name.toLowerCase() : 'en ligne'} les plus recherchées de France, et il y a toujours moyen d\u2019y payer moins cher.`,
@@ -167,6 +175,27 @@ export function storeFaqItems(store: Store, coupons: Coupon[]): FaqItem[] {
   const { flavor, category } = storeFlavor(store.slug);
   const s = storeStats(coupons);
   const n = store.name;
+
+  // Hand-written store-specific FAQ + the two live-stats questions below.
+  // Same output feeds the on-page FAQ and the FAQPage JSON-LD (CouponSchema).
+  const editorial = getEditorial(store.slug);
+  if (editorial) {
+    return [
+      ...editorial.faq(s),
+      {
+        question: `Combien d\u2019offres ${n} sont disponibles en ${s.month} ?`,
+        answer: s.offerCount > 0
+          ? `Cette page recense ${s.offerCount} offre${s.offerCount > 1 ? 's' : ''} ${n} vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month}${s.codeCount > 0 ? `, dont ${s.codeCount} code${s.codeCount > 1 ? 's' : ''} promo à saisir` : ''}${s.bonCount > 0 ? ` et ${s.bonCount} bon${s.bonCount > 1 ? 's' : ''} plan${s.bonCount > 1 ? 's' : ''} sans code` : ''}. La liste est réactualisée plusieurs fois par jour.`
+          : `Aucune offre ${n} n\u2019est active en ${s.month}. Nos robots vérifient cette enseigne plusieurs fois par jour : ajoutez cette page à vos favoris pour être parmi les premiers à profiter de la prochaine remise.`,
+      },
+      {
+        question: `Quelle est la meilleure réduction ${n} en ce moment ?`,
+        answer: s.bestDiscount
+          ? `La remise ${n} la plus élevée validée en ${s.month} atteint ${s.bestDiscount}. Les offres sont classées par intérêt sur cette page : la meilleure figure en tête de liste, avec ses conditions d\u2019utilisation détaillées.`
+          : `Aucune remise chiffrée n\u2019est garantie actuellement chez ${n}. Nous publions les nouvelles offres dès leur validation.`,
+      },
+    ];
+  }
 
   const howToAnswers = [
     `Choisissez une offre ${n} sur cette page et cliquez sur « Voir le code » : il est copié automatiquement. Sur le site ${n}, remplissez votre panier de ${flavor.produits}, puis collez le code dans le champ dédié à l\u2019étape du paiement — la remise apparaît avant la confirmation de commande.`,
@@ -234,6 +263,14 @@ export function storeAboutSections(store: Store, coupons: Coupon[]): AboutSectio
     sections.push({ heading: null, text: store.description });
   }
 
+  // Priority stores: hand-written sections replace the generated guidance
+  // (the stat-driven offer-type explainer below is kept — it's unique per
+  // store because it interpolates this store's live offer mix).
+  const editorial = getEditorial(store.slug);
+  if (editorial) {
+    sections.push(...editorial.about(s));
+  } else {
+
   // Category-specific buying guidance — different heading + body per vertical
   const guidanceHeadings = [
     `Bien acheter chez ${n}${category ? ` (${category.name.toLowerCase()})` : ''}`,
@@ -248,6 +285,7 @@ export function storeAboutSections(store: Store, coupons: Coupon[]): AboutSectio
         : `Dès qu\u2019un nouveau code ${n} est validé, il apparaît en haut de cette page.`
     }`,
   });
+  }
 
   // Offer-type explainer, phrased from this store's actual mix
   const typeText = s.offerCount === 0
@@ -264,6 +302,9 @@ export function storeAboutSections(store: Store, coupons: Coupon[]): AboutSectio
 
 /* ── practical tips (replaces identical 4-tip block) ───────────── */
 export function storeTips(store: Store, coupons: Coupon[]): { icon: string; tip: string }[] {
+  const editorial = getEditorial(store.slug);
+  if (editorial?.tips) return editorial.tips(storeStats(coupons));
+
   const seed = hashSlug(store.slug);
   const { flavor } = storeFlavor(store.slug);
   const n = store.name;
