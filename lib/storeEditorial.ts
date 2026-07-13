@@ -173,6 +173,173 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
       { icon: '🏷️', tip: `Visez les ventes mid-season membres (avril/octobre) et les 2e démarques des soldes : les pièces de collection y perdent 50 à 70%, bien plus qu'avec n'importe quel code.` },
     ],
   },
+  /* ────────────────────────────── ZARA ────────────────────────────── */
+  zara: {
+    intro: (s) =>
+      `Disons-le franchement : Zara ne distribue quasiment jamais de codes promo — c'est une politique assumée de la marque, et les sites qui promettent « -30% sur tout Zara » recyclent des codes morts. Les vraies économies passent par d'autres leviers : les deux grandes périodes de démarques (janvier et fin juin) où les prix chutent de 50% et plus, les « special prices » permanents de l'application, et ${nbOffres(s)} vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month} sur cette page (livraison, retours, avantages nouveaux inscrits). Voici comment payer Zara au juste prix, sans courir après des codes fantômes.`,
+    metaDescription: (s) =>
+      `Zara ne fait presque jamais de codes promo : voici ce qui marche vraiment en ${s.month} — ${nbOffres(s)} vérifiée${s.offerCount > 1 ? 's' : ''}, dates des démarques, astuces app. Zéro code bidon.`,
+    about: (s) => [
+      {
+        heading: 'Pourquoi il n\u2019y a (presque) jamais de code promo Zara',
+        text: `Inditex, la maison mère de Zara, mise sur un modèle de rotation ultra-rapide des collections plutôt que sur les remises : les nouveautés partent en rayon toutes les deux semaines et se vendent à prix plein. Distribuer des codes casserait ce modèle. Les seules exceptions récurrentes : l'offre d'inscription à la newsletter quand elle est active (listée plus haut le cas échéant) et de rares opérations étudiantes. Toute page qui affiche dix « codes Zara -40% vérifiés aujourd'hui » vend du vent — nous préférons lister uniquement ce qui fonctionne réellement, même si c'est plus court.`,
+      },
+      {
+        heading: 'Le vrai calendrier des remises Zara',
+        text: `Deux rendez-vous concentrent l'essentiel : les soldes d'hiver (début janvier) et d'été (fin juin), avec des deuxièmes démarques 10 à 15 jours après le lancement qui font passer beaucoup de pièces sous -50%. Le stock s'évapore vite sur les tailles courantes : repérez vos articles avant le jour J et enregistrez-les en favoris dans l'application — Zara notifie quand un article favori passe en solde ou revient en stock. Entre les soldes, la section « Special Prices » du site regroupe les fins de série à prix réduit toute l'année.`,
+      },
+      {
+        heading: 'Livraison, retours et Click & Collect : éviter tous les frais annexes',
+        text: `La livraison à domicile devient gratuite dès 30€ d'achat ; en dessous, le retrait en magasin (Click & Collect) reste gratuit sans minimum — utile dans un pays où Zara a des boutiques partout. Les retours en magasin sont gratuits, alors que le retour par point relais est facturé sur la plupart des commandes : rapportez vos articles en boutique et l'achat Zara ne coûte jamais un centime de plus que le prix affiché.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Existe-t-il des codes promo Zara valides ?',
+        answer: `Rarement, et c'est structurel : Zara ne fait pas de couponing, hors offre d'inscription occasionnelle et opérations très ponctuelles. Cette page liste uniquement les avantages réellement actifs (livraison, retours, offres d'inscription) — si un code Zara authentique apparaît, il sera publié ici le jour même. Méfiez-vous des sites qui en affichent des dizaines en permanence.`,
+      },
+      {
+        question: 'Quand ont lieu les soldes Zara ?',
+        answer: `Aux dates légales françaises : début janvier pour l'hiver, fin juin pour l'été, pendant 4 semaines. Les remises démarrent à -30/-40% et les deuxièmes démarques (10-15 jours plus tard) descendent sous -50%. L'application ouvre parfois l'accès aux soldes quelques heures avant le site : activez les notifications si vous visez des pièces populaires.`,
+      },
+      {
+        question: 'Comment être prévenu quand un article Zara baisse de prix ?',
+        answer: `Ajoutez l'article en favori dans l'application Zara : vous recevez une notification s'il passe en démarque ou revient en stock dans votre taille. C'est l'outil le plus efficace pour acheter Zara moins cher, bien plus fiable que la chasse aux codes.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '🗓️', tip: `Préparez vos soldes Zara à l'avance : favoris remplis fin décembre et mi-juin, notifications activées — les tailles courantes partent dans les 48 premières heures.` },
+      { icon: '🏷️', tip: `Consultez la section « Special Prices » du site : des fins de série y sont remisées toute l'année, sans attendre les soldes.` },
+      { icon: '🏬', tip: `Retournez toujours vos articles en boutique : c'est gratuit, alors que le retour par transporteur est facturé sur la plupart des commandes Zara.` },
+      { icon: '📦', tip: `Panier sous 30€ ? Choisissez le retrait en magasin gratuit plutôt que de payer la livraison ou de gonfler artificiellement votre commande.` },
+    ],
+  },
+
+  /* ────────────────────────────── LDLC ────────────────────────────── */
+  ldlc: {
+    intro: (s) =>
+      `LDLC, c'est le spécialiste high-tech lyonnais historique — composants, PC montés, périphériques — avec une politique promo particulière : peu de codes « pourcentage sur tout », mais des offres ciblées par rayon (NAS, onduleurs, gamme Pro), des ventes flash quotidiennes et une livraison en point relais offerte qui change le calcul sur les petits accessoires. En ${s.month}, ${nbOffres(s)} LDLC ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.bestDiscount ? `, jusqu'à ${s.bestDiscount}` : ''}, chacune avec son périmètre exact.`,
+    metaDescription: (s) =>
+      `${nbOffres(s)} LDLC vérifiées en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes par rayon, livraison point relais offerte, ventes flash. Conditions exactes testées sur ldlc.com.`,
+    about: (s) => [
+      {
+        heading: 'Comment LDLC structure ses promos (et où chercher)',
+        text: `Contrairement aux marketplaces, LDLC remise par rayon : un code peut viser uniquement les NAS et onduleurs, un autre les périphériques d'une marque précise. Les ventes flash quotidiennes et l'espace « Bons plans » du site portent les vraies baisses sur les composants (CPU, GPU, SSD), catégories où les codes génériques sont rares car les marges sont serrées. Réflexe utile : vérifiez le périmètre indiqué sous chaque code de cette page avant de remplir le panier — un code « gamme Pro » ne passera pas sur une carte graphique grand public.`,
+      },
+      {
+        heading: 'Livraison gratuite : le levier LDLC le plus rentable',
+        text: `La livraison en point relais est offerte (offre permanente vérifiée plus haut) et la livraison à domicile devient gratuite dès 50€ — un seuil vite atteint en high-tech. Sur un câble, une souris ou un SSD, la livraison relais gratuite fait souvent gagner plus qu'un code aléatoire de 5%. LDLC dispose aussi de boutiques physiques dans toute la France : le retrait boutique est gratuit et permet de vérifier un produit coûteux à la remise du colis.`,
+      },
+      {
+        heading: 'Quand acheter du matériel chez LDLC',
+        text: `Le high-tech suit un calendrier précis : Black Friday (fin novembre) et French Days (printemps/automne) pour les remises les plus larges, puis les sorties de nouvelles générations de composants — chaque lancement NVIDIA, AMD ou Intel fait baisser la génération précédente de 15 à 30% dans les semaines qui suivent. Pour un PC complet, les configurations LDLC assemblées sont régulièrement remisées lors de ces événements ; hors événement, comparez avec le prix des composants séparés + montage.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Y a-t-il des codes promo LDLC sur les composants PC ?',
+        answer: `Rarement sur les composants eux-mêmes (cartes graphiques, processeurs) où les marges sont faibles : les remises y passent par les ventes flash et l'espace Bons plans. Les codes LDLC actifs visent plus souvent les périphériques, le stockage, la gamme Pro (NAS, onduleurs) ou un seuil de panier. Chaque code de cette page précise son périmètre exact.`,
+      },
+      {
+        question: 'La livraison LDLC est-elle gratuite ?',
+        answer: `Oui en point relais (offre permanente), et à domicile dès 50€ d'achat. Le retrait dans les boutiques LDLC est également gratuit — pratique pour un composant coûteux qu'on préfère inspecter à la remise. Sur les petits accessoires, la livraison relais offerte est souvent l'économie la plus sûre.`,
+      },
+      {
+        question: 'LDLC est-il plus cher que les marketplaces ?',
+        answer: `Sur l'étiquette, parfois ; sur le coût total, pas forcément : garantie gérée en France, SAV réputé (élu Service Client de l'Année à de multiples reprises), retours simples et conseils réels en boutique. Pour un composant critique (alimentation, carte mère), l'écart de quelques euros s'amortit au premier incident. Nos codes et bons plans réduisent justement cet écart.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '🖥️', tip: `Surveillez les lancements de nouvelles générations (NVIDIA, AMD, Intel) : la génération précédente perd 15 à 30% chez LDLC dans les semaines qui suivent.` },
+      { icon: '📦', tip: `Choisissez systématiquement le point relais ou le retrait boutique : c'est gratuit, et sur un petit accessoire ça bat n'importe quel code de 5%.` },
+      { icon: '⚡', tip: `Passez par l'espace « Bons plans » et les ventes flash du jour avant de payer un composant au prix catalogue — les vraies baisses composants sont là, pas dans les codes.` },
+      { icon: '🏢', tip: `Vous achetez pour une activité pro ? Les codes gamme Pro (NAS, onduleurs) de cette page s'ajoutent à la récupération de TVA — le cumul est vite significatif.` },
+    ],
+  },
+
+  /* ─────────────────────────── OFFICE DEPOT ───────────────────────── */
+  'office-depot': {
+    intro: (s) =>
+      `Office Depot est l'un des rares fournituristes où le couponing fonctionne vraiment — parce que sa clientèle est double : particuliers à la rentrée, mais surtout TPE, indépendants et associations qui commandent en volume toute l'année. Codes par marque (3M, Newell…), remise d'inscription à la newsletter, livraison offerte par palier : en ${s.month}, ${nbOffres(s)} ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.bestDiscount ? `, jusqu'à ${s.bestDiscount} de remise` : ''}. De quoi faire baisser la facture papeterie, encre et mobilier de bureau.`,
+    metaDescription: (s) =>
+      `${nbOffres(s)} Office Depot vérifiées en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes par marque, -25% newsletter, livraison dès 75€. Pour particuliers, TPE et assos.`,
+    about: (s) => [
+      {
+        heading: 'Les codes Office Depot par marque : lisez bien le périmètre',
+        text: `La plupart des codes Office Depot visent une marque ou une famille de produits — articles 3M (Post-it, Scotch), marques Newell (Paper Mate, Sharpie…), encres et toners d'un fabricant donné. Un code « -40% sur 3M » ne s'appliquera pas au reste du panier : groupez vos achats par marque pour maximiser chaque code, quitte à passer deux commandes si les paliers de livraison le permettent. Les offres de cette page indiquent le périmètre exact de chaque code.`,
+      },
+      {
+        heading: 'Newsletter, paliers de livraison et achats groupés',
+        text: `L'inscription à la newsletter déclenche la remise la plus simple à obtenir (jusqu'à -25% sur le premier achat quand l'offre est active — vérifiez en haut de page). La livraison devient gratuite dès 75€ HT, un palier pensé pour les commandes de bureau : sous ce seuil, mutualisez la commande avec des collègues ou complétez avec les consommables que vous rachèterez de toute façon (papier, encre). Pour les structures qui commandent régulièrement, le compte pro Office Depot ajoute des tarifs négociés par volume.`,
+      },
+      {
+        heading: 'Le calendrier malin des fournitures de bureau',
+        text: `Deux pics annuels : la rentrée scolaire (août-septembre), où les fournitures de base sont en concurrence frontale avec la grande distribution — c'est le moment des cartables et calculatrices — et janvier, quand les entreprises renouvellent contrats et équipements (mobilier, fauteuils, imprimantes remisés). L'encre et le toner, eux, ne connaissent pas de saison : c'est le poste où les codes par marque de cette page rapportent le plus sur l'année.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Comment obtenir -25% chez Office Depot ?',
+        answer: `Via l'offre d'inscription à la newsletter, valable sur le premier achat (offre listée en haut de cette page quand elle est active). C'est la remise transversale la plus élevée chez Office Depot — les autres codes visent généralement une marque ou une famille de produits précise.`,
+      },
+      {
+        question: 'La livraison Office Depot est-elle gratuite ?',
+        answer: `Oui dès 75€ d'achat (offre vérifiée plus haut). Sous ce seuil, les frais grèvent vite une commande de papeterie : complétez avec des consommables récurrents (ramettes, encre) ou groupez la commande à plusieurs pour franchir le palier.`,
+      },
+      {
+        question: 'Les codes Office Depot fonctionnent-ils pour les professionnels ?',
+        answer: `Oui — les codes publics de cette page passent sur les comptes pro, et se cumulent avec les tarifs négociés volume pour les structures inscrites. Les indépendants et TPE récupèrent en plus la TVA : un code -20% sur un panier HT déjà détaxé rend l'écart avec la grande distribution très net.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '🗂️', tip: `Groupez vos achats par marque avant d'appliquer un code : la plupart des codes Office Depot visent une marque précise (3M, Newell…) et ignorent le reste du panier.` },
+      { icon: '📬', tip: `Inscrivez-vous à la newsletter avant votre première commande : c'est la remise transversale la plus forte, et elle arrive en quelques minutes.` },
+      { icon: '🖨️', tip: `Encre et toner sont le poste le plus rentable à optimiser : pas de saisonnalité, des codes par marque réguliers — stockez lors des remises.` },
+      { icon: '🤝', tip: `Sous 75€ de panier, mutualisez la commande au bureau pour décrocher la livraison gratuite au lieu de payer les frais chacun de son côté.` },
+    ],
+  },
+
+  /* ────────────────────────────── AIRBNB ──────────────────────────── */
+  airbnb: {
+    intro: (s) =>
+      `Airbnb ne fonctionne pas au code promo classique — le champ « coupon » a quasiment disparu du paiement — mais cela ne veut pas dire qu'on paie plein tarif : crédits de parrainage, réductions automatiques à la semaine et au mois consenties par les hôtes, offres premier séjour et stratégies sur les frais de service permettent de réduire sérieusement la note. En ${s.month}, ${nbOffres(s)} ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page, avec leurs conditions réelles — et surtout la méthode pour payer chaque séjour au juste prix.`,
+    metaDescription: (s) =>
+      `Pas de faux codes Airbnb ici : ${nbOffres(s)} vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month} (crédits parrainage, premier séjour) + les vraies remises hôtes à la semaine/au mois. Méthode testée.`,
+    about: (s) => [
+      {
+        heading: 'Pourquoi les « codes promo Airbnb » que vous voyez ailleurs sont morts',
+        text: `Airbnb a progressivement retiré les coupons publics : le programme de parrainage historique a été fermé puis rouvert par vagues selon les pays, et le champ code promo n'apparaît plus que pour des crédits déjà attachés à votre compte. Les sites qui affichent « code Airbnb -50€ vérifié aujourd'hui » recyclent des offres disparues. Cette page ne liste que les mécanismes réellement actifs — crédits de parrainage quand le programme est ouvert, offre premier séjour, gestes commerciaux — avec leur statut vérifié à chaque passage.`,
+      },
+      {
+        heading: 'Les vraies remises : à la semaine, au mois, et hors saison',
+        text: `La plus grosse économie Airbnb ne vient pas d'un code mais des remises hôtes automatiques : beaucoup de logements appliquent -10 à -20% dès 7 nuits et -20 à -50% sur les séjours d'un mois — la réduction s'affiche directement dans le prix total. Jouez aussi le calendrier : sur des dates flexibles, décaler d'une semaine hors vacances scolaires change le prix du même logement de 20 à 40%. La carte des prix par date dans la recherche Airbnb rend la comparaison immédiate.`,
+      },
+      {
+        heading: 'Frais de service et frais de ménage : le vrai poste à optimiser',
+        text: `Les frais de service voyageur (environ 14%) et les frais de ménage fixes transforment un logement « pas cher » en mauvaise affaire sur 2 nuits — et deviennent négligeables sur 10. Réflexe : comparez toujours le prix TOTAL affiché avant paiement, pas le prix par nuit ; sur un court séjour, un hôtel sans frais fixes gagne parfois. Astuce complémentaire : certains hôtes professionnels publient le même logement sur leur propre site sans commission — une recherche du nom du logement peut économiser les frais de service entiers.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Existe-t-il un code promo Airbnb valide en ce moment ?',
+        answer: `Les coupons publics Airbnb n'existent quasiment plus : seuls des crédits attachés à votre compte (parrainage quand le programme est ouvert, gestes commerciaux du support) s'appliquent au paiement. Cette page vérifie en continu ce qui est réellement actif — tout « code -50€ » affiché ailleurs comme permanent est un leurre.`,
+      },
+      {
+        question: 'Comment payer moins cher sur Airbnb sans code ?',
+        answer: `Trois leviers cumulables : viser 7 nuits ou plus pour déclencher les remises hebdomadaires automatiques des hôtes (-10 à -20%), utiliser les dates flexibles pour éviter les pics (20 à 40% d'écart sur le même logement), et privilégier les séjours plus longs où les frais fixes (ménage, service) se diluent. Sur un mois, les remises hôtes atteignent -20 à -50%.`,
+      },
+      {
+        question: 'Peut-on négocier le prix d\u2019un logement Airbnb ?',
+        answer: `Oui, plus souvent qu'on ne le croit : contactez l'hôte avant de réserver, surtout pour un séjour long, une réservation de dernière minute ou des dates creuses. Beaucoup d'hôtes préfèrent remplir leur calendrier avec 10% de remise que laisser le logement vide — la demande spéciale d'offre se fait directement dans la messagerie Airbnb.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '📅', tip: `Activez les dates flexibles dans la recherche : le même logement varie de 20 à 40% selon la semaine — c'est la plus grosse « remise » Airbnb disponible.` },
+      { icon: '🗓️', tip: `Visez 7 nuits minimum quand c'est possible : les remises hebdomadaires automatiques des hôtes (-10 à -20%) battent n'importe quel ancien coupon.` },
+      { icon: '🧮', tip: `Comparez toujours le prix TOTAL (frais de service + ménage inclus), jamais le prix par nuit : sur 2 nuits, les frais fixes changent le classement des logements.` },
+      { icon: '💬', tip: `Séjour long ou dates creuses ? Écrivez à l'hôte avant de réserver et demandez une offre spéciale — le taux de succès est étonnamment élevé.` },
+    ],
+  },
 };
 
 export function getEditorial(slug: string): StoreEditorial | null {
