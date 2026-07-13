@@ -154,7 +154,7 @@ export default async function AmazonPrimeDayPage() {
             </h2>
             <div className="space-y-3 mb-8">
               {[
-                { q: "C'est quand le Prime Day 2026 ?", a: "À la mi-juillet, pendant 2 à 4 jours. Les dates exactes sont annoncées par Amazon peu avant l'événement — cette page est mise à jour dès confirmation." },
+                { q: "C'est quand le Prime Day 2026 ?", a: "Les mardi 14 et mercredi 15 juillet 2026, de 00h01 à 23h59. Certaines offres avant-première sur les appareils Amazon démarrent quelques jours avant pour les membres Prime." },
                 { q: 'Faut-il être membre Prime ?', a: "Oui, mais l'essai gratuit de 30 jours suffit pour accéder à toutes les offres. Résiliation possible sans frais." },
                 { q: 'Peut-on utiliser un code promo pendant le Prime Day ?', a: 'Oui, les coupons à cocher sur les fiches produits et certaines offres de services Amazon restent cumulables.' },
                 { q: 'Comment éviter les fausses promos ?', a: "Vérifiez l'historique de prix avec Keepa ou CamelCamelCamel avant d'acheter." },
@@ -168,6 +168,7 @@ export default async function AmazonPrimeDayPage() {
             </div>
 
             <p className="text-muted text-[14px] leading-relaxed">
+              Pour aller plus loin, lisez notre guide complet : <Link href="/blog/prime-day-amazon-2026-dates-offres-astuces" className="text-primary hover:underline font-semibold">Prime Day Amazon 2026 : dates, meilleures offres et astuces</Link>.
               Retrouvez aussi tous nos <Link href="/codes-promo/amazon" className="text-primary hover:underline">codes promo Amazon</Link>,
               le <Link href="/top-codes-promo" className="text-primary hover:underline">top 20 des codes promo</Link> du moment,
               et parcourez <Link href="/boutiques" className="text-primary hover:underline">toutes nos boutiques</Link> pour d&apos;autres bons plans.
