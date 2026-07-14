@@ -99,9 +99,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Thin-content strategy (GSC "Explorée/Détectée, actuellement non indexée"):
     // stores with ZERO active offers are noindexed (and excluded from the
     // sitemap) until offers come back. `follow: true` keeps link equity flowing.
+    // Per-page robots REPLACES the root-layout robots object (shallow merge),
+    // so the Discover/image directives must be repeated here or they are lost.
     robots: coupons.length === 0
-      ? { index: false, follow: true }
-      : { index: true, follow: true },
+      ? { index: false, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' as const, 'max-video-preview': -1 }
+      : { index: true, follow: true, 'max-snippet': -1, 'max-image-preview': 'large' as const, 'max-video-preview': -1 },
     openGraph: {
       title,
       description,

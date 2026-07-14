@@ -66,7 +66,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       description,
       url: `/blog/${post.slug}`,
       type: 'article',
-      images: post.cover_image ? [{ url: post.cover_image }] : ['/opengraph-image'],
+      // Discover freshness signals — published/modified timestamps on every article.
+      publishedTime: post.created_at,
+      modifiedTime: post.updated_at,
+      authors: ['LockCoupon'],
+      // NOTE: no `images` here — the file-based opengraph-image.tsx next to this
+      // page generates a unique 1200×630 branded card per post (Discover fix)
+      // and file-based OG images take precedence anyway.
     },
   };
 }
