@@ -9,15 +9,29 @@ export const revalidate = 60;
 
 const month = () => new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
 
+/* ── Prime Day 2026 event window (Paris time) — the page switches to "live"
+   mode automatically during the event and back to evergreen after, via ISR. */
+const EVENT_START = new Date('2026-07-13T22:01:00Z'); // 14 juillet 00h01 Paris
+const EVENT_END = new Date('2026-07-15T21:59:00Z');   // 15 juillet 23h59 Paris
+const isLive = () => {
+  const now = Date.now();
+  return now >= EVENT_START.getTime() && now <= EVENT_END.getTime();
+};
+
 function monthYearCap(): string {
   const s = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
   return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 export function generateMetadata(): Metadata {
+  const live = isLive();
   return {
-    title: `Amazon Prime Day 2026 — Bons Plans & Codes Promo`,
-    description: `Amazon Prime Day 2026 en France : dates, meilleures offres, astuces pour en profiter sans rien payer de plus. Codes promo Amazon vérifiés en ${monthYearCap()}.`,
+    title: live
+      ? `Prime Day 2026 EN DIRECT — les vraies offres (14-15 juillet)`
+      : `Amazon Prime Day 2026 — Bons Plans & Codes Promo`,
+    description: live
+      ? `⚡ Le Prime Day Amazon est EN COURS (jusqu'au 15 juillet 23h59). Offres vérifiées, cumuls coupons + cashback, pièges à éviter — suivi mis à jour en continu.`
+      : `Amazon Prime Day 2026 en France : dates, meilleures offres, astuces pour en profiter sans rien payer de plus. Codes promo Amazon vérifiés en ${monthYearCap()}.`,
     alternates: { canonical: 'https://www.lockcoupon.com/codes-promo/amazon/prime-day' },
     openGraph: {
       title: 'Amazon Prime Day 2026 — Bons Plans & Codes Promo',
@@ -40,7 +54,7 @@ export default async function AmazonPrimeDayPage() {
     '@context': 'https://schema.org',
     '@type': 'FAQPage',
     mainEntity: [
-      { '@type': 'Question', name: "C'est quand le Prime Day Amazon 2026 ?", acceptedAnswer: { '@type': 'Answer', text: "Le Prime Day Amazon a lieu chaque année à la mi-juillet et dure généralement 2 à 4 jours. Les dates officielles sont annoncées par Amazon quelques semaines avant l'événement. Consultez cette page régulièrement : nous la mettons à jour dès que les dates sont confirmées." } },
+      { '@type': 'Question', name: "C'est quand le Prime Day Amazon 2026 ?", acceptedAnswer: { '@type': 'Answer', text: "Le Prime Day Amazon 2026 a lieu les mardi 14 et mercredi 15 juillet 2026, de 00h01 à 23h59. Certaines offres avant-première sur les appareils Amazon démarrent quelques jours avant pour les membres Prime." } },
       { '@type': 'Question', name: 'Faut-il être membre Prime pour profiter du Prime Day ?', acceptedAnswer: { '@type': 'Answer', text: "Oui, les offres Prime Day sont réservées aux membres Amazon Prime. Astuce : l'essai gratuit de 30 jours donne accès à toutes les offres Prime Day. Vous pouvez vous inscrire juste avant l'événement et résilier ensuite sans frais." } },
       { '@type': 'Question', name: 'Peut-on utiliser un code promo Amazon pendant le Prime Day ?', acceptedAnswer: { '@type': 'Answer', text: "Oui, certains codes promo et coupons Amazon restent cumulables avec les offres Prime Day, notamment les coupons à cocher sur les fiches produits et les offres de remise au premier abonnement de services Amazon." } },
       { '@type': 'Question', name: 'Comment repérer les vraies bonnes affaires du Prime Day ?', acceptedAnswer: { '@type': 'Answer', text: "Vérifiez l'historique de prix avec un comparateur (Keepa, CamelCamelCamel), méfiez-vous des prix barrés artificiels, et concentrez-vous sur les produits Amazon (Echo, Kindle, Fire TV) qui affichent les remises les plus fortes, souvent -50% et plus." } },
@@ -69,17 +83,40 @@ export default async function AmazonPrimeDayPage() {
             <nav className="text-white/40 text-[13px] mb-4">
               <Link href="/" className="hover:text-white/60">Accueil</Link> → <Link href="/codes-promo/amazon" className="hover:text-white/60">Amazon</Link> → Prime Day
             </nav>
+            {isLive() && (
+              <div className="inline-flex items-center gap-2 bg-primary text-white text-[13px] md:text-[14px] font-bold px-4 py-1.5 rounded-full mb-4 animate-pulse">
+                <span className="w-2 h-2 rounded-full bg-white" /> EN CE MOMENT — jusqu'au 15 juillet 23h59
+              </div>
+            )}
             <h1 className="text-white text-[28px] sm:text-[36px] md:text-[44px] font-extrabold leading-tight mb-3">
               Amazon <span className="text-primary">Prime Day 2026</span>
             </h1>
             <p className="text-white/50 text-[14px] md:text-[16px] max-w-lg mx-auto">
-              Dates, bons plans et astuces pour en profiter au maximum — {m}
+              {isLive()
+                ? <>L'événement est en cours : offres vérifiées, cumuls et pièges à éviter — mis à jour le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })} à {new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit', timeZone: 'Europe/Paris' })}</>
+                : <>Dates, bons plans et astuces pour en profiter au maximum — {m}</>}
             </p>
           </div>
         </section>
 
         <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-12">
           <div className="max-w-[800px] mx-auto">
+            {isLive() && (
+              <div className="bg-primary/5 border border-primary/30 rounded-xl p-5 mb-8">
+                <h2 className="text-text-main text-[17px] md:text-[19px] font-extrabold mb-3">
+                  ⚡ Le Prime Day est en cours — le plan d&apos;action tout de suite
+                </h2>
+                <ul className="text-muted text-[14px] md:text-[15px] leading-relaxed space-y-2 list-disc pl-5">
+                  <li><strong>Pas encore membre Prime ?</strong> L&apos;essai gratuit de 30 jours débloque toutes les offres immédiatement — résiliable sans frais.</li>
+                  <li><strong>Appareils Amazon d&apos;abord</strong> (Echo, Kindle, Fire TV, Ring) : ce sont les remises les plus profondes et les plus honnêtes de l&apos;événement, souvent au prix plancher de l&apos;année.</li>
+                  <li><strong>Vérifiez chaque prix barré</strong> avec Keepa ou CamelCamelCamel avant de valider — 30 secondes qui évitent les fausses promos.</li>
+                  <li><strong>Cumulez</strong> : coupons à cocher sur les fiches produits, cashback activé avant navigation, bonus de recharge carte cadeau — détails sur notre page <Link href="/codes-promo/amazon" className="text-primary hover:underline font-semibold">codes promo Amazon</Link>.</li>
+                  <li><strong>Vente flash épuisée ?</strong> Rejoignez la liste d&apos;attente : les paniers non validés en 15 min sont remis en circulation.</li>
+                  <li>Le guide complet : <Link href="/blog/prime-day-amazon-2026-dates-offres-astuces" className="text-primary hover:underline font-semibold">dates, catégories qui valent le coup et techniques de cumul</Link>.</li>
+                </ul>
+              </div>
+            )}
+
             <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-4">
               Prime Day 2026 : ce qu&apos;il faut savoir
             </h2>
