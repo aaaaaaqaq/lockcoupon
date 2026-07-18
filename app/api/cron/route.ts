@@ -282,7 +282,7 @@ export async function GET(request: Request) {
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         max_tokens: 5000,
         temperature: 1.0,
         system: `Tu es Marc, redacteur senior chez LockCoupon.com. Tu as 8 ans d'experience en shopping en ligne et tu ecris pour de vraies personnes, pas pour des algorithmes. Ton style est direct, personnel, parfois ironique. Tu n'utilises JAMAIS de formules IA generiques. Chaque article que tu produis est unique dans sa structure et son accroche.`,

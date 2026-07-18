@@ -214,7 +214,7 @@ async function callClaude(apiKey: string, prompt: string): Promise<string> {
       'anthropic-version': '2023-06-01',
     },
     body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       max_tokens: 16000,
       system: `Tu es Marc, rédacteur senior chez LockCoupon.com. Tu écris des articles HTML SEO sur les codes promo et bons plans. Ta réponse est UNIQUEMENT du HTML pur. Le premier caractère est toujours '<'. Aucun texte avant le HTML.`,
       messages: [{ role: 'user', content: prompt }],
