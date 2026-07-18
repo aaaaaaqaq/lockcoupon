@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 // Public "suggest a code" endpoint. Replaces the old client-side anon insert
 // (anyone could publish arbitrary rows). Submissions are forced to
@@ -9,7 +10,12 @@ export const dynamic = 'force-dynamic';
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-);
+, {
+  // Next 14 caches GET fetches in route handlers (Data Cache) — supabase-js
+  // SELECTs were returning hours-old snapshots (empty stores, already-deleted
+  // expired coupons), silently breaking dedup guards and count reporting.
+  global: { fetch: (url: any, init?: any) => fetch(url, { ...init, cache: 'no-store' }) },
+});
 
 const DISCOUNT_TYPES = new Set(['percent', 'euro', 'free', 'cashback']);
 const TYPES = new Set(['code', 'bon', 'cashback']);

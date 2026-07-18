@@ -5,11 +5,17 @@ import { submitIndexNow } from '@/lib/indexnow';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-);
+, {
+  // Next 14 caches GET fetches in route handlers (Data Cache) — supabase-js
+  // SELECTs were returning hours-old snapshots (empty stores, already-deleted
+  // expired coupons), silently breaking dedup guards and count reporting.
+  global: { fetch: (url: any, init?: any) => fetch(url, { ...init, cache: 'no-store' }) },
+});
 
 const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!;
 const CRON_SECRET = process.env.CRON_SECRET || 'lockcoupon-cron-2026';

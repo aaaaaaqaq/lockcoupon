@@ -5,11 +5,17 @@ import { submitIndexNow } from '@/lib/indexnow';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
+export const fetchCache = 'force-no-store';
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co',
   process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder'
-);
+, {
+  // Next 14 caches GET fetches in route handlers (Data Cache) — supabase-js
+  // SELECTs were returning hours-old snapshots (empty stores, already-deleted
+  // expired coupons), silently breaking dedup guards and count reporting.
+  global: { fetch: (url: any, init?: any) => fetch(url, { ...init, cache: 'no-store' }) },
+});
 
 // ─── Temu codes pool ─────────────────────────────────────
 const TEMU_AFFILIATE_URL = 'https://temu.com/kuiper/uk1.html?subj=bundle-un&_bg_fs=1&_p_mat2_type=a1001&_p_jump_id=875&_x_vst_scene=adg&_p_rfs=1&_x_ads_csite=pc_bottom&_x_ads_channel=kol_affiliate&_x_cid=2005367855kol_affiliate&_x_campaign=affiliate';
