@@ -5,8 +5,6 @@ import { supabase } from '@/lib/supabase';
 import type { Store, Coupon, BlogPost } from '@/lib/supabase';
 import RichEditor from '@/components/RichEditor';
 
-const ADMIN_PASSWORD = 'lockcoupon2026';
-
 export default function AdminPage() {
   const [authed, setAuthed] = useState(false);
   const [password, setPassword] = useState('');
@@ -33,38 +31,56 @@ export default function AdminPage() {
 
   const showMsg = (text: string, type: 'success' | 'error') => { setMsg(text); setMsgType(type); setTimeout(() => setMsg(''), 3000); };
 
+  // All writes (and the subscribers read) go through the server-side admin
+  // API with the service-role key — RLS blocks anon writes since 2026-07-18.
+  const adminApi = useCallback(async (body: Record<string, unknown>): Promise<{ data?: any[]; error: string | null; ok?: boolean }> => {
+    try {
+      const res = await fetch('/api/admin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password, ...body }),
+      });
+      return await res.json();
+    } catch {
+      return { error: 'Erreur réseau' };
+    }
+  }, [password]);
+
   const loadData = useCallback(async () => {
     const { data: s } = await supabase.from('stores').select('*').order('name');
     const { data: c } = await supabase.from('coupons').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: false });
     const { data: p } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
-    const { data: sub } = await supabase.from('subscribers').select('*').order('created_at', { ascending: false });
+    const { data: sub } = await adminApi({ table: 'subscribers', action: 'select' });
     if (s) setStores(s);
     if (c) setCoupons(c);
     if (p) setPosts(p);
-    if (sub) setSubscribers(sub);
-  }, []);
+    if (sub) setSubscribers([...sub].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')));
+  }, [adminApi]);
 
   useEffect(() => { if (authed) loadData(); }, [authed, loadData]);
 
-  const handleLogin = () => { if (password === ADMIN_PASSWORD) setAuthed(true); else showMsg('Mot de passe incorrect', 'error'); };
+  const handleLogin = async () => {
+    const res = await adminApi({ action: 'verify' });
+    if (res.ok) setAuthed(true); else showMsg('Mot de passe incorrect', 'error');
+  };
 
   // ─── Coupon CRUD ───────────────────────────────
   const saveCoupon = async () => {
     if (!couponForm.store_id || !couponForm.title) { showMsg('Boutique et titre sont requis', 'error'); return; }
     const payload = { store_id: couponForm.store_id, title: couponForm.title, code: couponForm.code || null, discount_value: couponForm.discount_value || null, discount_type: couponForm.discount_type, type: couponForm.type, expiry_date: couponForm.expiry_date || null, description: couponForm.description || null, affiliate_url: couponForm.affiliate_url || null, is_best: couponForm.is_best, is_exclusive: couponForm.is_exclusive, is_verified: couponForm.is_verified };
     if (editingCouponId) {
-      const { error } = await supabase.from('coupons').update(payload).eq('id', editingCouponId);
-      if (error) showMsg('Erreur: ' + error.message, 'error');
+      const { error } = await adminApi({ table: 'coupons', action: 'update', payload, match: { id: editingCouponId } });
+      if (error) showMsg('Erreur: ' + error, 'error');
       else { showMsg('Coupon modifié !', 'success'); setEditingCouponId(null); setCouponForm(emptyCouponForm); loadData(); }
     } else {
-      const { error } = await supabase.from('coupons').insert(payload);
-      if (error) showMsg('Erreur: ' + error.message, 'error');
+      const { error } = await adminApi({ table: 'coupons', action: 'insert', payload });
+      if (error) showMsg('Erreur: ' + error, 'error');
       else { showMsg('Coupon ajouté !', 'success'); setCouponForm({ ...emptyCouponForm, store_id: couponForm.store_id }); loadData(); }
     }
   };
   const editCoupon = (c: Coupon) => { setCouponForm({ store_id: c.store_id, title: c.title, code: c.code || '', discount_value: c.discount_value || '', discount_type: c.discount_type || 'percent', type: c.type || 'code', expiry_date: c.expiry_date || '', description: c.description || '', affiliate_url: c.affiliate_url || '', is_best: c.is_best, is_exclusive: c.is_exclusive, is_verified: c.is_verified }); setEditingCouponId(c.id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelEditCoupon = () => { setEditingCouponId(null); setCouponForm(emptyCouponForm); };
-  const deleteCoupon = async (id: string) => { if (!confirm('Supprimer ce coupon ?')) return; await supabase.from('coupons').delete().eq('id', id); showMsg('Coupon supprimé', 'success'); loadData(); };
+  const deleteCoupon = async (id: string) => { if (!confirm('Supprimer ce coupon ?')) return; await adminApi({ table: 'coupons', action: 'delete', match: { id } }); showMsg('Coupon supprimé', 'success'); loadData(); };
 
   // ─── Drag & Drop ───────────────────────────────
   const handleDragStart = (id: string) => setDraggingId(id);
@@ -81,7 +97,7 @@ export default function AdminPage() {
     setDraggingId(null);
     setDragOverId(null);
     // Persist order to Supabase
-    await Promise.all(newOrder.map((c, i) => supabase.from('coupons').update({ sort_order: i }).eq('id', c.id)));
+    await Promise.all(newOrder.map((c, i) => adminApi({ table: 'coupons', action: 'update', payload: { sort_order: i }, match: { id: c.id } })));
     showMsg('Ordre sauvegardé ✅', 'success');
   };
 
@@ -90,18 +106,18 @@ export default function AdminPage() {
     if (!storeForm.name || !storeForm.slug) { showMsg('Nom et slug sont requis', 'error'); return; }
     const payload = { name: storeForm.name, slug: storeForm.slug.toLowerCase().replace(/\s+/g, '-'), logo_url: storeForm.logo_url || null, logo_color: storeForm.logo_color, logo_letter: storeForm.logo_letter || storeForm.name[0].toUpperCase(), description: storeForm.description };
     if (editingStoreId) {
-      const { error } = await supabase.from('stores').update(payload).eq('id', editingStoreId);
-      if (error) showMsg('Erreur: ' + error.message, 'error');
+      const { error } = await adminApi({ table: 'stores', action: 'update', payload, match: { id: editingStoreId } });
+      if (error) showMsg('Erreur: ' + error, 'error');
       else { showMsg('Boutique modifiée !', 'success'); setEditingStoreId(null); setStoreForm(emptyStoreForm); loadData(); }
     } else {
-      const { error } = await supabase.from('stores').insert(payload);
-      if (error) showMsg('Erreur: ' + error.message, 'error');
+      const { error } = await adminApi({ table: 'stores', action: 'insert', payload });
+      if (error) showMsg('Erreur: ' + error, 'error');
       else { showMsg('Boutique ajoutée !', 'success'); setStoreForm(emptyStoreForm); loadData(); }
     }
   };
   const editStore = (s: Store) => { setStoreForm({ name: s.name, slug: s.slug, logo_url: s.logo_url || '', logo_color: s.logo_color || '#C0392B', logo_letter: s.logo_letter || '', description: s.description || '' }); setEditingStoreId(s.id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelEditStore = () => { setEditingStoreId(null); setStoreForm(emptyStoreForm); };
-  const deleteStore = async (id: string) => { if (!confirm('Supprimer cette boutique ?')) return; await supabase.from('coupons').delete().eq('store_id', id); await supabase.from('stores').delete().eq('id', id); showMsg('Boutique supprimée', 'success'); loadData(); };
+  const deleteStore = async (id: string) => { if (!confirm('Supprimer cette boutique ?')) return; await adminApi({ table: 'coupons', action: 'delete', match: { store_id: id } }); await adminApi({ table: 'stores', action: 'delete', match: { id } }); showMsg('Boutique supprimée', 'success'); loadData(); };
 
   // ─── Blog CRUD ─────────────────────────────────
   const savePost = async () => {
@@ -109,19 +125,19 @@ export default function AdminPage() {
     const slug = postForm.slug || postForm.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/-+$/, '');
     const payload = { title: postForm.title, slug, excerpt: postForm.excerpt || null, content: postForm.content, cover_image: postForm.cover_image || null, author: postForm.author || 'LockCoupon', is_published: postForm.is_published, updated_at: new Date().toISOString() };
     if (editingPostId) {
-      const { error } = await supabase.from('blog_posts').update(payload).eq('id', editingPostId);
-      if (error) showMsg('Erreur: ' + error.message, 'error');
+      const { error } = await adminApi({ table: 'blog_posts', action: 'update', payload, match: { id: editingPostId } });
+      if (error) showMsg('Erreur: ' + error, 'error');
       else { showMsg('Article modifié !', 'success'); setEditingPostId(null); setPostForm(emptyPostForm); loadData(); }
     } else {
-      const { error } = await supabase.from('blog_posts').insert(payload);
-      if (error) showMsg('Erreur: ' + error.message, 'error');
+      const { error } = await adminApi({ table: 'blog_posts', action: 'insert', payload });
+      if (error) showMsg('Erreur: ' + error, 'error');
       else { showMsg('Article créé !', 'success'); setPostForm(emptyPostForm); loadData(); }
     }
   };
   const editPost = (p: BlogPost) => { setPostForm({ title: p.title, slug: p.slug, excerpt: p.excerpt || '', content: p.content, cover_image: p.cover_image || '', author: p.author, is_published: p.is_published }); setEditingPostId(p.id); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const cancelEditPost = () => { setEditingPostId(null); setPostForm(emptyPostForm); };
-  const deletePost = async (id: string) => { if (!confirm('Supprimer cet article ?')) return; await supabase.from('blog_posts').delete().eq('id', id); showMsg('Article supprimé', 'success'); loadData(); };
-  const togglePublish = async (id: string, current: boolean) => { await supabase.from('blog_posts').update({ is_published: !current }).eq('id', id); loadData(); };
+  const deletePost = async (id: string) => { if (!confirm('Supprimer cet article ?')) return; await adminApi({ table: 'blog_posts', action: 'delete', match: { id } }); showMsg('Article supprimé', 'success'); loadData(); };
+  const togglePublish = async (id: string, current: boolean) => { await adminApi({ table: 'blog_posts', action: 'update', payload: { is_published: !current }, match: { id } }); loadData(); };
 
   // ─── Login ─────────────────────────────────────
   if (!authed) {

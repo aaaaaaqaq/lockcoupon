@@ -54,20 +54,21 @@ export default function AjouterCodePage() {
   const handleSubmit = async () => {
     if (!selectedStore || !form.description) return;
 
-    await supabase.from('coupons').insert({
-      store_id: selectedStore.id,
-      title: form.description,
-      code: form.code || null,
-      discount_value: form.discount_value || null,
-      discount_type: form.discount_type,
-      type: form.type,
-      affiliate_url: form.affiliate_url || null,
-      expiry_date: null,
-      is_best: false,
-      is_exclusive: false,
-      is_verified: false,
-      usage_count: 0,
-    });
+    // Server-side endpoint validates + forces is_verified:false (anon DB
+    // writes are blocked by RLS since 2026-07-18).
+    await fetch('/api/submit-code', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        store_id: selectedStore.id,
+        title: form.description,
+        code: form.code || null,
+        discount_value: form.discount_value || null,
+        discount_type: form.discount_type,
+        type: form.type,
+        affiliate_url: form.affiliate_url || null,
+      }),
+    }).catch(() => {});
 
     setSent(true);
   };

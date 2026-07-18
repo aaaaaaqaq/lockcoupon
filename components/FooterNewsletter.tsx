@@ -14,11 +14,12 @@ export default function FooterNewsletter() {
 
     setStatus('loading');
     try {
-      const { error } = await supabase
-        .from('newsletter_subscribers')
-        .upsert({ email, subscribed_at: new Date().toISOString() }, { onConflict: 'email' });
+      // Fix 2026-07-18: 'newsletter_subscribers' table never existed — every
+      // signup silently failed. Use the real 'subscribers' table (INSERT is
+      // allowed by RLS); duplicate email = already subscribed = success.
+      const { error } = await supabase.from('subscribers').insert({ email });
 
-      if (error) throw error;
+      if (error && !error.message.toLowerCase().includes('duplicate')) throw error;
       setStatus('success');
       setMessage('Merci ! Vous êtes inscrit(e).');
       setEmail('');
