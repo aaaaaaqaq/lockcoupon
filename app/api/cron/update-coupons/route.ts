@@ -124,6 +124,7 @@ interface StoreRecord {
 
 function buildSearchPrompt(storeName: string): string {
   const today = new Date().toISOString().split('T')[0];
+  const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
   const sources = COUPON_SOURCES.join(', ');
 
   return `Tu es un assistant qui recherche des codes promo RÉELS et ACTUELS pour la boutique "${storeName}".
@@ -131,8 +132,8 @@ function buildSearchPrompt(storeName: string): string {
 MISSION : Utilise l'outil web_search pour chercher des codes promo valides pour ${storeName} sur ces sites français : ${sources}.
 
 ÉTAPES :
-1. Fais plusieurs recherches web pour trouver des codes promo ${storeName} actuels (mars 2026)
-2. Cherche spécifiquement : "code promo ${storeName} ${today.substring(0, 7)}", "coupon ${storeName} mars 2026", "${storeName} réduction"
+1. Fais plusieurs recherches web pour trouver des codes promo ${storeName} actuels (${month})
+2. Cherche spécifiquement : "code promo ${storeName} ${today.substring(0, 7)}", "coupon ${storeName} ${month}", "${storeName} réduction"
 3. Extrais UNIQUEMENT les codes/offres que tu trouves réellement dans les résultats de recherche
 4. Ne JAMAIS inventer de codes — si tu ne trouves rien de concret, retourne un tableau vide
 
@@ -166,6 +167,7 @@ function buildExtraPrompt(storeName: string): string {
 Cette boutique a très peu de codes promo. Fais une recherche APPROFONDIE sur : ${sources}, ainsi que Google Shopping, RetailMeNot, Groupon, et tout autre site de codes promo.
 
 Cherche aussi :
+- "code promo ${storeName} ${new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' })}"
 - "code promo ${storeName} 2026"
 - "${storeName} bon de réduction"
 - "${storeName} offre spéciale"
@@ -340,7 +342,20 @@ export async function GET(request: Request) {
 
     const expiredCleaned = await cleanExpiredCoupons();
     const backfilled = await backfillStoreUrls();
-    const selectedStores = await selectStoresForRun(stores);
+
+    // Targeted mode: /api/cron/update-coupons?secret=...&slugs=vertbaudet,asics
+    // lets us force-refresh specific (e.g. zero-offer) stores instead of LRU.
+    const slugsParam = searchParams.get('slugs');
+    let selectedStores: StoreRecord[];
+    if (slugsParam) {
+      const wanted = slugsParam.split(',').map((s) => s.trim()).filter(Boolean).slice(0, 6);
+      selectedStores = stores.filter((s) => wanted.includes(s.slug));
+      if (selectedStores.length === 0) {
+        return NextResponse.json({ error: `No stores match slugs: ${slugsParam}` }, { status: 404 });
+      }
+    } else {
+      selectedStores = await selectStoresForRun(stores);
+    }
 
     const results: Array<{
       store: string;

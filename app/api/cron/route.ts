@@ -80,6 +80,15 @@ const TOPICS = [
   (s: string) => `${s} : comment notre equipe deniche les meilleurs codes`,
   (s: string, m: string) => `Les bons plans ${s} de ${m} que vous allez adorer`,
   (s: string) => `Reductions ${s} : ce que les autres sites ne vous disent pas`,
+  // ─── Batch 2 (2026-07-18) : pool épuisé → cron muet depuis le 3 juin ───
+  (s: string, m: string) => `${s} : le calendrier des promos a connaitre en ${m}`,
+  (s: string) => `Premiere commande ${s} : le guide pour bien demarrer`,
+  (s: string) => `${s} : erreurs qui vous font payer plus cher (et comment les eviter)`,
+  (s: string, m: string) => `Ou trouver des codes promo ${s} valides en ${m} ? Notre methode`,
+  (s: string) => `Livraison ${s} : delais, frais et astuces pour ne rien payer`,
+  (s: string) => `${s} : que valent vraiment les offres de la newsletter ?`,
+  (s: string, m: string) => `Budget serre ? Nos bons plans ${s} a moins de 50 euros (${m})`,
+  (s: string) => `Programme fidelite ${s} : ca vaut le coup ou pas ?`,
 ];
 
 // ─── Opening hook pool: 20 structurally diverse intros ──────────────────────
@@ -239,8 +248,11 @@ export async function GET(request: Request) {
 
     let title = '';
     let found = false;
-    for (let attempt = 0; attempt < 10; attempt++) {
-      const candidateStore = attempt === 0 ? store : storePool[Math.floor(Math.random() * storePool.length)];
+    // 24 attempts; after 8 misses on the priority pool, widen to ALL stores so
+    // the cron can never exhaust itself into permanent silence again.
+    for (let attempt = 0; attempt < 24; attempt++) {
+      const pool = attempt < 8 ? storePool : allStores;
+      const candidateStore = attempt === 0 ? store : pool[Math.floor(Math.random() * pool.length)];
       const topicFn = TOPICS[Math.floor(Math.random() * TOPICS.length)];
       const candidateTitle = topicFn(candidateStore.name, month);
       const { data: dup } = await supabase

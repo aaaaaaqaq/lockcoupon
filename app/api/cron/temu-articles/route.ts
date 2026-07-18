@@ -84,6 +84,79 @@ const TEMU_TOPICS = [
     keywords: 'soldes temu, promotion temu, offres temu, vente flash temu',
     focus: 'Calendrier des soldes et ventes flash Temu, comment s\'y préparer, quels produits cibler, et comment maximiser les économies.',
   },
+  // ─── Batch 2 (ajouté 2026-07-18) : le pool était épuisé → cron muet depuis le 3 juin ───
+  {
+    slug: 'temu-avis-fiabilite',
+    title_fn: (m: string) => `Temu est-il fiable ? Notre avis honnête — ${m}`,
+    keywords: 'temu avis, temu fiable, temu arnaque, temu sérieux, avis temu france',
+    focus: 'Avis honnête et documenté sur la fiabilité de Temu : qualité des produits, délais réels, litiges, remboursements, et comment acheter sans risque avec les bons codes promo.',
+  },
+  {
+    slug: 'temu-retours-remboursements',
+    title_fn: (m: string) => `Retours et remboursements Temu : le guide complet ${m}`,
+    keywords: 'retour temu, remboursement temu, renvoyer article temu, sav temu',
+    focus: 'Tout sur la politique de retours Temu en France : délais, procédure pas à pas, retours gratuits, remboursement sans renvoi, litiges et astuces SAV.',
+  },
+  {
+    slug: 'temu-vs-aliexpress-comparatif',
+    title_fn: (m: string) => `Temu vs AliExpress : lequel choisir en ${m} ?`,
+    keywords: 'temu vs aliexpress, comparatif temu aliexpress, moins cher temu ou aliexpress',
+    focus: 'Comparatif complet Temu vs AliExpress : prix réels, livraison France, qualité, codes promo disponibles, retours, douanes — avec verdict par catégorie de produits.',
+  },
+  {
+    slug: 'temu-vs-amazon-petits-prix',
+    title_fn: (m: string) => `Temu vs Amazon : le match des petits prix — ${m}`,
+    keywords: 'temu vs amazon, temu ou amazon, comparatif temu amazon prix',
+    focus: 'Temu contre Amazon sur les petits prix : où acheter quoi, différences de délais et de garanties, quand Temu gagne vraiment et quand Amazon reste imbattable.',
+  },
+  {
+    slug: 'temu-jeux-application-recompenses',
+    title_fn: (m: string) => `Jeux Temu : gagner des cadeaux et réductions sur l'app — ${m}`,
+    keywords: 'jeux temu, temu roue, temu poisson, cadeaux gratuits temu, temu farmland',
+    focus: 'Guide des jeux in-app Temu (roue, Fishland, Farmland...) : comment ça marche vraiment, ce qu\'on peut gagner, pièges à éviter, et si ça vaut le temps passé.',
+  },
+  {
+    slug: 'temu-douane-taxes-france',
+    title_fn: (m: string) => `Temu et la douane en France : frais, taxes et nouvelles règles ${m}`,
+    keywords: 'temu douane, frais de douane temu, taxes temu france, tva temu colis',
+    focus: 'Ce que les acheteurs français paient réellement : TVA, réforme des petits colis, risques de frais de douane, et comment éviter les mauvaises surprises sur Temu.',
+  },
+  {
+    slug: 'temu-suivi-colis-livraison',
+    title_fn: (m: string) => `Suivi de colis Temu : délais réels et solutions — ${m}`,
+    keywords: 'suivi colis temu, temu livraison délai, colis temu bloqué, où est mon colis temu',
+    focus: 'Comment suivre son colis Temu, délais réels constatés en France, transporteurs utilisés, que faire si le colis est bloqué ou perdu, remboursement retard.',
+  },
+  {
+    slug: 'temu-vetements-tailles-avis',
+    title_fn: (m: string) => `Vêtements Temu : avis, tailles et pièges à éviter — ${m}`,
+    keywords: 'vetement temu avis, taille temu, temu mode qualité, robe temu avis',
+    focus: 'Acheter des vêtements sur Temu : guide des tailles (qui taillent petit), qualité réelle par type de pièce, avis de notre équipe, et comment payer moins cher.',
+  },
+  {
+    slug: 'temu-high-tech-accessoires-avis',
+    title_fn: (m: string) => `High-tech sur Temu : ce qui vaut le coup (et ce qu'il faut fuir) — ${m}`,
+    keywords: 'temu high tech avis, accessoires temu, écouteurs temu, gadget temu',
+    focus: 'Le high-tech Temu passé au crible : accessoires et gadgets qui valent le coup, produits à éviter (normes, batteries), et comment maximiser la réduction.',
+  },
+  {
+    slug: 'temu-annuler-commande-guide',
+    title_fn: (m: string) => `Annuler une commande Temu : la méthode complète — ${m}`,
+    keywords: 'annuler commande temu, annulation temu, modifier commande temu',
+    focus: 'Comment annuler ou modifier une commande Temu avant et après expédition, délais de remboursement, et que faire si l\'annulation est refusée.',
+  },
+  {
+    slug: 'temu-paiement-securite-guide',
+    title_fn: (m: string) => `Payer sur Temu en toute sécurité : moyens de paiement et conseils — ${m}`,
+    keywords: 'temu paiement, temu paypal, temu carte bancaire sécurité, payer temu',
+    focus: 'Les moyens de paiement acceptés par Temu en France (CB, PayPal, Apple Pay...), lequel choisir pour être protégé, et les bons réflexes sécurité.',
+  },
+  {
+    slug: 'temu-black-friday-preparation',
+    title_fn: (m: string) => `Black Friday Temu : comment se préparer dès ${m}`,
+    keywords: 'black friday temu, temu black friday codes, promo black friday temu',
+    focus: 'Préparer le Black Friday Temu : ce qui s\'est passé les années précédentes, vraies vs fausses promos, alertes à mettre en place, codes à cumuler le jour J.',
+  },
 ];
 
 // ─── Build prompt ─────────────────────────────────────────────────────────────
