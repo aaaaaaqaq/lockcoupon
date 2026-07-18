@@ -39,12 +39,16 @@ export async function POST(request: Request) {
       return NextResponse.json({ data, error: error?.message || null });
     }
     if (action === 'insert') {
+      if (!payload) return NextResponse.json({ error: 'payload required' }, { status: 400 });
       const { error } = await supabase.from(table).insert(payload);
       return NextResponse.json({ error: error?.message || null });
     }
     if (action === 'update' || action === 'delete') {
       if (!match || typeof match !== 'object' || Object.keys(match).length === 0) {
         return NextResponse.json({ error: 'match required' }, { status: 400 });
+      }
+      if (action === 'update' && (!payload || Array.isArray(payload))) {
+        return NextResponse.json({ error: 'payload required' }, { status: 400 });
       }
       const q = action === 'update'
         ? supabase.from(table).update(payload as Record<string, unknown>).match(match)
