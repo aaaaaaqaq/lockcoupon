@@ -239,8 +239,10 @@ async function upsertCoupons(storeId: string, storeSlug: string, storeName: stri
       let isDuplicate = false;
 
       if (coupon.code) {
-        const { data: existing } = await supabase.from('coupons').select('id').eq('store_id', storeId).eq('code', coupon.code).maybeSingle();
-        if (existing) isDuplicate = true;
+        // limit(1) list check: maybeSingle() throws when duplicates already
+        // exist, which skipped the guard and inserted yet another copy.
+        const { data: existing } = await supabase.from('coupons').select('id').eq('store_id', storeId).eq('code', coupon.code).limit(1);
+        if (existing && existing.length > 0) isDuplicate = true;
       } else {
         const { data: existing } = await supabase.from('coupons').select('id, title').eq('store_id', storeId).is('code', null);
         if (existing?.some((e) => e.title.toLowerCase() === coupon.title.toLowerCase())) isDuplicate = true;
@@ -270,8 +272,11 @@ async function upsertCoupons(storeId: string, storeSlug: string, storeName: stri
 }
 
 async function getStoreCouponCount(storeId: string): Promise<number> {
-  const { count } = await supabase.from('coupons').select('*', { count: 'exact', head: true }).eq('store_id', storeId);
-  return count || 0;
+  // head:true count silently returned 0 here (observed in prod), which made
+  // every store look empty -> "extra" deep-search pass ran every time (2x API
+  // cost + duplicate inserts). Plain select + length is reliable.
+  const { data } = await supabase.from('coupons').select('id').eq('store_id', storeId);
+  return data?.length || 0;
 }
 
 async function cleanExpiredCoupons(): Promise<number> {
