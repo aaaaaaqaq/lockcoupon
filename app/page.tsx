@@ -4,7 +4,7 @@ import type React from 'react';
 import { SITE_URL } from '@/lib/site';
 import Navbar from '@/components/Navbar';
 import HeroSearch from '@/components/HeroSearch';
-import HeroArt from '@/components/HeroArt';
+import Image from 'next/image';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPostsLight } from '@/lib/supabase';
@@ -160,10 +160,17 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right — decorative coupon composition (desktop only) */}
-            <div className="hero-art relative hidden lg:block w-[400px] h-[360px] shrink-0" aria-hidden>
-              <div className="absolute inset-0 rounded-full bg-primary/20 blur-[90px]" />
-              <HeroArt />
+            {/* Right — 3D coupon render (desktop only), edges alpha-feathered to blend into hero bg */}
+            <div className="relative hidden lg:block w-[430px] shrink-0" aria-hidden>
+              <div className="absolute inset-8 rounded-full bg-primary/20 blur-[80px]" />
+              <Image
+                src="/hero-coupons.webp"
+                alt=""
+                width={684}
+                height={532}
+                priority
+                className="relative w-full h-auto select-none pointer-events-none"
+              />
             </div>
           </div>
         </section>
