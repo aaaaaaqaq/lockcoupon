@@ -4,7 +4,6 @@ import type React from 'react';
 import { SITE_URL } from '@/lib/site';
 import Navbar from '@/components/Navbar';
 import HeroSearch from '@/components/HeroSearch';
-import Image from 'next/image';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPostsLight } from '@/lib/supabase';
@@ -71,9 +70,9 @@ export default async function HomePage() {
       <main>
         {/* Hero */}
         <section className="hero-dark relative overflow-hidden">
-          <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-12 xl:py-0 flex flex-col xl:flex-row xl:items-center gap-6 xl:gap-8">
+          <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-14 xl:py-16 flex items-center gap-8">
             {/* Left — content */}
-            <div className="w-full max-w-[660px] mx-auto xl:mx-0 xl:w-[660px] xl:flex-none text-center xl:text-left">
+            <div className="flex-1 max-w-[660px] mx-auto xl:mx-0 text-center xl:text-left">
               <div className="relative inline-flex items-center gap-2 bg-white/[0.08] border border-white/15 rounded-full px-4 py-1.5 text-white/85 text-[13px] font-medium mb-5 shadow-[0_0_30px_-4px_rgba(192,57,43,0.5)]">
                 <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
                   <defs>
@@ -160,18 +159,39 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right — 3D coupon render, large & dominant, spills toward the
-                right viewport edge (section overflow-hidden guards h-scroll) */}
-            <div className="heroVisual">
-              <div className="heroVisualGlow" aria-hidden="true" />
-              <Image
-                src="/images/promo-hero.webp"
-                alt="Codes promo et réductions jusqu’à moins 50 pour cent"
-                width={900}
-                height={700}
-                priority
-                className="promoHeroImage"
-              />
+            {/* Right — decorative coupon composition, pure CSS (desktop only) */}
+            <div className="hero-art relative hidden xl:block w-[380px] h-[360px] shrink-0" aria-hidden>
+              {/* glow */}
+              <div className="absolute inset-0 rounded-full bg-primary/25 blur-[90px]" />
+              {/* podium */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[280px] h-[54px] rounded-[50%] bg-black/60 shadow-[0_0_60px_10px_rgba(192,57,43,0.35)]" />
+              {/* shopping bag */}
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-[52px] w-[170px] h-[190px]">
+                <div className="absolute -top-[52px] left-1/2 -translate-x-1/2 w-[92px] h-[80px] rounded-t-full border-[10px] border-b-0 border-[#8e2418]" />
+                <div className="relative w-full h-full rounded-b-[28px] rounded-t-[10px] bg-gradient-to-b from-[#ef6552] via-[#c0392b] to-[#8e2418] shadow-[inset_0_6px_14px_rgba(255,255,255,0.35),0_18px_40px_-12px_rgba(0,0,0,0.7)] flex items-center justify-center">
+                  <span className="text-white text-[84px] font-extrabold leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]">%</span>
+                </div>
+              </div>
+              {/* ticket -50% */}
+              <div className="absolute top-1 right-2 w-[150px] rotate-[14deg] rounded-2xl bg-gradient-to-br from-[#ff5f49] to-[#a72c1e] border border-white/25 shadow-[0_16px_36px_-10px_rgba(192,57,43,0.7)] px-4 py-4 text-center">
+                <div className="text-white text-[34px] font-extrabold leading-none">-50%</div>
+                <div className="mt-1.5 text-white/70 text-[10px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1.5">CODE PROMO</div>
+              </div>
+              {/* ticket -30% */}
+              <div className="absolute top-[118px] left-0 w-[120px] -rotate-[13deg] rounded-2xl bg-gradient-to-br from-[#a855f7] to-[#6d28d9] border border-white/25 shadow-[0_14px_30px_-10px_rgba(124,58,237,0.7)] px-3 py-3 text-center">
+                <div className="text-white text-[26px] font-extrabold leading-none">-30%</div>
+                <div className="mt-1 text-white/70 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1">CODE PROMO</div>
+              </div>
+              {/* ticket -20% */}
+              <div className="absolute top-[168px] right-0 w-[112px] rotate-[9deg] rounded-2xl bg-gradient-to-br from-[#fbbf24] to-[#d97706] border border-white/25 shadow-[0_14px_30px_-10px_rgba(217,119,6,0.6)] px-3 py-3 text-center">
+                <div className="text-white text-[24px] font-extrabold leading-none">-20%</div>
+                <div className="mt-1 text-white/75 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/40 pt-1">CODE PROMO</div>
+              </div>
+              {/* sparkles */}
+              <div className="absolute top-[54px] left-[92px] w-2 h-2 rotate-45 bg-amber-400/90 rounded-[2px]" />
+              <div className="absolute top-[210px] right-[128px] w-1.5 h-1.5 rotate-12 bg-amber-300/80 rounded-[2px]" />
+              <div className="absolute top-[24px] right-[168px] w-1.5 h-1.5 rotate-45 bg-white/70 rounded-full" />
+              <div className="absolute bottom-[76px] left-[30px] w-2 h-2 rotate-12 bg-primary/80 rounded-[2px]" />
             </div>
           </div>
         </section>
