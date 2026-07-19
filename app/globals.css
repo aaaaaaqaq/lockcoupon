@@ -61,29 +61,21 @@ body {
 }
 
 /* ─── Category cards (homepage) ─────────────────────── */
-@keyframes cat-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-7px); }
-}
-@keyframes cat-pulse {
-  0%, 100% { opacity: 0.35; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.18); }
-}
+/* Clean card + soft color-coded icon tile. Color appears as a subtle tint
+   (scannability) instead of loud gradient borders; hover reveals the
+   category color on the border. 200ms, reduced-motion safe. */
 .cat-card {
-  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 .cat-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 16px 36px -10px var(--glow), 0 4px 14px rgba(0, 0, 0, 0.06);
-  border-color: transparent;
+  border-color: var(--cat-border);
+  box-shadow: 0 8px 24px -10px var(--cat-glow), 0 2px 8px rgba(0, 0, 0, 0.04);
+  transform: translateY(-2px);
 }
-.cat-orb {
-  animation: cat-float 3.4s ease-in-out var(--delay, 0s) infinite;
-}
-.cat-halo {
-  animation: cat-pulse 3.4s ease-in-out var(--delay, 0s) infinite;
+.cat-tile {
+  background: var(--cat-tint);
 }
 @media (prefers-reduced-motion: reduce) {
-  .cat-orb, .cat-halo { animation: none; }
   .cat-card:hover { transform: none; }
+  .cat-card .cat-tile { transition: none; }
 }

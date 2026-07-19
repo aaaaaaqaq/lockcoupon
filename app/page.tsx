@@ -93,31 +93,25 @@ export default async function HomePage() {
         <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-10" aria-label="Catégories">
           <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">Catégories populaires</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-3">
-            {CATEGORIES.map((cat, i) => {
+            {CATEGORIES.map((cat) => {
               const theme = CATEGORY_THEMES[cat.slug] || { from: '#C0392B', to: '#96281B' };
               return (
                 <Link
                   key={cat.slug}
                   href={`/codes-promo/categorie/${cat.slug}`}
-                  className="cat-card group relative rounded-[22px] px-2 pt-7 pb-5 text-center flex flex-col items-center"
+                  className="cat-card group bg-white border border-border rounded-2xl px-2 py-5 text-center flex flex-col items-center focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
                   style={{
-                    '--glow': `${theme.to}59`,
-                    '--delay': `${i * 0.4}s`,
-                    border: '2px solid transparent',
-                    background: `linear-gradient(180deg, ${theme.from}17 0%, #ffffff 60%) padding-box, linear-gradient(135deg, ${theme.from}, ${theme.to}) border-box`,
+                    '--cat-border': `${theme.to}4D`,
+                    '--cat-glow': `${theme.to}1F`,
+                    '--cat-tint': `${theme.to}1C`,
                   } as React.CSSProperties}
                 >
-                  <div className="cat-orb flex items-center justify-center h-12 group-hover:scale-110 transition-transform duration-300">
-                    <CategoryIcon slug={cat.slug} />
+                  <div className="cat-tile flex items-center justify-center w-12 h-12 rounded-xl transition-transform duration-200 group-hover:scale-105">
+                    <CategoryIcon slug={cat.slug} size={26} />
                   </div>
-                  <span className="mt-3.5 text-text-main text-[12px] md:text-[13px] font-bold leading-tight px-1">
+                  <span className="mt-3 min-h-[33px] flex items-start justify-center text-text-main text-[12px] md:text-[13px] font-semibold leading-tight px-1">
                     {cat.name}
                   </span>
-                  <span
-                    aria-hidden
-                    className="mt-3.5 h-[3.5px] w-8 rounded-full group-hover:w-12 transition-all duration-300"
-                    style={{ background: `linear-gradient(90deg, ${theme.from}, ${theme.to})` }}
-                  />
                 </Link>
               );
             })}

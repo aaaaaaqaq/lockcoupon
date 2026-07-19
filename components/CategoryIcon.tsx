@@ -87,15 +87,15 @@ const PATHS: Record<string, React.ReactNode> = {
   ),
 };
 
-export default function CategoryIcon({ slug }: { slug: string }) {
+export default function CategoryIcon({ slug, size = 44 }: { slug: string; size?: number }) {
   const theme = CATEGORY_THEMES[slug] || { from: '#C0392B', to: '#96281B' };
   const icon = PATHS[slug] || PATHS.marketplace;
   const gradId = `catg-${slug}`;
 
   return (
     <svg
-      width="44"
-      height="44"
+      width={size}
+      height={size}
       viewBox="0 0 24 24"
       fill="none"
       stroke={`url(#${gradId})`}
