@@ -79,3 +79,57 @@ body {
   .cat-card:hover { transform: none; }
   .cat-card .cat-tile { transition: none; }
 }
+
+/* ─── Blog CTA — gradient glass pill ───────────────────── */
+.blog-cta {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  background: linear-gradient(135deg, #e2503c 0%, #c0392b 48%, #96281b 100%);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow:
+    0 10px 28px -10px rgba(192, 57, 43, 0.55),
+    inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+/* glass top highlight */
+.blog-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 45% 0;
+  border-radius: 9999px 9999px 50% 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.04));
+  pointer-events: none;
+}
+/* shine sweep on hover */
+.blog-cta::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -80%;
+  width: 55%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transform: skewX(-20deg);
+  pointer-events: none;
+}
+.blog-cta:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 16px 36px -12px rgba(192, 57, 43, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.blog-cta:hover::after {
+  animation: cta-shine 0.7s ease;
+}
+@keyframes cta-shine {
+  to { left: 130%; }
+}
+.blog-cta:focus-visible {
+  outline: 2px solid #96281b;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .blog-cta:hover { transform: none; }
+  .blog-cta:hover::after { animation: none; }
+}
