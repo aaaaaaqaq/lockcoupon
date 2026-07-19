@@ -21,6 +21,7 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
 
   const discountDisplay = () => {
     if (coupon.discount_type === 'free') return { value: 'FREE', unit: '' };
+    if (!coupon.discount_value) return { value: 'PROMO', unit: '' };
     if (coupon.discount_type === 'percent') return { value: `${coupon.discount_value}%`, unit: '' };
     if (coupon.discount_type === 'euro') return { value: `${coupon.discount_value}€`, unit: '' };
     if (coupon.discount_type === 'cashback') return { value: `${coupon.discount_value}%`, unit: 'cashback' };

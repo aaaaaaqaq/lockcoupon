@@ -107,9 +107,9 @@ export default function CouponPopup({ coupon, store, onClose, onCopy }: CouponPo
           {/* Discount */}
           <div className="text-primary text-[32px] font-extrabold leading-none">
             {coupon.discount_type === 'free' && 'GRATUIT'}
-            {coupon.discount_type === 'percent' && `${coupon.discount_value}%`}
-            {coupon.discount_type === 'euro' && `${coupon.discount_value}€`}
-            {coupon.discount_type === 'cashback' && `${coupon.discount_value}% cashback`}
+            {coupon.discount_type === 'percent' && (coupon.discount_value ? `${coupon.discount_value}%` : 'PROMO')}
+            {coupon.discount_type === 'euro' && (coupon.discount_value ? `${coupon.discount_value}€` : 'PROMO')}
+            {coupon.discount_type === 'cashback' && (coupon.discount_value ? `${coupon.discount_value}% cashback` : 'CASHBACK')}
           </div>
 
           <h3 className="text-text-main text-[14px] font-semibold leading-snug mt-2 px-2">
