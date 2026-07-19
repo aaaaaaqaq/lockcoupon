@@ -23,7 +23,7 @@ const COVERS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1483985988355-763728e1935b?w=900&h=450&fit=crop',
     'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=900&h=450&fit=crop',
     'https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=900&h=450&fit=crop',
-    'https://images.unsplash.com/photo-1558618666-fcd25c85f82e?w=900&h=450&fit=crop',
+    'https://images.unsplash.com/photo-1445205170230-053b83016050?w=900&h=450&fit=crop',
   ],
   tech: [
     'https://images.unsplash.com/photo-1468495244123-6c6c332eeece?w=900&h=450&fit=crop',
@@ -31,7 +31,8 @@ const COVERS: Record<string, string[]> = {
     'https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=900&h=450&fit=crop',
   ],
   sport: [
-    'https://images.unsplash.com/photo-1461896836934-bd45ba688c47?w=900&h=450&fit=crop',
+    'https://images.unsplash.com/photo-1515955656352-a1fa3ffcd111?w=900&h=450&fit=crop',
+    'https://images.unsplash.com/photo-1517649763962-0c623066013b?w=900&h=450&fit=crop',
     'https://images.unsplash.com/photo-1556906781-9a412961c28c?w=900&h=450&fit=crop',
   ],
   voyage: [

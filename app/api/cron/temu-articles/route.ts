@@ -329,12 +329,22 @@ export async function GET(request: Request) {
       '-' +
       Date.now().toString(36);
 
+    // Shopping/delivery-themed covers (all URLs verified live 2026-07-19).
+    // cover_image: null previously → 📝 placeholder on /blog + no Discover eligibility.
+    const TEMU_COVERS = [
+      'https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?w=900&h=450&fit=crop', // parcels warehouse
+      'https://images.unsplash.com/photo-1607083206869-4c7672e72a8a?w=900&h=450&fit=crop', // sale gifts
+      'https://images.unsplash.com/photo-1556742111-a301076d9d18?w=900&h=450&fit=crop', // mobile payment
+      'https://images.unsplash.com/photo-1526178613552-2b45c6c302f0?w=900&h=450&fit=crop', // discount mannequins
+      'https://images.unsplash.com/photo-1607082349566-187342175e2f?w=900&h=450&fit=crop', // shopping bags
+    ];
+
     const { error: dbError } = await supabase.from('blog_posts').insert({
       title,
       slug,
       excerpt,
       content,
-      cover_image: null,
+      cover_image: TEMU_COVERS[Math.floor(Math.random() * TEMU_COVERS.length)],
       author: 'LockCoupon',
       is_published: true,
       updated_at: new Date().toISOString(),
