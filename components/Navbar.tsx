@@ -2,10 +2,67 @@
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { Store } from '@/lib/supabase';
 
+const NAV_LINKS: { href: string; label: string; icon: React.ReactNode }[] = [
+  {
+    href: '/',
+    label: 'Accueil',
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
+        <path d="M9 22V12h6v10" />
+      </svg>
+    ),
+  },
+  {
+    href: '/top-codes-promo',
+    label: 'Codes promo',
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+        <circle cx="7.5" cy="7.5" r="0.5" fill="currentColor" />
+      </svg>
+    ),
+  },
+  {
+    href: '/boutiques',
+    label: 'Boutiques',
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="m2 7 4.4-4.4A2 2 0 0 1 7.8 2h8.4a2 2 0 0 1 1.4.6L22 7" />
+        <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8" />
+        <path d="M2 7h20v3a2 2 0 0 1-2 2c-.6 0-1.2-.2-1.6-.6a.7.7 0 0 0-.8 0 2.7 2.7 0 0 1-3.2 0 .7.7 0 0 0-.8 0 2.7 2.7 0 0 1-3.2 0 .7.7 0 0 0-.8 0 2.7 2.7 0 0 1-3.2 0 .7.7 0 0 0-.8 0c-.4.4-1 .6-1.6.6a2 2 0 0 1-2-2Z" />
+      </svg>
+    ),
+  },
+  {
+    href: '/guide-achat',
+    label: "Guide d'achat",
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
+      </svg>
+    ),
+  },
+  {
+    href: '/blog',
+    label: 'Blog',
+    icon: (
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2" />
+        <path d="M18 14h-8" />
+        <path d="M15 18h-5" />
+        <path d="M10 6h8v4h-8V6Z" />
+      </svg>
+    ),
+  },
+];
+
 export default function Navbar() {
+  const pathname = usePathname();
   const [showModal, setShowModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [email, setEmail] = useState('');
@@ -53,9 +110,11 @@ export default function Navbar() {
   return (
     <>
       {/* Top bar */}
-      <div className="bg-primary text-white text-center py-2 text-[13px] font-medium tracking-wide">
-        TOP 20 : NOS MEILLEURS CODES PROMO &nbsp;
-        <Link href="/top-codes-promo" className="underline font-bold hover:text-white/80">J&apos;en profite &gt;</Link>
+      <div className="bg-gradient-to-r from-[#a72c1e] via-primary to-[#a72c1e] text-white text-center py-2 px-3 text-[13px] font-medium tracking-wide">
+        🔥 <span className="font-bold">TOP 20&nbsp;:</span> Nos meilleurs codes promo du moment
+        <span className="hidden sm:inline"> &nbsp;|&nbsp; Économisez jusqu&apos;à -70%</span>
+        &nbsp;&nbsp;
+        <Link href="/top-codes-promo" className="underline underline-offset-2 font-bold hover:text-white/80">Voir les offres →</Link>
       </div>
 
       {/* Main header */}
@@ -76,8 +135,30 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Search bar */}
-          <div className="hidden sm:flex flex-1 max-w-[500px] mx-4" ref={searchRef} role="search" aria-label="Rechercher une boutique">
+          {/* Nav links — desktop (homepage has its own hero search) */}
+          <nav className="hidden lg:flex items-center gap-1 mx-auto" aria-label="Navigation principale">
+            {NAV_LINKS.map((link) => {
+              const active = link.href === '/' ? pathname === '/' : pathname.startsWith(link.href);
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? 'page' : undefined}
+                  className={`flex items-center gap-1.5 whitespace-nowrap text-[13.5px] font-semibold rounded-full px-3 py-2 transition-colors ${
+                    active
+                      ? 'bg-white/10 text-white border border-white/15'
+                      : 'text-white/60 hover:text-white hover:bg-white/5 border border-transparent'
+                  }`}
+                >
+                  <span className={active ? 'text-primary' : ''}>{link.icon}</span>
+                  {link.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          {/* Search bar — non-home pages only */}
+          <div className={`${pathname === '/' ? 'hidden' : 'hidden sm:flex lg:hidden xl:flex'} flex-1 max-w-[360px] mx-4`} ref={searchRef} role="search" aria-label="Rechercher une boutique">
             <div className="relative w-full">
               <input
                 type="search"
@@ -131,13 +212,17 @@ export default function Navbar() {
           <div className="hidden md:flex items-center gap-3 ml-auto">
             <button
               onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); }}
-              className="text-white/70 hover:text-white text-[14px] font-medium border border-white/20 rounded-full px-5 py-2 transition-colors"
+              className="flex items-center gap-2 whitespace-nowrap text-white/70 hover:text-white text-[14px] font-medium border border-white/20 hover:border-white/40 rounded-full px-5 py-2 transition-colors"
             >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+                <circle cx="12" cy="7" r="4" />
+              </svg>
               Connexion ou inscription
             </button>
             <Link
               href="/ajouter-code"
-              className="bg-primary hover:bg-primary-dark text-white text-[14px] font-bold rounded-full px-5 py-2 transition-colors flex items-center gap-1.5"
+              className="bg-primary hover:bg-primary-dark whitespace-nowrap text-white text-[14px] font-bold rounded-full px-5 py-2 transition-colors flex items-center gap-1.5"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="2"><path d="M7 1v12M1 7h12" strokeLinecap="round"/></svg>
               Ajouter un code
@@ -189,9 +274,12 @@ export default function Navbar() {
                 </div>
               )}
             </div>
-            <Link href="/" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Accueil</Link>
-            <Link href="/boutiques" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Boutiques</Link>
-            <Link href="/blog" className="block text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>Blog</Link>
+            {NAV_LINKS.map((link) => (
+              <Link key={link.href} href={link.href} className="flex items-center gap-2.5 text-white/70 hover:text-white text-[15px] py-2" onClick={() => setMenuOpen(false)}>
+                {link.icon}
+                {link.label}
+              </Link>
+            ))}
             <button
               onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); setMenuOpen(false); }}
               className="w-full text-center bg-primary text-white font-semibold text-[14px] py-2.5 rounded-full mt-2"

@@ -80,6 +80,26 @@ body {
   .cat-card .cat-tile { transition: none; }
 }
 
+/* ─── Hero (homepage) ─────────────────────────────── */
+.hero-dark {
+  background:
+    radial-gradient(ellipse 900px 480px at 78% 30%, rgba(192, 57, 43, 0.22), transparent 65%),
+    radial-gradient(ellipse 700px 420px at 8% 85%, rgba(192, 57, 43, 0.1), transparent 60%),
+    linear-gradient(180deg, #191317 0%, #16100f 55%, #150f0e 100%);
+}
+.hero-search {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 10px 34px -8px rgba(192, 57, 43, 0.45),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+}
+.hero-search:focus-within {
+  box-shadow:
+    0 0 0 2px rgba(226, 80, 60, 0.55),
+    0 10px 38px -6px rgba(192, 57, 43, 0.55),
+    0 4px 16px rgba(0, 0, 0, 0.4);
+}
+
 /* ─── Blog CTA — gradient glass pill ───────────────────── */
 .blog-cta {
   position: relative;

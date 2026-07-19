@@ -3,6 +3,7 @@ import Link from 'next/link';
 import type React from 'react';
 import { SITE_URL } from '@/lib/site';
 import Navbar from '@/components/Navbar';
+import HeroSearch from '@/components/HeroSearch';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPostsLight } from '@/lib/supabase';
@@ -21,10 +22,15 @@ export const metadata: Metadata = {
   },
 };
 
+const POPULAR_SLUGS = ['shein', 'temu', 'amazon', 'aliexpress', 'fnac'];
+
 export default async function HomePage() {
   const [stores, posts] = await Promise.all([getAllStores(), getPostsLight()]);
   const displayStores = stores.slice(0, 12);
   const displayPosts = posts.slice(0, 3);
+  const popularStores = POPULAR_SLUGS
+    .map((slug) => stores.find((s) => s.slug === slug))
+    .filter((s): s is NonNullable<typeof s> => Boolean(s));
 
   const websiteSchema = {
     '@context': 'https://schema.org',
@@ -63,28 +69,121 @@ export default async function HomePage() {
 
       <main>
         {/* Hero */}
-        <section className="bg-[#1a1a1a] relative overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent pointer-events-none" />
-          <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-16 text-center">
-            <h1 className="text-white text-[28px] sm:text-[36px] md:text-[44px] font-extrabold leading-tight mb-3">
-              Économisez avec les <span className="text-primary">meilleurs codes promo</span>
-            </h1>
-            <p className="text-white/50 text-[14px] md:text-[16px] max-w-lg mx-auto mb-6">
-              Codes promo vérifiés &amp; mis à jour chaque jour. 100% gratuit.
-            </p>
-            <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
-              <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">
-                🔥 Mis à jour aujourd&apos;hui
+        <section className="hero-dark relative overflow-hidden">
+          <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-14 lg:py-16 flex items-center gap-8">
+            {/* Left — content */}
+            <div className="flex-1 max-w-[660px] text-center lg:text-left">
+              <div className="inline-flex items-center gap-2 bg-white/[0.07] border border-white/10 rounded-full px-4 py-1.5 text-white/75 text-[12.5px] font-medium mb-5">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b" stroke="none" aria-hidden>
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                </svg>
+                Les meilleurs bons plans, chaque jour
               </div>
-              <div className="bg-white/10 backdrop-blur-sm rounded-full px-4 py-2 text-white/80 text-[13px] font-medium">
-                ✅ 98% taux de succès
+
+              <h1 className="text-white text-[30px] sm:text-[38px] md:text-[46px] font-extrabold leading-[1.12] mb-4">
+                Économisez avec les meilleurs{' '}
+                <span className="relative inline-block text-primary">
+                  codes promo
+                  <svg className="absolute left-0 -bottom-1.5 w-full" height="8" viewBox="0 0 200 8" preserveAspectRatio="none" aria-hidden>
+                    <path d="M2 6C60 2 140 2 198 5" stroke="#e2503c" strokeWidth="4" strokeLinecap="round" fill="none" />
+                  </svg>
+                </span>
+              </h1>
+
+              <p className="text-white/55 text-[15px] md:text-[16px] mb-7">
+                Codes promo vérifiés &amp; mis à jour chaque jour. 100% gratuit.
+              </p>
+
+              <div className="flex justify-center lg:justify-start mb-5">
+                <HeroSearch />
               </div>
-              <Link href="/boutiques" className="bg-primary hover:bg-primary-dark rounded-full px-5 py-2 text-white text-[13px] font-bold transition-colors">
-                🏪 {stores.length}+ boutiques →
-              </Link>
-              <Link href="/guide-achat" className="bg-white/15 hover:bg-white/25 backdrop-blur-sm rounded-full px-5 py-2 text-white text-[13px] font-bold transition-colors border border-white/20">
-                📖 Guide d&apos;achat
-              </Link>
+
+              {popularStores.length > 0 && (
+                <div className="flex items-center justify-center lg:justify-start gap-2 flex-wrap mb-8">
+                  <span className="text-white/45 text-[13px] font-medium mr-1">Populaires&nbsp;:</span>
+                  {popularStores.map((store) => (
+                    <Link
+                      key={store.slug}
+                      href={`/codes-promo/${store.slug}`}
+                      className="inline-flex items-center gap-1.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/10 rounded-full pl-1.5 pr-3.5 py-1.5 text-white/85 text-[13px] font-semibold transition-colors"
+                    >
+                      {store.logo_url ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={store.logo_url} alt="" className="w-5 h-5 rounded-full object-contain bg-white" loading="lazy" />
+                      ) : (
+                        <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
+                          {store.logo_letter || store.name[0]}
+                        </span>
+                      )}
+                      {store.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+
+              <div className="flex items-center justify-center lg:justify-start gap-1.5 flex-wrap">
+                <div className="inline-flex items-center gap-1.5 whitespace-nowrap bg-white/[0.07] border border-white/10 backdrop-blur-sm rounded-full px-2.5 py-2 text-white/80 text-[12px] font-medium">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="none" aria-hidden>
+                    <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+                  </svg>
+                  Mis à jour aujourd&apos;hui
+                </div>
+                <div className="inline-flex items-center gap-1.5 whitespace-nowrap bg-white/[0.07] border border-white/10 backdrop-blur-sm rounded-full px-2.5 py-2 text-white/80 text-[12px] font-medium">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M21.801 10A10 10 0 1 1 17 3.335" />
+                    <path d="m9 11 3 3L22 4" />
+                  </svg>
+                  98% taux de succès
+                </div>
+                <Link href="/boutiques" className="inline-flex items-center gap-1.5 whitespace-nowrap bg-primary hover:bg-primary-dark rounded-full px-2.5 py-2 text-white text-[12px] font-bold transition-colors">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" />
+                    <circle cx="7.5" cy="7.5" r="0.5" fill="currentColor" />
+                  </svg>
+                  {stores.length}+ boutiques →
+                </Link>
+                <Link href="/guide-achat" className="inline-flex items-center gap-1.5 whitespace-nowrap bg-white/[0.12] hover:bg-white/[0.22] backdrop-blur-sm rounded-full px-2.5 py-2 text-white text-[12px] font-bold transition-colors border border-white/15">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#60a5fa" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                    <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+                  </svg>
+                  Guide d&apos;achat
+                </Link>
+              </div>
+            </div>
+
+            {/* Right — decorative coupon composition (desktop only) */}
+            <div className="hero-art relative hidden lg:block w-[370px] h-[350px] shrink-0" aria-hidden>
+              {/* glow */}
+              <div className="absolute inset-0 rounded-full bg-primary/25 blur-[90px]" />
+              {/* podium */}
+              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[280px] h-[54px] rounded-[50%] bg-black/60 shadow-[0_0_60px_10px_rgba(192,57,43,0.35)]" />
+              {/* shopping bag */}
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-[52px] w-[170px] h-[190px]">
+                <div className="absolute -top-[52px] left-1/2 -translate-x-1/2 w-[92px] h-[80px] rounded-t-full border-[10px] border-b-0 border-[#8e2418]" />
+                <div className="relative w-full h-full rounded-b-[28px] rounded-t-[10px] bg-gradient-to-b from-[#ef6552] via-[#c0392b] to-[#8e2418] shadow-[inset_0_6px_14px_rgba(255,255,255,0.35),0_18px_40px_-12px_rgba(0,0,0,0.7)] flex items-center justify-center">
+                  <span className="text-white text-[84px] font-extrabold leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]">%</span>
+                </div>
+              </div>
+              {/* ticket -50% */}
+              <div className="absolute top-1 right-2 w-[150px] rotate-[14deg] rounded-2xl bg-gradient-to-br from-[#ff5f49] to-[#a72c1e] border border-white/25 shadow-[0_16px_36px_-10px_rgba(192,57,43,0.7)] px-4 py-4 text-center">
+                <div className="text-white text-[34px] font-extrabold leading-none">-50%</div>
+                <div className="mt-1.5 text-white/70 text-[10px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1.5">CODE PROMO</div>
+              </div>
+              {/* ticket -30% */}
+              <div className="absolute top-[118px] left-0 w-[120px] -rotate-[13deg] rounded-2xl bg-gradient-to-br from-[#a855f7] to-[#6d28d9] border border-white/25 shadow-[0_14px_30px_-10px_rgba(124,58,237,0.7)] px-3 py-3 text-center">
+                <div className="text-white text-[26px] font-extrabold leading-none">-30%</div>
+                <div className="mt-1 text-white/70 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1">CODE PROMO</div>
+              </div>
+              {/* ticket -20% */}
+              <div className="absolute top-[168px] right-0 w-[112px] rotate-[9deg] rounded-2xl bg-gradient-to-br from-[#fbbf24] to-[#d97706] border border-white/25 shadow-[0_14px_30px_-10px_rgba(217,119,6,0.6)] px-3 py-3 text-center">
+                <div className="text-white text-[24px] font-extrabold leading-none">-20%</div>
+                <div className="mt-1 text-white/75 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/40 pt-1">CODE PROMO</div>
+              </div>
+              {/* sparkles */}
+              <div className="absolute top-[54px] left-[92px] w-2 h-2 rotate-45 bg-amber-400/90 rounded-[2px]" />
+              <div className="absolute top-[210px] right-[128px] w-1.5 h-1.5 rotate-12 bg-amber-300/80 rounded-[2px]" />
+              <div className="absolute top-[24px] right-[168px] w-1.5 h-1.5 rotate-45 bg-white/70 rounded-full" />
+              <div className="absolute bottom-[76px] left-[30px] w-2 h-2 rotate-12 bg-primary/80 rounded-[2px]" />
             </div>
           </div>
         </section>
