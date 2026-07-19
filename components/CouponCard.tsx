@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Coupon } from '@/lib/supabase';
+import { IconStar } from '@/components/icons';
 
 interface CouponCardProps {
   coupon: Coupon;
@@ -57,8 +58,8 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
               {typeLabel()}
             </span>
             {coupon.is_best && (
-              <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
-                ⭐ Meilleure offre
+              <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
+                <IconStar size={10} /> Meilleure offre
               </span>
             )}
             {coupon.is_exclusive && (
@@ -130,8 +131,8 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
             </span>
             <div className="flex items-center gap-2">
               {coupon.is_best && (
-                <span className="bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  ⭐ Meilleure offre
+                <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
+                  <IconStar size={10} /> Meilleure offre
                 </span>
               )}
               {coupon.is_exclusive && (

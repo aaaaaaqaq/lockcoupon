@@ -1,6 +1,7 @@
 'use client';
 
 import { Store, Coupon } from '@/lib/supabase';
+import { IconCheckCircle, IconStar, IconCalendar } from '@/components/icons';
 
 interface HeroProps {
   store: Store;
@@ -51,7 +52,7 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
             {/* Badge + Logo row */}
             <div className="flex items-center gap-4 mb-5">
               <span className="inline-flex items-center gap-1.5 bg-white/10 backdrop-blur-sm text-white text-[13px] font-medium px-3 py-1.5 rounded-full">
-                ✅ Mis à jour le{' '}
+                <IconCheckCircle size={14} className="text-green-400" /> Mis à jour le{' '}
                 <time dateTime={lastVerified.toISOString().slice(0, 10)}>
                   {lastVerified.getDate()} {monthNames[lastVerified.getMonth()].toLowerCase()} {lastVerified.getFullYear()}
                 </time>
@@ -110,7 +111,7 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
             <div className="hidden lg:block w-[300px] shrink-0">
               <div className="bg-white rounded-xl shadow-2xl p-6 text-center">
                 <div className="flex items-center justify-center gap-1.5 text-[13px] font-bold text-primary mb-3">
-                  <span>⭐</span> MEILLEURE OFFRE
+                  <IconStar size={14} className="text-amber-500" /> MEILLEURE OFFRE
                 </div>
                 <div className="text-primary text-[56px] font-extrabold leading-none mb-1">
                   {bestCoupon.discount_value || '30'}
@@ -128,8 +129,8 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
                   Obtenir le code →
                 </button>
                 {bestCoupon.expiry_date && (
-                  <p className="text-muted text-[12px]">
-                    📅 Expire dans {daysUntil(bestCoupon.expiry_date)} jours
+                  <p className="flex items-center justify-center gap-1.5 text-muted text-[12px]">
+                    <IconCalendar size={13} /> Expire dans {daysUntil(bestCoupon.expiry_date)} jours
                   </p>
                 )}
               </div>

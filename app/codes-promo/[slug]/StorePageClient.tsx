@@ -13,6 +13,7 @@ import { Store, Coupon } from '@/lib/supabase';
 import { allSubpagesFor } from '@/lib/storeSubpages';
 import AnswerBox from '@/components/AnswerBox';
 import { storeFaqItems, storeAboutSections, storeTips, storeStats } from '@/lib/storeContent';
+import { IconCheckCircle, IconChart, IconFlame, IconSearch, IconClipboard, IconBook, IconTrophy, IconStore, IconNewspaper } from '@/components/icons';
 
 interface StorePageClientProps {
   store: Store;
@@ -150,9 +151,9 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
 
         {/* Freshness signal */}
         <div className="max-w-[1200px] mx-auto px-4 pt-4 flex items-center gap-4 flex-wrap">
-          <p className="text-muted text-[13px]">✅ Vérifié le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-          <p className="text-muted text-[13px]">📊 {coupons.length} offres actives</p>
-          <p className="text-muted text-[13px]">🔥 {coupons.reduce((s, c) => s + (c.usage_count || 0), 0).toLocaleString('fr-FR')} utilisations</p>
+          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconCheckCircle size={14} className="text-green-600" /> Vérifié le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconChart size={14} className="text-blue-500" /> {coupons.length} offres actives</p>
+          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconFlame size={14} className="text-orange-500" /> {coupons.reduce((s, c) => s + (c.usage_count || 0), 0).toLocaleString('fr-FR')} utilisations</p>
         </div>
 
         {/* Answer-first block — dated, self-contained, AI-search quotable */}
@@ -185,12 +186,12 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { icon: '🔍', title: '1. Choisissez votre code', desc: `Parcourez les ${coupons.length} offres ${store.name} ci-dessus et trouvez celle qui correspond à vos achats.` },
-                { icon: '📋', title: '2. Copiez le code', desc: `Cliquez sur "Voir le code" pour le révéler. Il est automatiquement copié dans votre presse-papier.` },
-                { icon: '✅', title: '3. Profitez de la réduction', desc: `Rendez-vous sur ${store.name}, remplissez votre panier et collez le code au moment du paiement.` },
+                { icon: <IconSearch size={30} className="text-primary" />, title: '1. Choisissez votre code', desc: `Parcourez les ${coupons.length} offres ${store.name} ci-dessus et trouvez celle qui correspond à vos achats.` },
+                { icon: <IconClipboard size={30} className="text-primary" />, title: '2. Copiez le code', desc: `Cliquez sur "Voir le code" pour le révéler. Il est automatiquement copié dans votre presse-papier.` },
+                { icon: <IconCheckCircle size={30} className="text-green-600" />, title: '3. Profitez de la réduction', desc: `Rendez-vous sur ${store.name}, remplissez votre panier et collez le code au moment du paiement.` },
               ].map((step, i) => (
                 <div key={i} className="bg-white border border-border rounded-xl p-5 text-center">
-                  <div className="text-[32px] mb-3">{step.icon}</div>
+                  <div className="mb-3 flex justify-center">{step.icon}</div>
                   <h3 className="text-text-main text-[15px] font-bold mb-2">{step.title}</h3>
                   <p className="text-muted text-[13px] leading-relaxed">{step.desc}</p>
                 </div>
@@ -251,13 +252,13 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
         {/* Internal links */}
         <nav aria-label="Pages utiles" className="max-w-[1200px] mx-auto px-4 py-6">
           <div className="flex flex-wrap gap-3 justify-center">
-            <Link href="/guide-achat" className="text-primary text-[13px] font-semibold hover:underline">📖 Guide d&apos;achat</Link>
+            <Link href="/guide-achat" className="text-primary text-[13px] font-semibold hover:underline inline-flex items-center gap-1.5"><IconBook size={14} /> Guide d&apos;achat</Link>
             <span className="text-muted">•</span>
-            <Link href="/top-codes-promo" className="text-primary text-[13px] font-semibold hover:underline">🏆 Top codes promo</Link>
+            <Link href="/top-codes-promo" className="text-primary text-[13px] font-semibold hover:underline inline-flex items-center gap-1.5"><IconTrophy size={14} /> Top codes promo</Link>
             <span className="text-muted">•</span>
-            <Link href="/boutiques" className="text-primary text-[13px] font-semibold hover:underline">🏪 Toutes les boutiques</Link>
+            <Link href="/boutiques" className="text-primary text-[13px] font-semibold hover:underline inline-flex items-center gap-1.5"><IconStore size={14} /> Toutes les boutiques</Link>
             <span className="text-muted">•</span>
-            <Link href="/blog" className="text-primary text-[13px] font-semibold hover:underline">📝 Blog</Link>
+            <Link href="/blog" className="text-primary text-[13px] font-semibold hover:underline inline-flex items-center gap-1.5"><IconNewspaper size={14} /> Blog</Link>
           </div>
         </nav>
       </main>

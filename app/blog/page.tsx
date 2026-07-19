@@ -4,6 +4,7 @@ import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getPostsLight } from '@/lib/supabase';
+import { IconNewspaper } from '@/components/icons';
 
 export const revalidate = 60;
 
@@ -82,7 +83,7 @@ export default async function BlogPage() {
                       </div>
                     ) : (
                       <div className="h-[200px] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                        <span className="text-[48px]">📝</span>
+                        <IconNewspaper size={48} className="text-primary/40" />
                       </div>
                     )}
                     <div className="p-5">

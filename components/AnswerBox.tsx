@@ -9,6 +9,7 @@
 
 import type { Store, Coupon } from '@/lib/supabase';
 import { bestDiscountLabel } from '@/lib/discount';
+import { IconBulb } from '@/components/icons';
 
 function couponDiscountLabel(c: Coupon): string {
   const val = c.discount_value ? parseInt(c.discount_value) : 0;
@@ -41,7 +42,7 @@ export default function AnswerBox({ store, coupons, intentLabel, answer }: Answe
     <section className="max-w-[1200px] mx-auto px-4 pt-5" aria-label="Réponse rapide">
       <div className="max-w-[800px] mx-auto bg-white border border-border border-l-4 border-l-primary rounded-xl p-5">
         <p className="text-text-main text-[14px] md:text-[15px] leading-relaxed">
-          <span aria-hidden="true">💡 </span>
+          <IconBulb size={16} className="inline-block align-[-3px] mr-1.5 text-amber-500" />
           <strong>
             Meilleur code promo {store.name}
             {intentLabel ? ` ${intentLabel.toLowerCase()}` : ''} aujourd&apos;hui ({today}) :

@@ -1,4 +1,5 @@
 'use client';
+import { IconTag, IconKey, IconCoins, IconGift } from '@/components/icons';
 
 interface FilterTabsProps {
   activeFilter: string;
@@ -8,10 +9,10 @@ interface FilterTabsProps {
 
 export default function FilterTabs({ activeFilter, onFilterChange, counts }: FilterTabsProps) {
   const tabs = [
-    { key: 'all', label: 'Tous', emoji: '🏷️', count: counts.all },
-    { key: 'code', label: 'Codes', emoji: '🔑', count: counts.code },
-    { key: 'cashback', label: 'Cashback', emoji: '💰', count: counts.cashback },
-    { key: 'bon', label: 'Bon Plans', emoji: '🎁', count: counts.bon },
+    { key: 'all', label: 'Tous', icon: <IconTag size={14} />, count: counts.all },
+    { key: 'code', label: 'Codes', icon: <IconKey size={14} />, count: counts.code },
+    { key: 'cashback', label: 'Cashback', icon: <IconCoins size={14} />, count: counts.cashback },
+    { key: 'bon', label: 'Bon Plans', icon: <IconGift size={14} />, count: counts.bon },
   ];
 
   return (
@@ -32,7 +33,7 @@ export default function FilterTabs({ activeFilter, onFilterChange, counts }: Fil
                 }
               `}
             >
-              <span>{tab.emoji}</span>
+              {tab.icon}
               {tab.label} ({tab.count})
             </button>
           ))}

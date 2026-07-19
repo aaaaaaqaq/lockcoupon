@@ -1,4 +1,5 @@
 import { Coupon, Store } from '@/lib/supabase';
+import { IconCheckCircle } from '@/components/icons';
 
 interface Props {
   store: Store;
@@ -73,8 +74,8 @@ export default function RecentVerifications({ store, coupons }: Props) {
                       </span>
                     )}
                   </span>
-                  <span className="text-muted text-[13px]">
-                    ✅ {dayCoupons.length} offre{dayCoupons.length > 1 ? 's' : ''} testée{dayCoupons.length > 1 ? 's' : ''} et ajoutée{dayCoupons.length > 1 ? 's' : ''}
+                  <span className="inline-flex items-center gap-1.5 text-muted text-[13px]">
+                    <IconCheckCircle size={13} className="text-green-600" /> {dayCoupons.length} offre{dayCoupons.length > 1 ? 's' : ''} testée{dayCoupons.length > 1 ? 's' : ''} et ajoutée{dayCoupons.length > 1 ? 's' : ''}
                   </span>
                 </div>
                 {sample.length > 0 && (

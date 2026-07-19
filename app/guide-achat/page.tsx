@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import FAQ from '@/components/FAQ';
 import { getAllStores } from '@/lib/supabase';
+import { IconShirt, IconLaptop, IconDumbbell, IconSparkles, IconPlane, IconHome, IconCart, IconBag, IconBulb } from '@/components/icons';
 
 export const revalidate = 60;
 
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
 const CATEGORIES = [
   {
     name: 'Mode & Vêtements',
-    emoji: '👗',
+    icon: <IconShirt size={30} />,
     color: '#E91E63',
     description: 'Shein, Zara, H&M, ASOS et plus',
     slugs: ['shein', 'zara', 'hm', 'asos', 'mango', 'boohoo', 'prettylittlething', 'zalando', 'la-redoute', 'kiabi', 'uniqlo', 'bershka', 'pull-and-bear', 'stradivarius', 'etam'],
@@ -39,7 +40,7 @@ const CATEGORIES = [
   },
   {
     name: 'High-Tech & Électronique',
-    emoji: '💻',
+    icon: <IconLaptop size={30} />,
     color: '#2196F3',
     description: 'Samsung, Apple, Fnac, Darty et plus',
     slugs: ['samsung', 'apple', 'xiaomi', 'fnac', 'darty', 'boulanger', 'ldlc', 'back-market', 'cdiscount', 'rue-du-commerce'],
@@ -51,7 +52,7 @@ const CATEGORIES = [
   },
   {
     name: 'Sport & Outdoor',
-    emoji: '⚽',
+    icon: <IconDumbbell size={30} />,
     color: '#4CAF50',
     description: 'Nike, Adidas, Decathlon, Puma et plus',
     slugs: ['nike', 'adidas', 'puma', 'decathlon', 'new-balance', 'foot-locker', 'jd-sports', 'reebok', 'asics', 'the-north-face', 'timberland'],
@@ -63,7 +64,7 @@ const CATEGORIES = [
   },
   {
     name: 'Beauté & Parfums',
-    emoji: '💄',
+    icon: <IconSparkles size={30} />,
     color: '#9C27B0',
     description: 'Sephora, Yves Rocher, Nocibé et plus',
     slugs: ['sephora', 'nocibe-fr', 'yves-rocher', 'marionnaud', 'aroma-zone'],
@@ -75,7 +76,7 @@ const CATEGORIES = [
   },
   {
     name: 'Voyage & Hôtels',
-    emoji: '✈️',
+    icon: <IconPlane size={30} />,
     color: '#FF9800',
     description: 'Booking, Expedia, Airbnb et plus',
     slugs: ['booking', 'expedia', 'airbnb', 'lastminute'],
@@ -87,7 +88,7 @@ const CATEGORIES = [
   },
   {
     name: 'Maison & Déco',
-    emoji: '🏠',
+    icon: <IconHome size={30} />,
     color: '#795548',
     description: 'IKEA, Leroy Merlin, Maisons du Monde et plus',
     slugs: ['ikea', 'leroy-merlin', 'castorama', 'conforama', 'maisons-du-monde', 'but'],
@@ -99,7 +100,7 @@ const CATEGORIES = [
   },
   {
     name: 'Marketplace & Généraliste',
-    emoji: '🛒',
+    icon: <IconCart size={30} />,
     color: '#F44336',
     description: 'Amazon, Temu, AliExpress, eBay et plus',
     slugs: ['amazon', 'temu', 'aliexpress', 'ebay', 'cdiscount', 'rakuten'],
@@ -111,7 +112,7 @@ const CATEGORIES = [
   },
   {
     name: 'Luxe & Premium',
-    emoji: '👜',
+    icon: <IconBag size={30} />,
     color: '#000000',
     description: 'Galeries Lafayette, Lacoste, Ralph Lauren et plus',
     slugs: ['galeries-lafayette', 'printemps', 'lacoste', 'ralph-lauren', 'tommy-hilfiger', 'calvin-klein', 'massimo-dutti'],
@@ -169,7 +170,7 @@ export default async function GuideAchatPage() {
                 <article key={cat.name} className="bg-white border border-border rounded-2xl overflow-hidden hover:shadow-lg transition-all">
                   {/* Header */}
                   <div className="px-6 py-5 flex items-center gap-4" style={{ borderBottom: `3px solid ${cat.color}` }}>
-                    <span className="text-[36px]">{cat.emoji}</span>
+                    <span className="inline-flex items-center justify-center w-14 h-14 rounded-xl shrink-0" style={{ color: cat.color, backgroundColor: `${cat.color}1A` }}>{cat.icon}</span>
                     <div>
                       <h2 className="text-text-main text-[20px] font-extrabold">{cat.name}</h2>
                       <p className="text-muted text-[13px]">{cat.description}</p>
@@ -198,7 +199,7 @@ export default async function GuideAchatPage() {
 
                   {/* Tips */}
                   <div className="px-6 pb-5">
-                    <h3 className="text-text-main text-[14px] font-bold mb-2">💡 Astuces pour économiser</h3>
+                    <h3 className="flex items-center gap-1.5 text-text-main text-[14px] font-bold mb-2"><IconBulb size={15} className="text-amber-500" /> Astuces pour économiser</h3>
                     <ul className="space-y-1.5">
                       {cat.tips.map((tip, i) => (
                         <li key={i} className="text-muted text-[13px] flex items-start gap-2">

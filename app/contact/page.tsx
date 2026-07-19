@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import { IconCheckCircle } from '@/components/icons';
 
 export default function ContactPage() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -40,7 +41,7 @@ export default function ContactPage() {
 
           {sent ? (
             <div className="bg-green-50 border border-green-200 rounded-xl p-8 text-center">
-              <div className="text-[40px] mb-3">✅</div>
+              <div className="mb-3 flex justify-center text-green-500"><IconCheckCircle size={40} /></div>
               <h2 className="text-text-main text-[20px] font-bold mb-2">Message envoyé !</h2>
               <p className="text-muted text-[14px]">Merci de nous avoir contacté. Nous vous répondrons dans les plus brefs délais.</p>
             </div>

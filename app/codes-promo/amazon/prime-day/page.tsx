@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import Navbar from '@/components/Navbar';
+import { IconZap } from '@/components/icons';
 import Footer from '@/components/Footer';
 import { getStoreBySlug, getCouponsByStoreId } from '@/lib/supabase';
 
@@ -103,8 +104,8 @@ export default async function AmazonPrimeDayPage() {
           <div className="max-w-[800px] mx-auto">
             {isLive() && (
               <div className="bg-primary/5 border border-primary/30 rounded-xl p-5 mb-8">
-                <h2 className="text-text-main text-[17px] md:text-[19px] font-extrabold mb-3">
-                  ⚡ Le Prime Day est en cours — le plan d&apos;action tout de suite
+                <h2 className="flex items-center gap-2 text-text-main text-[17px] md:text-[19px] font-extrabold mb-3">
+                  <IconZap size={18} className="text-amber-500 shrink-0" /> Le Prime Day est en cours — le plan d&apos;action tout de suite
                 </h2>
                 <ul className="text-muted text-[14px] md:text-[15px] leading-relaxed space-y-2 list-disc pl-5">
                   <li><strong>Pas encore membre Prime ?</strong> L&apos;essai gratuit de 30 jours débloque toutes les offres immédiatement — résiliable sans frais.</li>

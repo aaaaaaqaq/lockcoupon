@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { supabase } from '@/lib/supabase';
 import type { Store } from '@/lib/supabase';
+import { IconFlame, IconMail, IconCheckCircle } from '@/components/icons';
 
 const NAV_LINKS: { href: string; label: string; icon: React.ReactNode }[] = [
   {
@@ -112,7 +113,7 @@ export default function Navbar() {
     <>
       {/* Top bar */}
       <div className="bg-gradient-to-r from-[#a72c1e] via-primary to-[#a72c1e] text-white text-center py-2 px-3 text-[13px] font-medium tracking-wide">
-        🔥 <span className="font-bold">TOP 20&nbsp;:</span> Nos meilleurs codes promo du moment
+        <IconFlame size={14} className="inline align-[-2px] text-amber-300" /> <span className="font-bold">TOP 20&nbsp;:</span> Nos meilleurs codes promo du moment
         <span className="hidden sm:inline"> &nbsp;|&nbsp; Économisez jusqu&apos;à -70%</span>
         &nbsp;&nbsp;
         <Link href="/top-codes-promo" className="underline underline-offset-2 font-bold hover:text-white/80">Voir les offres →</Link>
@@ -318,14 +319,14 @@ export default function Navbar() {
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setShowModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-[420px] overflow-hidden animate-scale-in">
             <div className="bg-primary px-6 py-5 text-center">
-              <div className="text-[28px] mb-1">📬</div>
+              <div className="mb-1 flex justify-center text-white"><IconMail size={28} /></div>
               <h2 className="text-white text-[20px] font-bold">Restez informé !</h2>
               <p className="text-white/70 text-[14px] mt-1">Recevez les meilleurs codes promo directement dans votre boîte mail.</p>
             </div>
             <div className="p-6">
               {status === 'success' ? (
                 <div className="text-center py-4">
-                  <div className="text-[40px] mb-3">✅</div>
+                  <div className="mb-3 flex justify-center text-green-500"><IconCheckCircle size={40} /></div>
                   <h3 className="text-text-main text-[18px] font-bold mb-1">Merci !</h3>
                   <p className="text-muted text-[14px]">Vous êtes maintenant inscrit à notre newsletter.</p>
                   <button onClick={() => setShowModal(false)} className="mt-5 bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">Fermer</button>

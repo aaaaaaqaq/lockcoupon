@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { supabase } from '@/lib/supabase';
 import type { Store } from '@/lib/supabase';
+import { IconGift, IconCheckCircle, IconTag, IconLink } from '@/components/icons';
 
 export default function AjouterCodePage() {
   const [stores, setStores] = useState<Store[]>([]);
@@ -80,7 +81,7 @@ export default function AjouterCodePage() {
       <section className="bg-[#1a1a1a] relative overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-primary/15 via-transparent to-transparent pointer-events-none" />
         <div className="relative max-w-[1200px] mx-auto px-4 py-8 md:py-12 text-center">
-          <div className="text-[40px] mb-3">🎁</div>
+          <div className="mb-3 flex justify-center text-[#f2604a]"><IconGift size={40} /></div>
           <h1 className="text-white text-[28px] sm:text-[36px] font-extrabold leading-tight mb-3">
             Ajouter un <span className="text-primary">code promo</span>
           </h1>
@@ -93,7 +94,7 @@ export default function AjouterCodePage() {
       <div className="max-w-[600px] mx-auto px-4 py-8 md:py-12">
         {sent ? (
           <div className="bg-white border border-border rounded-2xl p-8 text-center">
-            <div className="text-[48px] mb-4">✅</div>
+            <div className="mb-4 flex justify-center text-green-500"><IconCheckCircle size={48} /></div>
             <h2 className="text-text-main text-[22px] font-bold mb-2">Merci !</h2>
             <p className="text-muted text-[15px] mb-6">Votre code a été ajouté et sera vérifié par notre équipe.</p>
             <button onClick={() => { setSent(false); setForm({ code: '', discount_value: '', discount_type: 'percent', type: 'code', description: '', affiliate_url: '', email: '' }); setSelectedStore(null); setStoreQuery(''); }} className="bg-primary hover:bg-primary-dark text-white font-bold text-[14px] px-6 py-2.5 rounded-lg transition-colors">
@@ -102,7 +103,7 @@ export default function AjouterCodePage() {
           </div>
         ) : (
           <div className="bg-white border border-border rounded-2xl p-6 md:p-8">
-            <h2 className="text-text-main text-[18px] font-bold mb-5">🏷️ Informations du code promo</h2>
+            <h2 className="flex items-center gap-2 text-text-main text-[18px] font-bold mb-5"><IconTag size={17} className="text-primary" /> Informations du code promo</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* Store search */}
@@ -186,7 +187,7 @@ export default function AjouterCodePage() {
 
               {/* Affiliate URL */}
               <div className="md:col-span-2">
-                <label className="block text-[13px] font-semibold text-text-main mb-1">🔗 Lien de l&apos;offre</label>
+                <label className="flex items-center gap-1.5 text-[13px] font-semibold text-text-main mb-1"><IconLink size={13} className="text-primary" /> Lien de l&apos;offre</label>
                 <input value={form.affiliate_url} onChange={(e) => setForm({ ...form, affiliate_url: e.target.value })} placeholder="https://www.boutique.com/offre" className="w-full border border-border rounded-lg px-4 py-3 text-[15px] outline-none focus:border-primary" />
               </div>
 

@@ -9,6 +9,7 @@ import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPostsLight } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
 import CategoryIcon, { CATEGORY_THEMES } from '@/components/CategoryIcon';
+import { IconNewspaper } from '@/components/icons';
 
 export const revalidate = 60;
 
@@ -280,7 +281,7 @@ export default async function HomePage() {
           <section className="bg-bg border-t border-border" aria-label="Derniers articles">
             <div className="max-w-[1200px] mx-auto px-4 py-8 md:py-12">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold">📝 Derniers articles</h2>
+                <h2 className="flex items-center gap-2.5 text-text-main text-[20px] md:text-[24px] font-extrabold"><IconNewspaper size={22} className="text-primary" /> Derniers articles</h2>
                 <Link href="/blog" className="text-primary text-[14px] font-semibold hover:underline">Voir tout →</Link>
               </div>
 
@@ -294,7 +295,7 @@ export default async function HomePage() {
                         </div>
                       ) : (
                         <div className="h-[180px] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                          <span className="text-[40px]">📝</span>
+                          <IconNewspaper size={40} className="text-primary/40" />
                         </div>
                       )}
                       <div className="p-4">
