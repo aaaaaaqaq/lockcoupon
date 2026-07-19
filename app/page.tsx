@@ -71,9 +71,9 @@ export default async function HomePage() {
       <main>
         {/* Hero */}
         <section className="hero-dark relative overflow-hidden">
-          <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-14 lg:py-16 flex items-center gap-8">
+          <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-12 xl:py-0 flex flex-col xl:flex-row xl:items-center gap-6 xl:gap-8">
             {/* Left — content */}
-            <div className="flex-1 max-w-[660px] text-center lg:text-left">
+            <div className="w-full max-w-[660px] mx-auto xl:mx-0 xl:w-[660px] xl:flex-none text-center xl:text-left">
               <div className="relative inline-flex items-center gap-2 bg-white/[0.08] border border-white/15 rounded-full px-4 py-1.5 text-white/85 text-[13px] font-medium mb-5 shadow-[0_0_30px_-4px_rgba(192,57,43,0.5)]">
                 <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
                   <defs>
@@ -103,12 +103,12 @@ export default async function HomePage() {
                 Codes promo vérifiés &amp; mis à jour chaque jour. 100% gratuit.
               </p>
 
-              <div className="flex justify-center lg:justify-start mb-5">
+              <div className="flex justify-center xl:justify-start mb-5">
                 <HeroSearch />
               </div>
 
               {popularStores.length > 0 && (
-                <div className="flex items-center justify-center lg:justify-start gap-2 flex-wrap mb-8">
+                <div className="flex items-center justify-center xl:justify-start gap-2 flex-wrap mb-8">
                   <span className="text-white/45 text-[13px] font-medium mr-1">Populaires&nbsp;:</span>
                   {popularStores.map((store) => (
                     <Link
@@ -130,7 +130,7 @@ export default async function HomePage() {
                 </div>
               )}
 
-              <div className="flex items-center justify-center lg:justify-start gap-1.5 flex-wrap">
+              <div className="flex items-center justify-center xl:justify-start gap-1.5 flex-wrap">
                 <div className="inline-flex items-center gap-1.5 whitespace-nowrap bg-white/[0.07] border border-white/10 backdrop-blur-sm rounded-full px-2.5 py-2 text-white/80 text-[12px] font-medium">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="#f59e0b" stroke="none" aria-hidden>
                     <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
@@ -160,16 +160,17 @@ export default async function HomePage() {
               </div>
             </div>
 
-            {/* Right — 3D coupon render (desktop only), edges alpha-feathered to blend into hero bg */}
-            <div className="relative hidden lg:block w-[430px] shrink-0" aria-hidden>
-              <div className="absolute inset-8 rounded-full bg-primary/20 blur-[80px]" />
+            {/* Right — 3D coupon render, large & dominant, spills toward the
+                right viewport edge (section overflow-hidden guards h-scroll) */}
+            <div className="heroVisual">
+              <div className="heroVisualGlow" aria-hidden="true" />
               <Image
-                src="/hero-coupons.webp"
-                alt=""
-                width={684}
-                height={532}
+                src="/images/promo-hero.webp"
+                alt="Codes promo et réductions jusqu’à moins 50 pour cent"
+                width={900}
+                height={700}
                 priority
-                className="relative w-full h-auto select-none pointer-events-none"
+                className="promoHeroImage"
               />
             </div>
           </div>

@@ -87,6 +87,73 @@ body {
     radial-gradient(ellipse 700px 420px at 8% 85%, rgba(192, 57, 43, 0.1), transparent 60%),
     linear-gradient(180deg, #191317 0%, #16100f 55%, #150f0e 100%);
 }
+/* Right-side promo illustration — large, bottom-anchored, spills right */
+.heroVisual {
+  position: relative;
+  align-self: stretch;
+  min-width: 0;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-start;
+  overflow: visible;
+  isolation: isolate;
+}
+
+.heroVisualGlow {
+  position: absolute;
+  z-index: -1;
+  right: -8%;
+  bottom: -5%;
+  width: 115%;
+  height: 105%;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse at 58% 55%,
+    rgba(223, 50, 39, 0.3) 0%,
+    rgba(139, 25, 25, 0.15) 38%,
+    transparent 70%
+  );
+  filter: blur(18px);
+}
+
+.promoHeroImage {
+  position: relative;
+  display: block;
+  /* as wide as possible without clipping at the viewport edge:
+     left col 640 + container padding/gap ≈ 820px reserved */
+  width: min(48vw, calc(100vw - 840px), 740px);
+  max-width: none;
+  height: auto;
+  max-height: 640px;
+  object-fit: contain;
+  object-position: right bottom;
+  flex-shrink: 0;
+  filter: drop-shadow(0 32px 45px rgba(221, 48, 38, 0.22));
+}
+
+@media (min-width: 1280px) {
+  .heroVisual {
+    flex: 1 1 0%;
+    width: 0;
+    min-height: 560px;
+  }
+}
+
+@media (max-width: 1279px) {
+  .heroVisual {
+    min-height: auto;
+    margin-top: 8px;
+    justify-content: center;
+    align-items: center;
+  }
+  .promoHeroImage {
+    width: min(100%, 500px);
+    max-height: none;
+    object-position: center;
+    filter: drop-shadow(0 20px 30px rgba(221, 48, 38, 0.2));
+  }
+}
+
 .hero-search {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.08),
