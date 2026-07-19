@@ -87,6 +87,57 @@ body {
     radial-gradient(ellipse 700px 420px at 8% 85%, rgba(192, 57, 43, 0.1), transparent 60%),
     linear-gradient(180deg, #191317 0%, #16100f 55%, #150f0e 100%);
 }
+/* ─── Hero art — glow & motion ───────────────────────── */
+@keyframes hero-breathe {
+  0%, 100% { opacity: 0.75; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.06); }
+}
+@keyframes hero-float {
+  0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+  50% { transform: translateY(-9px) rotate(var(--tilt, 0deg)); }
+}
+@keyframes hero-bob {
+  0%, 100% { transform: translate(-50%, 0); }
+  50% { transform: translate(-50%, -6px); }
+}
+@keyframes hero-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.7) rotate(45deg); }
+  50% { opacity: 1; transform: scale(1.25) rotate(45deg); }
+}
+@keyframes hero-ring-pulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 1; }
+}
+@keyframes hero-sheen {
+  0% { transform: translateX(-160%) skewX(-18deg); }
+  55%, 100% { transform: translateX(220%) skewX(-18deg); }
+}
+
+.hero-glow { animation: hero-breathe 5.5s ease-in-out infinite; }
+.hero-ring { animation: hero-ring-pulse 2.8s ease-in-out infinite; }
+.hero-bag { animation: hero-bob 6s ease-in-out infinite; }
+.hero-bag-body::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  animation: hero-sheen 4.5s ease-in-out 1.2s infinite;
+  pointer-events: none;
+}
+.hero-t1 { --tilt: 14deg; animation: hero-float 5s ease-in-out infinite; }
+.hero-t2 { --tilt: -13deg; animation: hero-float 6.2s ease-in-out 0.8s infinite; }
+.hero-t3 { --tilt: 9deg; animation: hero-float 5.6s ease-in-out 1.6s infinite; }
+.hero-t1, .hero-t2, .hero-t3 { transform: rotate(var(--tilt)); }
+.hero-spark { animation: hero-twinkle 2.6s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-glow, .hero-ring, .hero-bag, .hero-t1, .hero-t2, .hero-t3, .hero-spark { animation: none; }
+  .hero-bag-body::after { animation: none; display: none; }
+}
+
 .hero-search {
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.08),

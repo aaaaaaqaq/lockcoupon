@@ -162,36 +162,38 @@ export default async function HomePage() {
             {/* Right — decorative coupon composition, pure CSS (desktop only) */}
             <div className="hero-art relative hidden xl:block w-[380px] h-[360px] shrink-0" aria-hidden>
               {/* glow */}
-              <div className="absolute inset-0 rounded-full bg-primary/25 blur-[90px]" />
+              <div className="hero-glow absolute inset-0 rounded-full bg-primary/25 blur-[90px]" />
               {/* podium */}
               <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[280px] h-[54px] rounded-[50%] bg-black/60 shadow-[0_0_60px_10px_rgba(192,57,43,0.35)]" />
+              {/* podium neon ring */}
+              <div className="hero-ring absolute bottom-[30px] left-1/2 -translate-x-1/2 w-[252px] h-[42px] rounded-[50%] border-2 border-[#ff4a2e]/80 shadow-[0_0_18px_2px_rgba(255,74,46,0.55),inset_0_0_14px_rgba(255,74,46,0.45)]" />
               {/* shopping bag */}
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-[52px] w-[170px] h-[190px]">
+              <div className="hero-bag absolute left-1/2 -translate-x-1/2 bottom-[52px] w-[170px] h-[190px]">
                 <div className="absolute -top-[52px] left-1/2 -translate-x-1/2 w-[92px] h-[80px] rounded-t-full border-[10px] border-b-0 border-[#8e2418]" />
-                <div className="relative w-full h-full rounded-b-[28px] rounded-t-[10px] bg-gradient-to-b from-[#ef6552] via-[#c0392b] to-[#8e2418] shadow-[inset_0_6px_14px_rgba(255,255,255,0.35),0_18px_40px_-12px_rgba(0,0,0,0.7)] flex items-center justify-center">
-                  <span className="text-white text-[84px] font-extrabold leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]">%</span>
+                <div className="hero-bag-body relative w-full h-full rounded-b-[28px] rounded-t-[10px] bg-gradient-to-b from-[#ef6552] via-[#c0392b] to-[#8e2418] shadow-[inset_0_6px_14px_rgba(255,255,255,0.35),0_18px_40px_-12px_rgba(0,0,0,0.7),0_0_50px_-6px_rgba(255,74,46,0.55)] flex items-center justify-center overflow-hidden">
+                  <span className="relative z-10 text-white text-[84px] font-extrabold leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]">%</span>
                 </div>
               </div>
               {/* ticket -50% */}
-              <div className="absolute top-1 right-2 w-[150px] rotate-[14deg] rounded-2xl bg-gradient-to-br from-[#ff5f49] to-[#a72c1e] border border-white/25 shadow-[0_16px_36px_-10px_rgba(192,57,43,0.7)] px-4 py-4 text-center">
+              <div className="hero-t1 absolute top-1 right-2 w-[150px] rotate-[14deg] rounded-2xl bg-gradient-to-br from-[#ff5f49] to-[#a72c1e] border border-white/25 shadow-[0_16px_36px_-10px_rgba(192,57,43,0.7),0_0_28px_-2px_rgba(255,95,73,0.6)] px-4 py-4 text-center">
                 <div className="text-white text-[34px] font-extrabold leading-none">-50%</div>
                 <div className="mt-1.5 text-white/70 text-[10px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1.5">CODE PROMO</div>
               </div>
               {/* ticket -30% */}
-              <div className="absolute top-[118px] left-0 w-[120px] -rotate-[13deg] rounded-2xl bg-gradient-to-br from-[#a855f7] to-[#6d28d9] border border-white/25 shadow-[0_14px_30px_-10px_rgba(124,58,237,0.7)] px-3 py-3 text-center">
+              <div className="hero-t2 absolute top-[118px] left-0 w-[120px] -rotate-[13deg] rounded-2xl bg-gradient-to-br from-[#a855f7] to-[#6d28d9] border border-white/25 shadow-[0_14px_30px_-10px_rgba(124,58,237,0.7),0_0_26px_-2px_rgba(168,85,247,0.6)] px-3 py-3 text-center">
                 <div className="text-white text-[26px] font-extrabold leading-none">-30%</div>
                 <div className="mt-1 text-white/70 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1">CODE PROMO</div>
               </div>
               {/* ticket -20% */}
-              <div className="absolute top-[168px] right-0 w-[112px] rotate-[9deg] rounded-2xl bg-gradient-to-br from-[#fbbf24] to-[#d97706] border border-white/25 shadow-[0_14px_30px_-10px_rgba(217,119,6,0.6)] px-3 py-3 text-center">
+              <div className="hero-t3 absolute top-[168px] right-0 w-[112px] rotate-[9deg] rounded-2xl bg-gradient-to-br from-[#fbbf24] to-[#d97706] border border-white/25 shadow-[0_14px_30px_-10px_rgba(217,119,6,0.6),0_0_26px_-2px_rgba(251,191,36,0.65)] px-3 py-3 text-center">
                 <div className="text-white text-[24px] font-extrabold leading-none">-20%</div>
                 <div className="mt-1 text-white/75 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/40 pt-1">CODE PROMO</div>
               </div>
               {/* sparkles */}
-              <div className="absolute top-[54px] left-[92px] w-2 h-2 rotate-45 bg-amber-400/90 rounded-[2px]" />
-              <div className="absolute top-[210px] right-[128px] w-1.5 h-1.5 rotate-12 bg-amber-300/80 rounded-[2px]" />
-              <div className="absolute top-[24px] right-[168px] w-1.5 h-1.5 rotate-45 bg-white/70 rounded-full" />
-              <div className="absolute bottom-[76px] left-[30px] w-2 h-2 rotate-12 bg-primary/80 rounded-[2px]" />
+              <div className="hero-spark absolute top-[54px] left-[92px] w-2 h-2 rotate-45 bg-amber-400/90 rounded-[2px] shadow-[0_0_8px_2px_rgba(251,191,36,0.7)]" style={{ animationDelay: '0s' }} />
+              <div className="hero-spark absolute top-[210px] right-[128px] w-1.5 h-1.5 rotate-12 bg-amber-300/80 rounded-[2px] shadow-[0_0_7px_2px_rgba(252,211,77,0.6)]" style={{ animationDelay: '1.1s' }} />
+              <div className="hero-spark absolute top-[24px] right-[168px] w-1.5 h-1.5 rotate-45 bg-white/70 rounded-full shadow-[0_0_7px_2px_rgba(255,255,255,0.5)]" style={{ animationDelay: '2.2s' }} />
+              <div className="hero-spark absolute bottom-[76px] left-[30px] w-2 h-2 rotate-12 bg-primary/80 rounded-[2px] shadow-[0_0_8px_2px_rgba(226,80,60,0.7)]" style={{ animationDelay: '0.6s' }} />
             </div>
           </div>
         </section>
