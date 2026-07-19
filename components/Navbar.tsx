@@ -65,6 +65,7 @@ export default function Navbar() {
   const pathname = usePathname();
   const [showModal, setShowModal] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [errorMsg, setErrorMsg] = useState('');
@@ -157,62 +158,26 @@ export default function Navbar() {
             })}
           </nav>
 
-          {/* Search bar — non-home pages only */}
-          <div className={`${pathname === '/' ? 'hidden' : 'hidden sm:flex lg:hidden xl:flex'} flex-1 max-w-[360px] mx-4`} ref={searchRef} role="search" aria-label="Rechercher une boutique">
-            <div className="relative w-full">
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onFocus={() => { if (results.length > 0) setShowResults(true); }}
-                placeholder="Rechercher une boutique..."
-                aria-label="Rechercher une boutique"
-                className="w-full bg-white rounded-full pl-5 pr-12 py-2.5 text-[14px] text-text-main outline-none placeholder:text-muted"
-              />
-              <div className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#777" strokeWidth="2">
-                  <circle cx="7" cy="7" r="5"/>
-                  <path d="M11 11l3 3" strokeLinecap="round"/>
-                </svg>
-              </div>
-
-              {/* Search results dropdown */}
-              {showResults && (
-                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-border overflow-hidden z-[60]">
-                  {results.length === 0 ? (
-                    <div className="px-4 py-3 text-muted text-[14px]">Aucune boutique trouvée</div>
-                  ) : (
-                    results.map((store) => (
-                      <Link
-                        key={store.id}
-                        href={`/codes-promo/${store.slug}`}
-                        onClick={() => { setShowResults(false); setQuery(''); }}
-                        className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
-                      >
-                        {store.logo_url ? (
-                          <img src={store.logo_url} alt={store.name} className="w-8 h-8 rounded-lg object-contain" />
-                        ) : (
-                          <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[14px] font-bold" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
-                            {store.logo_letter || store.name[0]}
-                          </div>
-                        )}
-                        <div>
-                          <p className="text-text-main text-[14px] font-semibold">{store.name}</p>
-                          <p className="text-muted text-[11px]">{store.description}</p>
-                        </div>
-                      </Link>
-                    ))
-                  )}
-                </div>
-              )}
-            </div>
-          </div>
-
           {/* Right — desktop */}
-          <div className="hidden md:flex items-center gap-3 ml-auto">
+          <div className="hidden md:flex items-center gap-2.5 ml-auto">
+            {pathname !== '/' && (
+              <button
+                onClick={() => { setSearchOpen(!searchOpen); setShowResults(false); }}
+                aria-label="Rechercher une boutique"
+                aria-expanded={searchOpen}
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors border ${
+                  searchOpen ? 'bg-white text-text-main border-white' : 'text-white/70 hover:text-white border-white/20 hover:border-white/40'
+                }`}
+              >
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden>
+                  <circle cx="7" cy="7" r="5" />
+                  <path d="M11 11l3 3" strokeLinecap="round" />
+                </svg>
+              </button>
+            )}
             <button
               onClick={() => { setShowModal(true); setStatus('idle'); setErrorMsg(''); }}
-              className="flex items-center gap-2 whitespace-nowrap text-white/70 hover:text-white text-[14px] font-medium border border-white/20 hover:border-white/40 rounded-full px-5 py-2 transition-colors"
+              className="hidden min-[1360px]:flex items-center gap-2 whitespace-nowrap text-white/70 hover:text-white text-[14px] font-medium border border-white/20 hover:border-white/40 rounded-full px-5 py-2 transition-colors"
             >
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                 <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
@@ -240,6 +205,63 @@ export default function Navbar() {
             </svg>
           </button>
         </div>
+
+        {/* Expandable search panel — non-home pages */}
+        {searchOpen && pathname !== '/' && (
+          <div className="hidden md:block border-t border-white/10 bg-[#212121]">
+            <div className="max-w-[1200px] mx-auto px-4 py-3" ref={searchRef}>
+              <div className="relative max-w-[560px] mx-auto">
+                <input
+                  type="search"
+                  autoFocus
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onFocus={() => { if (results.length > 0) setShowResults(true); }}
+                  onKeyDown={(e) => { if (e.key === 'Escape') { setSearchOpen(false); setShowResults(false); } }}
+                  placeholder="Rechercher une boutique..."
+                  aria-label="Rechercher une boutique"
+                  className="w-full bg-white rounded-full pl-5 pr-12 py-2.5 text-[14px] text-text-main outline-none placeholder:text-muted"
+                />
+                <div className="absolute right-1 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-bg flex items-center justify-center">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="#777" strokeWidth="2" aria-hidden>
+                    <circle cx="7" cy="7" r="5" />
+                    <path d="M11 11l3 3" strokeLinecap="round" />
+                  </svg>
+                </div>
+
+                {showResults && (
+                  <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-2xl border border-border overflow-hidden z-[60]">
+                    {results.length === 0 ? (
+                      <div className="px-4 py-3 text-muted text-[14px]">Aucune boutique trouvée</div>
+                    ) : (
+                      results.map((store) => (
+                        <Link
+                          key={store.id}
+                          href={`/codes-promo/${store.slug}`}
+                          onClick={() => { setShowResults(false); setSearchOpen(false); setQuery(''); }}
+                          className="flex items-center gap-3 px-4 py-3 hover:bg-gray-50 transition-colors"
+                        >
+                          {store.logo_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={store.logo_url} alt={store.name} className="w-8 h-8 rounded-lg object-contain" />
+                          ) : (
+                            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-[14px] font-bold" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
+                              {store.logo_letter || store.name[0]}
+                            </div>
+                          )}
+                          <div>
+                            <p className="text-text-main text-[14px] font-semibold">{store.name}</p>
+                            <p className="text-muted text-[11px]">{store.description}</p>
+                          </div>
+                        </Link>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Mobile menu */}
         {menuOpen && (

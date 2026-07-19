@@ -4,6 +4,7 @@ import type React from 'react';
 import { SITE_URL } from '@/lib/site';
 import Navbar from '@/components/Navbar';
 import HeroSearch from '@/components/HeroSearch';
+import HeroArt from '@/components/HeroArt';
 import Footer from '@/components/Footer';
 import FAQ, { FAQ_SCHEMA_JSON } from '@/components/FAQ';
 import { getAllStores, getPostsLight } from '@/lib/supabase';
@@ -73,9 +74,17 @@ export default async function HomePage() {
           <div className="relative max-w-[1200px] mx-auto px-4 py-10 md:py-14 lg:py-16 flex items-center gap-8">
             {/* Left — content */}
             <div className="flex-1 max-w-[660px] text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 bg-white/[0.07] border border-white/10 rounded-full px-4 py-1.5 text-white/75 text-[12.5px] font-medium mb-5">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="#f59e0b" stroke="none" aria-hidden>
-                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z" />
+              <div className="relative inline-flex items-center gap-2 bg-white/[0.08] border border-white/15 rounded-full px-4 py-1.5 text-white/85 text-[13px] font-medium mb-5 shadow-[0_0_30px_-4px_rgba(192,57,43,0.5)]">
+                <svg width="14" height="14" viewBox="0 0 24 24" aria-hidden>
+                  <defs>
+                    <linearGradient id="flame-g" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="#fbbf24" />
+                      <stop offset="55%" stopColor="#f97316" />
+                      <stop offset="100%" stopColor="#dc2626" />
+                    </linearGradient>
+                  </defs>
+                  <path fill="url(#flame-g)" d="M12 2c2.5 2.2 6.5 5.7 6.5 10.5a6.5 6.5 0 1 1-13 0c0-1.6.5-3 1.3-4.3.5 1 1.3 1.9 2.4 2.3-.3-2.7.8-6 2.8-8.5z" />
+                  <path fill="#fde68a" d="M12 20a3.2 3.2 0 0 1-3.2-3.2c0-1.8 1.6-3.3 3.2-5 1.6 1.7 3.2 3.2 3.2 5A3.2 3.2 0 0 1 12 20z" opacity="0.9" />
                 </svg>
                 Les meilleurs bons plans, chaque jour
               </div>
@@ -152,38 +161,9 @@ export default async function HomePage() {
             </div>
 
             {/* Right — decorative coupon composition (desktop only) */}
-            <div className="hero-art relative hidden lg:block w-[370px] h-[350px] shrink-0" aria-hidden>
-              {/* glow */}
-              <div className="absolute inset-0 rounded-full bg-primary/25 blur-[90px]" />
-              {/* podium */}
-              <div className="absolute bottom-6 left-1/2 -translate-x-1/2 w-[280px] h-[54px] rounded-[50%] bg-black/60 shadow-[0_0_60px_10px_rgba(192,57,43,0.35)]" />
-              {/* shopping bag */}
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-[52px] w-[170px] h-[190px]">
-                <div className="absolute -top-[52px] left-1/2 -translate-x-1/2 w-[92px] h-[80px] rounded-t-full border-[10px] border-b-0 border-[#8e2418]" />
-                <div className="relative w-full h-full rounded-b-[28px] rounded-t-[10px] bg-gradient-to-b from-[#ef6552] via-[#c0392b] to-[#8e2418] shadow-[inset_0_6px_14px_rgba(255,255,255,0.35),0_18px_40px_-12px_rgba(0,0,0,0.7)] flex items-center justify-center">
-                  <span className="text-white text-[84px] font-extrabold leading-none drop-shadow-[0_4px_10px_rgba(0,0,0,0.35)]">%</span>
-                </div>
-              </div>
-              {/* ticket -50% */}
-              <div className="absolute top-1 right-2 w-[150px] rotate-[14deg] rounded-2xl bg-gradient-to-br from-[#ff5f49] to-[#a72c1e] border border-white/25 shadow-[0_16px_36px_-10px_rgba(192,57,43,0.7)] px-4 py-4 text-center">
-                <div className="text-white text-[34px] font-extrabold leading-none">-50%</div>
-                <div className="mt-1.5 text-white/70 text-[10px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1.5">CODE PROMO</div>
-              </div>
-              {/* ticket -30% */}
-              <div className="absolute top-[118px] left-0 w-[120px] -rotate-[13deg] rounded-2xl bg-gradient-to-br from-[#a855f7] to-[#6d28d9] border border-white/25 shadow-[0_14px_30px_-10px_rgba(124,58,237,0.7)] px-3 py-3 text-center">
-                <div className="text-white text-[26px] font-extrabold leading-none">-30%</div>
-                <div className="mt-1 text-white/70 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/35 pt-1">CODE PROMO</div>
-              </div>
-              {/* ticket -20% */}
-              <div className="absolute top-[168px] right-0 w-[112px] rotate-[9deg] rounded-2xl bg-gradient-to-br from-[#fbbf24] to-[#d97706] border border-white/25 shadow-[0_14px_30px_-10px_rgba(217,119,6,0.6)] px-3 py-3 text-center">
-                <div className="text-white text-[24px] font-extrabold leading-none">-20%</div>
-                <div className="mt-1 text-white/75 text-[9px] font-bold tracking-[0.18em] border-t border-dashed border-white/40 pt-1">CODE PROMO</div>
-              </div>
-              {/* sparkles */}
-              <div className="absolute top-[54px] left-[92px] w-2 h-2 rotate-45 bg-amber-400/90 rounded-[2px]" />
-              <div className="absolute top-[210px] right-[128px] w-1.5 h-1.5 rotate-12 bg-amber-300/80 rounded-[2px]" />
-              <div className="absolute top-[24px] right-[168px] w-1.5 h-1.5 rotate-45 bg-white/70 rounded-full" />
-              <div className="absolute bottom-[76px] left-[30px] w-2 h-2 rotate-12 bg-primary/80 rounded-[2px]" />
+            <div className="hero-art relative hidden lg:block w-[400px] h-[360px] shrink-0" aria-hidden>
+              <div className="absolute inset-0 rounded-full bg-primary/20 blur-[90px]" />
+              <HeroArt />
             </div>
           </div>
         </section>
