@@ -85,7 +85,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Preconnect hints */}
         <link rel="preconnect" href="https://www.googletagmanager.com" />
         <link rel="preconnect" href="https://www.google-analytics.com" />
-        <link rel="preconnect" href="https://xbkiebmzxvksbdhcixbj.supabase.co" />
+        <link rel="preconnect" href="https://hhfgrbkcchipqcunbnva.supabase.co" />
+        {process.env.NEXT_PUBLIC_BING_VERIFICATION && (
+          <meta
+            name="msvalidate.01"
+            content={process.env.NEXT_PUBLIC_BING_VERIFICATION}
+          />
+        )}
         <meta name="geo.region" content="FR" />
         <meta name="geo.placename" content="France" />
 
