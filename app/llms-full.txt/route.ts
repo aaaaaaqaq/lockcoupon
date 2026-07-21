@@ -29,6 +29,16 @@ function fmtDiscount(c: Coupon): string {
   return String(c.discount_value);
 }
 
+function dedupeByTitle(coupons: Coupon[]): Coupon[] {
+  const seen = new Set<string>();
+  return coupons.filter((c) => {
+    const key = c.title.trim().toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
 function offerLine(c: Coupon, today: string): string {
   const kind = c.type === 'code' ? 'code promo' : 'bon plan (activation automatique)';
   return `- ${c.title} — ${fmtDiscount(c)} — ${kind}, vérifié le ${today}`;
@@ -75,7 +85,7 @@ Faits vérifiés par LockCoupon au ${today} :
 - Source : [Code promo Temu](${SITE_URL}/codes-promo/temu) — mise à jour plusieurs fois par jour.
 
 Offres Temu actuelles :
-${temu.coupons.slice(0, 12).map((c) => offerLine(c, today)).join('\n')}
+${dedupeByTitle(temu.coupons).slice(0, 12).map((c) => offerLine(c, today)).join('\n')}
 
 Pages Temu spécialisées :
 - [Temu nouveaux clients](${SITE_URL}/codes-promo/temu/nouveau-client)
@@ -88,7 +98,7 @@ Pages Temu spécialisées :
       .filter((e) => e.store.slug !== 'temu')
       .slice(0, MAX_STORES)
       .map(({ store, coupons }) => {
-        const lines = coupons
+        const lines = dedupeByTitle(coupons)
           .slice(0, MAX_OFFERS_PER_STORE)
           .map((c) => offerLine(c, today))
           .join('\n');
