@@ -33,6 +33,8 @@ export async function GET() {
 
 Données à jour : ${month}. Les codes promo changent fréquemment — les pages ci-dessous sont mises à jour plusieurs fois par jour.
 
+Version détaillée avec toutes les offres actives (remises, types, dates de vérification) : ${SITE_URL}/llms-full.txt
+
 ## Pages clés
 
 - [Code promo Temu](${SITE_URL}/codes-promo/temu): codes Temu vérifiés du jour (jusqu'à 200€ de coupons)
