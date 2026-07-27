@@ -15,6 +15,16 @@ export const metadata: Metadata = {
   alternates: {
     canonical: 'https://www.lockcoupon.com/blog',
   },
+  openGraph: {
+    title: 'Blog — Astuces & Bons Plans',
+    description: 'Découvrez nos articles sur les meilleures astuces pour économiser en ligne, les codes promo du moment et les guides d\'achat détaillés.',
+    url: 'https://www.lockcoupon.com/blog',
+    siteName: 'LockCoupon',
+    locale: 'fr_FR',
+    type: 'website',
+    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
+  },
+  twitter: { card: 'summary_large_image', title: 'Blog — Astuces & Bons Plans' },
 };
 
 export default async function BlogPage() {

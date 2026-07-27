@@ -19,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Guide d'Achat par Catégorie",
     description: "Nos guides d'achat par catégorie : mode, tech, sport, beauté, voyage et maison. Conseils pratiques et astuces pour économiser sur chaque achat.",
-    url: '/guide-achat',
+    url: 'https://www.lockcoupon.com/guide-achat',
     type: 'website',
     images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
   },

@@ -7,14 +7,29 @@ import { getAllStores } from '@/lib/supabase';
 
 export const revalidate = 60;
 
-
-export const metadata: Metadata = {
-  title: 'Toutes les Boutiques avec Codes Promo',
-  description: '98+ boutiques avec codes promo vérifiés : mode, tech, sport, beauté, voyage. Codes testés chaque jour. Trouvez votre boutique.',
-  alternates: {
-    canonical: 'https://www.lockcoupon.com/boutiques',
-  },
-};
+// Own OG metadata (this page used to inherit the HOMEPAGE og:title/og:url
+// from the root layout) + live store count instead of a hardcoded "98+".
+export async function generateMetadata(): Promise<Metadata> {
+  const stores = await getAllStores();
+  const title = 'Toutes les Boutiques avec Codes Promo';
+  const description = `${stores.length} boutiques avec codes promo vérifiés : mode, tech, sport, beauté, voyage. Codes testés chaque jour. Trouvez votre boutique.`;
+  const canonical = 'https://www.lockcoupon.com/boutiques';
+  return {
+    title,
+    description,
+    alternates: { canonical },
+    openGraph: {
+      title,
+      description,
+      url: canonical,
+      siteName: 'LockCoupon',
+      locale: 'fr_FR',
+      type: 'website',
+      images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
+    },
+    twitter: { card: 'summary_large_image', title, description },
+  };
+}
 
 export default async function BoutiquesPage() {
   const stores = await getAllStores();

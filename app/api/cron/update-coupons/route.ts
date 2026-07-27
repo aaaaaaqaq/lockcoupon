@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 import { submitIndexNow } from '@/lib/indexnow';
+import { isDuplicateOffer, type OfferLike } from '@/lib/couponSimilarity';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -240,19 +241,30 @@ async function upsertCoupons(storeId: string, storeSlug: string, storeName: stri
   let inserted = 0, skipped = 0, errors = 0;
   const storeUrl = getStoreUrl(storeSlug, storeName);
 
+  // Uniqueness guard (2026-07-27 dedupe): fetch the store's existing offers
+  // ONCE, then reject any candidate that duplicates an existing offer
+  // (identical code, OR same discount + title similarity ≥ 0.85 — the exact
+  // rule used by scripts/dedupe-coupons.ts). Freshly inserted rows are added
+  // to the in-memory list so one scrape batch can't insert near-identical
+  // offers either (the old exact-match check let "Livraison gratuite dès 39€"
+  // ×2 and "30% premier achat dès 29€" variants pile up for months).
+  const { data: existingRows } = await supabase
+    .from('coupons')
+    .select('title, code, discount_value, discount_type')
+    .eq('store_id', storeId);
+  const existingOffers: OfferLike[] = (existingRows || []).map((e) => ({
+    title: e.title, code: e.code, discount_value: e.discount_value, discount_type: e.discount_type,
+  }));
+
   for (const coupon of coupons) {
     try {
-      let isDuplicate = false;
-
-      if (coupon.code) {
-        // limit(1) list check: maybeSingle() throws when duplicates already
-        // exist, which skipped the guard and inserted yet another copy.
-        const { data: existing } = await supabase.from('coupons').select('id').eq('store_id', storeId).eq('code', coupon.code).limit(1);
-        if (existing && existing.length > 0) isDuplicate = true;
-      } else {
-        const { data: existing } = await supabase.from('coupons').select('id, title').eq('store_id', storeId).is('code', null);
-        if (existing?.some((e) => e.title.toLowerCase() === coupon.title.toLowerCase())) isDuplicate = true;
-      }
+      const candidate: OfferLike = {
+        title: coupon.title,
+        code: coupon.code || null,
+        discount_value: coupon.discount_value || null,
+        discount_type: coupon.discount_type || null,
+      };
+      const isDuplicate = existingOffers.some((e) => isDuplicateOffer(candidate, e, storeName));
 
       if (isDuplicate) { skipped++; continue; }
 
@@ -271,7 +283,7 @@ async function upsertCoupons(storeId: string, storeSlug: string, storeName: stri
         usage_count: 0,
       });
 
-      if (insertError) { errors++; } else { inserted++; }
+      if (insertError) { errors++; } else { inserted++; existingOffers.push(candidate); }
     } catch { errors++; }
   }
   return { inserted, skipped, errors };

@@ -1,4 +1,5 @@
 import { Coupon, Store } from '@/lib/supabase';
+import { storeStats } from '@/lib/storeContent';
 import { IconCheckCircle } from '@/components/icons';
 
 interface Props {
@@ -40,7 +41,8 @@ export default function RecentVerifications({ store, coupons }: Props) {
       year: 'numeric',
     });
 
-  const verifiedCount = coupons.filter((c) => c.is_verified).length;
+  // Same single source of truth as title/H1/meta (count-consistency fix).
+  const verifiedCount = storeStats(coupons).verifiedCount;
 
   return (
     <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-12">

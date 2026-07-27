@@ -140,14 +140,15 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Temu store not found', detail: storeError?.message }, { status: 404 });
     }
 
-    // 2. Delete existing Temu code coupons (old daily batch)
+    // 2. Delete ALL existing Temu code coupons before publishing today's
+    // batch. The old `.limit(10)` only removed the newest 10 while the
+    // update-coupons cron also inserts Temu codes — older same-title copies
+    // survived every day and piled up (8× "-70% Liquidation" live on 07-27).
     const { data: existingCoupons } = await supabase
       .from('coupons')
       .select('id')
       .eq('store_id', store.id)
-      .eq('type', 'code')
-      .order('created_at', { ascending: false })
-      .limit(10);
+      .eq('type', 'code');
 
     if (existingCoupons && existingCoupons.length > 0) {
       await supabase
@@ -156,9 +157,16 @@ export async function GET(request: Request) {
         .in('id', existingCoupons.map(c => c.id));
     }
 
-    // 3. Pick 10 random codes and 10 random offer templates
+    // 3. Pick 10 random codes and 10 UNIQUE offer templates (uniqueness
+    // guard: one coupon per template title per batch — duplicate templates
+    // would recreate the same-title dupes the 2026-07-27 cleanup removed).
     const selectedCodes = pickRandom(TEMU_CODES, 10);
-    const selectedOffers = pickRandom(OFFER_TEMPLATES, 10);
+    const uniqueTemplates: typeof OFFER_TEMPLATES = [];
+    for (const t of pickRandom(OFFER_TEMPLATES, OFFER_TEMPLATES.length)) {
+      if (!uniqueTemplates.some((u) => u.title === t.title)) uniqueTemplates.push(t);
+      if (uniqueTemplates.length === 10) break;
+    }
+    const selectedOffers = uniqueTemplates;
 
     // 4. Expiry date (30 days from now)
     const expiryDate = new Date();
@@ -166,7 +174,9 @@ export async function GET(request: Request) {
     const expiryStr = expiryDate.toISOString().split('T')[0];
 
     // 5. Build and insert 10 coupons
-    const newCoupons = selectedCodes.map((code, i) => ({
+    // Guard: never index past the unique-template list (if the pool ever
+    // shrinks below 10 unique titles, publish fewer coupons, not duplicates).
+    const newCoupons = selectedCodes.slice(0, selectedOffers.length).map((code, i) => ({
       store_id: store.id,
       title: selectedOffers[i].title,
       code: code.toLowerCase(),

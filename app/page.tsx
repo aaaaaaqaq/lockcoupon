@@ -142,7 +142,7 @@ export default async function HomePage() {
                     <path d="M21.801 10A10 10 0 1 1 17 3.335" />
                     <path d="m9 11 3 3L22 4" />
                   </svg>
-                  98% taux de succès
+                  Codes testés chaque jour
                 </div>
                 <Link href="/boutiques" className="inline-flex items-center gap-1.5 whitespace-nowrap bg-primary hover:bg-primary-dark rounded-full px-2.5 py-2 text-white text-[12px] font-bold transition-colors">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -348,7 +348,7 @@ export default async function HomePage() {
               <p>
                 LockCoupon est né d&apos;un constat simple : la plupart des sites de codes promo affichent des offres expirées ou inventées.
                 Notre approche est différente. Chaque code est vérifié — manuellement et automatiquement — plusieurs fois par jour.
-                Quand un code ne fonctionne plus, il est retiré. Résultat : un taux de succès de 98% sur {stores.length}+ boutiques.
+                Quand un code ne fonctionne plus, il est retiré. Résultat : des offres à jour sur {stores.length} boutiques suivies quotidiennement.
               </p>
               <p>
                 Pas d&apos;inscription, pas de frais cachés. Vous trouvez votre boutique, vous copiez le code en un clic,

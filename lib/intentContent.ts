@@ -79,12 +79,25 @@ export function isSuppressed(storeSlug: string, intentSlug: string): boolean {
   return (SUPPRESSED_INTENTS[storeSlug] ?? []).includes(intentSlug);
 }
 
-/** Intent pages are indexable (and in the sitemap) only for stores with a
- *  real offer inventory — mirrors the zero-offer noindex policy. */
-export const INTENT_MIN_OFFERS = 3;
+/** Sub-page gating (thin-content policy): an intent page only EXISTS
+ *  (renders + appears in hub links + sitemap) when the store has at least
+ *  INTENT_MIN_MATCHED offers actually matching that intent's filter.
+ *  A page about "livraison gratuite X" with zero shipping offers is thin —
+ *  it now 404s instead of rendering a noindexed shell. */
+export const INTENT_MIN_MATCHED = 2;
 
-export function intentIndexable(offerCount: number): boolean {
-  return offerCount >= INTENT_MIN_OFFERS;
+/** Count of offers matching this intent's filter. */
+export function intentMatchCount(coupons: Pick<Coupon, 'title' | 'description'>[], intent: IntentDef): number {
+  let n = 0;
+  for (const c of coupons) {
+    if (intent.matcher.test(`${c.title} ${c.description ?? ''}`)) n++;
+  }
+  return n;
+}
+
+/** True when the store×intent sub-page may exist at all. */
+export function intentAvailable(coupons: Pick<Coupon, 'title' | 'description'>[], intent: IntentDef): boolean {
+  return intentMatchCount(coupons, intent) >= INTENT_MIN_MATCHED;
 }
 
 /* ── date helpers ──────────────────────────────────────────────── */

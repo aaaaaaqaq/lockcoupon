@@ -1,6 +1,7 @@
 'use client';
 
 import { Store, Coupon } from '@/lib/supabase';
+import { storeStats } from '@/lib/storeContent';
 import { IconCheckCircle, IconStar, IconCalendar } from '@/components/icons';
 
 interface HeroProps {
@@ -10,7 +11,9 @@ interface HeroProps {
 }
 
 export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
-  const totalCodes = coupons.length;
+  // Single source of truth — same storeStats() as the <title>, meta
+  // description and every other block on the page (count-consistency fix).
+  const stats = storeStats(coupons);
   const bestCoupon = coupons.find((c) => c.is_best);
   const now = new Date();
 
@@ -83,26 +86,31 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
               Code promo <span className="text-primary">{store.name}</span> — {now.getDate()} {currentMonth.toLowerCase()} {currentYear}
             </h1>
             <p className="text-white/60 text-[15px] mb-6">
-              {totalCodes} réductions vérifiées — dernière vérification le {lastVerified.getDate()}{' '}
+              {stats.offerCount} offre{stats.offerCount > 1 ? 's' : ''} vérifiée{stats.offerCount > 1 ? 's' : ''} — dernière vérification le {lastVerified.getDate()}{' '}
               {monthNames[lastVerified.getMonth()].toLowerCase()} {lastVerified.getFullYear()}
             </p>
 
-            {/* Stats */}
+            {/* Stats — honest, live numbers only (the old "50k+ utilisateurs /
+                98% taux succès" block contradicted the per-offer counters). */}
             <div className="flex items-center gap-6 md:gap-10">
               <div className="text-center">
-                <div className="text-white text-[28px] font-extrabold">{totalCodes}</div>
-                <div className="text-white/50 text-[12px] mt-0.5">Codes actifs</div>
+                <div className="text-white text-[28px] font-extrabold">{stats.offerCount}</div>
+                <div className="text-white/50 text-[12px] mt-0.5">Offre{stats.offerCount > 1 ? 's' : ''} active{stats.offerCount > 1 ? 's' : ''}</div>
               </div>
               <div className="w-px h-10 bg-white/15" />
               <div className="text-center">
-                <div className="text-white text-[28px] font-extrabold">50k+</div>
-                <div className="text-white/50 text-[12px] mt-0.5">Utilisateurs</div>
+                <div className="text-white text-[28px] font-extrabold">{stats.codeCount}</div>
+                <div className="text-white/50 text-[12px] mt-0.5">Code{stats.codeCount > 1 ? 's' : ''} promo</div>
               </div>
-              <div className="w-px h-10 bg-white/15" />
-              <div className="text-center">
-                <div className="text-white text-[28px] font-extrabold">98%</div>
-                <div className="text-white/50 text-[12px] mt-0.5">Taux succès</div>
-              </div>
+              {stats.maxDiscount && (
+                <>
+                  <div className="w-px h-10 bg-white/15" />
+                  <div className="text-center">
+                    <div className="text-white text-[28px] font-extrabold">-{stats.maxDiscount}</div>
+                    <div className="text-white/50 text-[12px] mt-0.5">Remise max</div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 

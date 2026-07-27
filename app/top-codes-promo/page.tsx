@@ -18,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Top 20 Codes Promo du Moment',
     description: 'Top 20 des meilleurs codes promo en France. Vérifiés chaque jour, classés par popularité et taux de succès.',
-    url: '/top-codes-promo',
+    url: 'https://www.lockcoupon.com/top-codes-promo',
     type: 'website',
     images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
   },

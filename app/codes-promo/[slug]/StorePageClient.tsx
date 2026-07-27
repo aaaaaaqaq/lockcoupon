@@ -113,15 +113,17 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
 
 export default function StorePageClient({ store, coupons }: StorePageClientProps) {
   const [activeFilter, setActiveFilter] = useState('all');
-  const subpages = allSubpagesFor(store.slug, store.name, coupons.length);
+  const subpages = allSubpagesFor(store.slug, store.name, coupons);
   const [popupCoupon, setPopupCoupon] = useState<Coupon | null>(null);
   const [toastVisible, setToastVisible] = useState(false);
 
+  // Single source of truth for all displayed numbers (same as <title>/H1).
+  const stats = storeStats(coupons);
   const counts = {
-    all: coupons.length,
-    code: coupons.filter((c) => c.type === 'code').length,
-    cashback: coupons.filter((c) => c.type === 'cashback').length,
-    bon: coupons.filter((c) => c.type === 'bon').length,
+    all: stats.offerCount,
+    code: stats.codeCount,
+    cashback: stats.cashbackCount,
+    bon: stats.bonCount,
   };
 
   const filtered =
@@ -152,8 +154,10 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
         {/* Freshness signal */}
         <div className="max-w-[1200px] mx-auto px-4 pt-4 flex items-center gap-4 flex-wrap">
           <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconCheckCircle size={14} className="text-green-600" /> Vérifié le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconChart size={14} className="text-blue-500" /> {coupons.length} offres actives</p>
-          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconFlame size={14} className="text-orange-500" /> {coupons.reduce((s, c) => s + (c.usage_count || 0), 0).toLocaleString('fr-FR')} utilisations</p>
+          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconChart size={14} className="text-blue-500" /> {stats.offerCount} offre{stats.offerCount > 1 ? 's' : ''} active{stats.offerCount > 1 ? 's' : ''}</p>
+          {stats.totalUsage > 0 && (
+            <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconFlame size={14} className="text-orange-500" /> {stats.totalUsage.toLocaleString('fr-FR')} utilisations</p>
+          )}
         </div>
 
         {/* Answer-first block — dated, self-contained, AI-search quotable */}
@@ -186,7 +190,7 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[
-                { icon: <IconSearch size={30} className="text-primary" />, title: '1. Choisissez votre code', desc: `Parcourez les ${coupons.length} offres ${store.name} ci-dessus et trouvez celle qui correspond à vos achats.` },
+                { icon: <IconSearch size={30} className="text-primary" />, title: '1. Choisissez votre code', desc: `Parcourez les ${stats.offerCount} offres ${store.name} ci-dessus et trouvez celle qui correspond à vos achats.` },
                 { icon: <IconClipboard size={30} className="text-primary" />, title: '2. Copiez le code', desc: `Cliquez sur "Voir le code" pour le révéler. Il est automatiquement copié dans votre presse-papier.` },
                 { icon: <IconCheckCircle size={30} className="text-green-600" />, title: '3. Profitez de la réduction', desc: `Rendez-vous sur ${store.name}, remplissez votre panier et collez le code au moment du paiement.` },
               ].map((step, i) => (

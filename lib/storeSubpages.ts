@@ -1,7 +1,8 @@
 // Store-specific subpages (SEO silo hub links)
 // Rendered on the main store page to interlink long-tail landing pages.
 
-import { INTENTS, isSuppressed, intentIndexable } from './intentContent';
+import { INTENTS, isSuppressed, intentAvailable } from './intentContent';
+import type { Coupon } from './supabase';
 
 export interface StoreSubpage {
   href: string;
@@ -12,15 +13,15 @@ export interface StoreSubpage {
 
 /**
  * Hub links for a store: hand-written subpages (below) merged with the
- * programmatic intent pages (/codes-promo/[slug]/[intent]) — intent links
- * only appear when the store has enough offers for the pages to be indexable.
+ * programmatic intent pages (/codes-promo/[slug]/[intent]) — an intent link
+ * only appears when ≥2 of the store's offers actually match that intent's
+ * filter (same gate as the page itself, which otherwise 404s).
  */
-export function allSubpagesFor(slug: string, storeName: string, offerCount: number): StoreSubpage[] {
+export function allSubpagesFor(slug: string, storeName: string, coupons: Coupon[]): StoreSubpage[] {
   const manual = STORE_SUBPAGES[slug] ?? [];
-  if (!intentIndexable(offerCount)) return manual;
 
   const auto: StoreSubpage[] = Object.values(INTENTS)
-    .filter((intent) => !isSuppressed(slug, intent.slug))
+    .filter((intent) => !isSuppressed(slug, intent.slug) && intentAvailable(coupons, intent))
     .map((intent) => ({
       href: `/codes-promo/${slug}/${intent.slug}`,
       title: `${intent.label} ${storeName}`,

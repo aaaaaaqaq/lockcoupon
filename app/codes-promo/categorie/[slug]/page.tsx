@@ -29,7 +29,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     openGraph: {
       title: cat.title,
       description: cat.description,
-      url: `/codes-promo/categorie/${params.slug}`,
+      url: absoluteUrl(`/codes-promo/categorie/${params.slug}`),
       siteName: 'LockCoupon',
       locale: 'fr_FR',
       type: 'website',

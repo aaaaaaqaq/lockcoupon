@@ -9,6 +9,15 @@ interface CouponCardProps {
   onOpenPopup: (coupon: Coupon) => void;
 }
 
+/**
+ * Single responsive offer card.
+ *
+ * One DOM tree for mobile AND desktop (CSS-only layout switch via Tailwind
+ * `sm:` variants). The previous version rendered two complete layouts
+ * (hidden sm:flex / sm:hidden), so every offer — and its <h3> — appeared
+ * twice in the served HTML: duplicate headings for crawlers, double DOM
+ * weight. Each offer now emits exactly one <h3>.
+ */
 export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
   const [detailsOpen, setDetailsOpen] = useState(false);
 
@@ -40,20 +49,19 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
 
   return (
     <div className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-md transition-all">
-      {/* ═══ DESKTOP LAYOUT ═══ */}
-      <div className="hidden sm:flex items-stretch">
-        {/* Left — Discount */}
-        <div className="w-[120px] shrink-0 flex flex-col items-center justify-center border-r border-border bg-primary-light/50 py-4 px-2">
-          <span className="text-primary text-[34px] font-extrabold leading-none">
+      <div className="flex flex-col sm:flex-row sm:items-stretch">
+        {/* Discount — left column on desktop, inline block on mobile */}
+        <div className="order-2 sm:order-none px-4 pt-1 pb-2 sm:w-[120px] sm:shrink-0 sm:flex sm:flex-col sm:items-center sm:justify-center sm:border-r sm:border-border sm:bg-primary-light/50 sm:py-4 sm:px-2 sm:pt-4 sm:pb-4">
+          <span className="text-primary text-[42px] sm:text-[34px] font-extrabold leading-none">
             {value}
           </span>
           {unit && (
-            <span className="text-primary/70 text-[10px] font-bold mt-1 uppercase">{unit}</span>
+            <span className="text-primary/70 text-[14px] sm:text-[10px] font-bold sm:mt-1 ml-1 sm:ml-0 uppercase">{unit}</span>
           )}
         </div>
 
-        {/* Middle — Info */}
-        <div className="flex-1 min-w-0 px-4 py-4 flex flex-col justify-center">
+        {/* Info */}
+        <div className="order-1 sm:order-none flex-1 min-w-0 px-4 pt-4 pb-2 sm:py-4 flex flex-col justify-center">
           <div className="flex flex-wrap items-center gap-2 mb-1.5">
             <span className="text-primary text-[11px] font-bold uppercase tracking-wide">
               {typeLabel()}
@@ -70,7 +78,7 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
             )}
           </div>
 
-          <h3 className="text-text-main text-[15px] font-semibold leading-snug mb-2 line-clamp-2">
+          <h3 className="text-text-main text-[15px] font-semibold leading-snug mb-2 sm:line-clamp-2">
             {coupon.title}
           </h3>
 
@@ -103,110 +111,25 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
           )}
         </div>
 
-        {/* Right — Button */}
-        <div className="shrink-0 flex flex-col items-center justify-center p-4">
+        {/* CTA — full width on mobile, right column on desktop */}
+        <div className="order-3 sm:order-none shrink-0 flex flex-col items-center justify-center px-4 pb-4 sm:p-4">
           <button
             onClick={() => onOpenPopup(coupon)}
-            className="h-[46px] rounded-lg flex items-stretch overflow-hidden transition-all hover:opacity-90 min-w-[180px]"
+            className="w-full sm:w-auto h-[48px] sm:h-[46px] rounded-lg flex items-stretch overflow-hidden transition-all hover:opacity-90 active:scale-[0.98] sm:min-w-[180px]"
           >
             <span className="flex-1 bg-primary flex items-center justify-center text-white font-bold text-[15px] gap-1.5 px-4">
               Voir le code <span className="text-[18px]">›</span>
             </span>
             {partialCode && (
-              <span className="w-[42px] bg-[#1a1a1a] flex items-center justify-center text-white text-[14px] font-mono font-bold">
+              <span className="w-[48px] sm:w-[42px] bg-[#1a1a1a] flex items-center justify-center text-white text-[15px] sm:text-[14px] font-mono font-bold">
                 {partialCode}
               </span>
             )}
           </button>
-          <span className="text-muted text-[11px] mt-2">{coupon.usage_count || 0} utilisés</span>
-        </div>
-      </div>
-
-      {/* ═══ MOBILE LAYOUT — Ma-Reduc Style ═══ */}
-      <div className="sm:hidden">
-        {/* Top row: type label + badges */}
-        <div className="px-4 pt-4 pb-2">
-          <div className="flex items-center justify-between mb-1">
-            <span className="text-primary text-[12px] font-bold uppercase tracking-wide">
-              {typeLabel()}
-            </span>
-            <div className="flex items-center gap-2">
-              {coupon.is_best && (
-                <span className="inline-flex items-center gap-1 bg-primary/10 text-primary text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  <IconStar size={10} /> Meilleure offre
-                </span>
-              )}
-              {coupon.is_exclusive && (
-                <span className="bg-accent/30 text-text-main text-[10px] font-bold px-2 py-0.5 rounded-full">
-                  Exclusif
-                </span>
-              )}
-            </div>
-          </div>
-
-          {coupon.expiry_date && (
-            <span className="text-muted text-[11px]">⏳ {daysUntil(coupon.expiry_date)}</span>
+          {(coupon.usage_count || 0) > 0 && (
+            <span className="text-muted text-[11px] mt-2">{coupon.usage_count} utilisés</span>
           )}
         </div>
-
-        {/* Big discount + title */}
-        <div className="px-4 pb-3">
-          <div className="text-primary text-[42px] font-extrabold leading-none mb-2">
-            {value}
-            {unit && (
-              <span className="text-[14px] font-bold ml-1 uppercase">{unit}</span>
-            )}
-          </div>
-          <h3 className="text-text-main text-[15px] font-semibold leading-snug">
-            {coupon.title}
-          </h3>
-        </div>
-
-        {/* Button — full width */}
-        <div className="px-4 pb-3">
-          <button
-            onClick={() => onOpenPopup(coupon)}
-            className="w-full h-[48px] rounded-lg flex items-stretch overflow-hidden transition-all active:scale-[0.98]"
-          >
-            <span className="flex-1 bg-primary flex items-center justify-center text-white font-bold text-[15px] gap-1.5">
-              Voir le code <span className="text-[18px]">›</span>
-            </span>
-            {partialCode && (
-              <span className="w-[48px] bg-[#1a1a1a] flex items-center justify-center text-white text-[15px] font-mono font-bold">
-                {partialCode}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {/* Bottom row: details + verified */}
-        <div className="px-4 pb-4 flex items-center justify-between">
-          <button
-            onClick={(e) => { e.stopPropagation(); setDetailsOpen(!detailsOpen); }}
-            className="text-muted text-[12px] hover:text-text-main transition-colors flex items-center gap-1"
-          >
-            Détails et commentaires ({coupon.usage_count || 0}) <span className="text-[10px]">{detailsOpen ? '▲' : '▼'}</span>
-          </button>
-          {coupon.is_verified && (
-            <span className="flex items-center gap-1 text-success text-[12px]">
-              <span className="w-1.5 h-1.5 bg-success rounded-full" />
-              Vérifié
-            </span>
-          )}
-        </div>
-
-        {/* Details dropdown */}
-        {detailsOpen && (
-          <div className="px-4 pb-4 pt-0">
-            <div className="pt-3 border-t border-border text-[13px] text-muted leading-relaxed">
-              {coupon.description ? (
-                <p>{coupon.description}</p>
-              ) : (
-                <p>Ce code a été vérifié et fonctionne actuellement. Utilisé par {coupon.usage_count || 0} personnes.</p>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

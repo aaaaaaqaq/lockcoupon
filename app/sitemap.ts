@@ -1,9 +1,9 @@
 import { MetadataRoute } from 'next';
-import { getAllStores, getPostsLight, getCouponCountsByStore, type PostLight, type Store } from '@/lib/supabase';
+import { getAllStores, getPostsLight, getAllCouponsLight, type CouponLight, type PostLight, type Store } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
 import { slugFromTitle } from '@/lib/slugs';
 import { SITE_URL } from '@/lib/site';
-import { INTENTS, isSuppressed, intentIndexable } from '@/lib/intentContent';
+import { INTENTS, isSuppressed, intentAvailable } from '@/lib/intentContent';
 
 // Regenerate the sitemap every hour instead of only at deploy time — a static
 // sitemap kept emitting stores/posts deleted from Supabase between deploys
@@ -50,21 +50,27 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // always return at minimum the static pages instead of throwing.
   let stores: Store[] = [];
   let posts: PostLight[] = [];
-  let counts: Record<string, number> = {};
+  const couponsByStore = new Map<string, CouponLight[]>();
 
   try {
     // Light post index (no full content) — the sitemap only needs slug/title/dates.
-    const [allStores, allPosts, couponCounts] = await Promise.all([
+    const [allStores, allPosts, allCoupons] = await Promise.all([
       getAllStores(),
       getPostsLight(),
-      getCouponCountsByStore(),
+      getAllCouponsLight(),
     ]);
+    // Group light coupon rows per store: powers BOTH the zero-offer store
+    // filter and the intent-page gate (≥2 offers matching the intent filter).
+    for (const c of allCoupons) {
+      const list = couponsByStore.get(c.store_id) || [];
+      list.push(c);
+      couponsByStore.set(c.store_id, list);
+    }
     // Only stores that exist in Supabase right now, with a valid slug AND at
     // least one active offer. Zero-offer stores are noindexed on-page and
     // kept out of the sitemap until they have offers (thin-content fix).
-    counts = couponCounts;
     stores = allStores.filter(
-      (s) => s && isValidSlug(s.slug) && (couponCounts[s.id] || 0) > 0
+      (s) => s && isValidSlug(s.slug) && (couponsByStore.get(s.id)?.length || 0) > 0
     );
     // Deduplicate article clusters: keep only the OLDEST copy per title-slug
     // (duplicates 308-redirect to it, so they must not appear in the sitemap).
@@ -97,13 +103,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
-  // Programmatic intent pages (/codes-promo/[store]/[intent]) — only for
-  // stores with enough offers to be indexable (same thin-content policy).
+  // Programmatic intent pages (/codes-promo/[store]/[intent]) — only when
+  // ≥2 of the store's offers match the intent's filter (same gate as the
+  // page itself, which otherwise 404s — never list a 404 in the sitemap).
   const intentUrls: MetadataRoute.Sitemap = [];
   for (const store of stores) {
-    if (!intentIndexable(counts[store.id] || 0)) continue;
+    const storeCoupons = couponsByStore.get(store.id) || [];
     for (const intent of Object.values(INTENTS)) {
       if (isSuppressed(store.slug, intent.slug)) continue;
+      if (!intentAvailable(storeCoupons, intent)) continue;
       intentUrls.push({
         url: `${baseUrl}/codes-promo/${store.slug}/${intent.slug}`,
         lastModified: dailyStamp,

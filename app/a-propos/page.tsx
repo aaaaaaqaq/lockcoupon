@@ -49,12 +49,12 @@ export default function AboutPage() {
 
             <h2 className="text-text-main text-[24px] font-bold mt-8 mb-3">Nos engagements qualité</h2>
             <p>
-              LockCoupon se distingue par la rigueur de sa vérification. Chaque code promo est testé manuellement ou automatiquement avant d&apos;être publié. Nous affichons le nombre d&apos;utilisations et le taux de succès pour chaque offre, ce qui vous permet de choisir en toute transparence. Notre objectif est de maintenir un taux de fonctionnement supérieur à 98%.
+              LockCoupon se distingue par la rigueur de sa vérification. Chaque code promo est testé manuellement ou automatiquement avant d&apos;être publié. Nous affichons le nombre d&apos;utilisations pour chaque offre, ce qui vous permet de choisir en toute transparence. Quand un code cesse de fonctionner, il est retiré de la liste lors de nos passages de vérification quotidiens.
             </p>
 
             <h2 className="text-text-main text-[24px] font-bold mt-8 mb-3">Nos chiffres</h2>
             <p>
-              Avec des centaines de codes promo actifs, des milliers d&apos;utilisateurs satisfaits et un taux de succès de 98%, LockCoupon est la plateforme de référence pour les acheteurs malins en France. Consultez notre{' '}
+              Avec des centaines de codes promo actifs sur près de 100 boutiques suivies quotidiennement, LockCoupon est la plateforme de référence pour les acheteurs malins en France. Consultez notre{' '}
               <Link href="/top-codes-promo" className="text-primary hover:underline">top 20 des codes promo</Link>{' '}
               pour découvrir les offres les plus populaires du moment.
             </p>

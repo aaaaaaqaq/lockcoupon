@@ -103,21 +103,39 @@ export function storeFlavor(slug: string): { flavor: CategoryFlavor; category: C
 }
 
 /* ── shared live stats ─────────────────────────────────────────── */
+/* SINGLE SOURCE OF TRUTH for every number displayed on a store page
+ * (title, H1, meta description, intro sentence, stat tiles, verification
+ * log). All blocks MUST read from this one function so they can never
+ * disagree (Shein bug: title said 2, header 18, verification log 3 —
+ * each block was computing its own counts its own way). */
 export interface StoreStats {
+  /** total active offers, all types (= total_offers) */
   offerCount: number;
+  /** offers with type 'code' */
   codeCount: number;
+  /** offers with type 'bon' — deals without a code (= deal_count) */
   bonCount: number;
+  /** offers with type 'cashback' */
+  cashbackCount: number;
+  /** offers flagged is_verified */
+  verifiedCount: number;
+  /** best discount label ("50%" / "200€") — same value as maxDiscount */
   bestDiscount: string | null;
+  maxDiscount: string | null;
   totalUsage: number;
   month: string;
 }
 
 export function storeStats(coupons: Coupon[]): StoreStats {
+  const best = bestDiscountLabel(coupons);
   return {
     offerCount: coupons.length,
     codeCount: coupons.filter((c) => c.type === 'code').length,
     bonCount: coupons.filter((c) => c.type === 'bon').length,
-    bestDiscount: bestDiscountLabel(coupons),
+    cashbackCount: coupons.filter((c) => c.type === 'cashback').length,
+    verifiedCount: coupons.filter((c) => c.is_verified).length,
+    bestDiscount: best,
+    maxDiscount: best,
     totalUsage: coupons.reduce((s, c) => s + (c.usage_count || 0), 0),
     month: new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' }),
   };

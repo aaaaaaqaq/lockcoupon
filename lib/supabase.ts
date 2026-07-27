@@ -109,6 +109,16 @@ export async function getCouponCountsByStore(): Promise<Record<string, number>> 
   return counts;
 }
 
+/** Light coupon rows (store_id + text fields) in ONE query — lets the
+ *  sitemap apply the intent-page gate (≥2 offers matching the intent's
+ *  filter) without N per-store queries. */
+export type CouponLight = Pick<Coupon, 'store_id' | 'title' | 'description'>;
+export async function getAllCouponsLight(): Promise<CouponLight[]> {
+  const { data, error } = await supabase.from('coupons').select('store_id,title,description');
+  if (error || !data) return [];
+  return data as CouponLight[];
+}
+
 export async function incrementCouponUsage(couponId: string): Promise<void> {
   await supabase.rpc('increment_usage', { coupon_id: couponId });
 }

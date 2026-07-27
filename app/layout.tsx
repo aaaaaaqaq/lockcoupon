@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     template: '%s | LockCoupon',
   },
   description:
-    'Codes promo vérifiés pour 98+ boutiques en France. Testés chaque jour, taux de succès 98%. Amazon, Shein, Nike, Fnac et plus. 100% gratuit.',
+    'Codes promo vérifiés pour près de 100 boutiques en France. Testés chaque jour. Amazon, Shein, Nike, Fnac et plus. 100% gratuit.',
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://www.lockcoupon.com'),
   // NOTE: no `alternates.canonical` here — a canonical in the root layout
   // cascades to every page that doesn't override it, telling Google those
@@ -59,7 +59,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       width: 1200,
       height: 630,
     },
-    description: 'LockCoupon est la plateforme française de référence pour les codes promo et coupons de réduction vérifiés. Plus de 98 boutiques, codes testés quotidiennement avec un taux de succès de 98%.',
+    description: 'LockCoupon est la plateforme française de référence pour les codes promo et coupons de réduction vérifiés. Près de 100 boutiques, codes testés et mis à jour quotidiennement.',
     foundingDate: '2026',
     areaServed: {
       '@type': 'Country',
