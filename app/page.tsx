@@ -10,6 +10,7 @@ import { getAllStores, getPostsLight } from '@/lib/supabase';
 import { CATEGORIES } from '@/lib/categories';
 import CategoryIcon, { CATEGORY_THEMES } from '@/components/CategoryIcon';
 import { IconNewspaper } from '@/components/icons';
+import BlogCarousel from '@/components/BlogCarousel';
 
 export const revalidate = 60;
 
@@ -28,7 +29,7 @@ const POPULAR_SLUGS = ['shein', 'temu', 'amazon', 'aliexpress', 'fnac'];
 export default async function HomePage() {
   const [stores, posts] = await Promise.all([getAllStores(), getPostsLight()]);
   const displayStores = stores.slice(0, 12);
-  const displayPosts = posts.slice(0, 3);
+  const displayPosts = posts.slice(0, 9);
   const popularStores = POPULAR_SLUGS
     .map((slug) => stores.find((s) => s.slug === slug))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
@@ -285,37 +286,7 @@ export default async function HomePage() {
                 <Link href="/blog" className="text-primary text-[14px] font-semibold hover:underline">Voir tout →</Link>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-                {displayPosts.map((post) => (
-                  <article key={post.id}>
-                    <Link href={`/blog/${post.slug}`} className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all group block h-full">
-                      {post.cover_image ? (
-                        <div className="h-[180px] overflow-hidden">
-                          <img src={post.cover_image} alt={post.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                        </div>
-                      ) : (
-                        <div className="h-[180px] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">
-                          <IconNewspaper size={40} className="text-primary/40" />
-                        </div>
-                      )}
-                      <div className="p-4">
-                        <div className="text-[12px] text-muted mb-2">
-                          <time dateTime={post.created_at}>
-                            {new Date(post.created_at).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}
-                          </time>
-                        </div>
-                        <h3 className="text-text-main text-[16px] font-bold leading-snug mb-2 line-clamp-2 group-hover:text-primary transition-colors">
-                          {post.title}
-                        </h3>
-                        {post.excerpt && (
-                          <p className="text-muted text-[13px] leading-relaxed line-clamp-2">{post.excerpt}</p>
-                        )}
-                        <span className="inline-block mt-3 text-primary text-[13px] font-semibold">Lire la suite →</span>
-                      </div>
-                    </Link>
-                  </article>
-                ))}
-              </div>
+              <BlogCarousel posts={displayPosts} />
 
               {posts.length > 3 && (
                 <div className="text-center mt-8">
