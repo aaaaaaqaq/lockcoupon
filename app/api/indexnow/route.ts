@@ -4,8 +4,11 @@ const INDEXNOW_KEY = 'lockcoupon2026indexnow';
 const HOST = 'https://www.lockcoupon.com';
 
 export async function POST(request: NextRequest) {
+  // CRON_SECRET was never set in Vercel env → this endpoint always 401'd.
+  // Fall back to ADMIN_PASSWORD (always set) so manual bulk submissions work.
   const secret = request.nextUrl.searchParams.get('secret');
-  if (secret !== process.env.CRON_SECRET) {
+  const expected = process.env.CRON_SECRET || process.env.ADMIN_PASSWORD;
+  if (!expected || secret !== expected) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

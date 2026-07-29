@@ -8,7 +8,9 @@ import { INTENTS, isSuppressed, intentAvailable } from '@/lib/intentContent';
 // Regenerate the sitemap every hour instead of only at deploy time — a static
 // sitemap kept emitting stores/posts deleted from Supabase between deploys
 // (GSC "Introuvable 404" / "Page avec redirection").
-export const revalidate = 3600;
+// 15 min: Bing Webmaster flagged "new pages missing from sitemaps" — articles
+// published by the 8h/9h crons must appear in the sitemap before Bing recrawls it.
+export const revalidate = 900;
 
 /* ── Validate a slug: only lowercase alphanumeric + hyphens ── */
 function isValidSlug(slug: unknown): slug is string {

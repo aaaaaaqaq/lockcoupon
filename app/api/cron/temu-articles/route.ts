@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
+import { submitIndexNow } from '@/lib/indexnow';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -355,7 +356,11 @@ export async function GET(request: Request) {
 
     const newPostUrl = `https://www.lockcoupon.com/blog/${slug}`;
     await pingSitemap();
-    await notifyGoogle([newPostUrl, 'https://www.lockcoupon.com/blog']);
+    // Google ping + IndexNow (Bing index powers ChatGPT search/Copilot/DuckDuckGo)
+    await Promise.allSettled([
+      notifyGoogle([newPostUrl, 'https://www.lockcoupon.com/blog']),
+      submitIndexNow([newPostUrl, 'https://www.lockcoupon.com/blog', 'https://www.lockcoupon.com/sitemap.xml']),
+    ]);
 
     return NextResponse.json({
       success: true,
