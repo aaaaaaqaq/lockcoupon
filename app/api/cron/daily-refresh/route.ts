@@ -6,14 +6,14 @@ import { isDuplicateOffer, type OfferLike } from '@/lib/couponSimilarity';
 import { TEMU_AFFILIATE_URL, TEMU_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
 
 /**
- * /api/cron/daily-refresh — daily content-freshness rotation for the three
- * flagship stores (Temu, AliExpress, Amazon).
+ * /api/cron/daily-refresh — daily content-freshness rotation for the
+ * flagship stores (Temu, AliExpress, Amazon, Shein, Bershka).
  *
  * Every run:
  *   • TEMU — wipes yesterday's code coupons, publishes 10 affiliate-pool
  *     codes with FRESH Claude-written titles/descriptions (never the same
  *     copy two days in a row; static OFFER_TEMPLATES as fallback).
- *   • ALIEXPRESS / AMAZON — Claude web-searches real current codes on
+ *   • ALIEXPRESS / AMAZON / SHEIN / BERSHKA — Claude web-searches real current codes on
  *     Dealabs/Ma-Reduc/Savoo/etc., REWRITES every offer with original
  *     French copy (no duplicate content), refreshes rows whose code already
  *     exists, inserts the new ones, and deletes the oldest codes beyond
@@ -49,6 +49,8 @@ const NEW_EXPIRY_DAYS = 21;     // fresh offers expire → natural churn via cle
 const SEARCH_STORES: Array<{ slug: string; name: string; url: string }> = [
   { slug: 'aliexpress', name: 'AliExpress', url: 'https://fr.aliexpress.com' },
   { slug: 'amazon', name: 'Amazon', url: 'https://www.amazon.fr' },
+  { slug: 'shein', name: 'Shein', url: 'https://fr.shein.com' },
+  { slug: 'bershka', name: 'Bershka', url: 'https://www.bershka.com/fr' },
 ];
 
 const STORE_PAGE = (slug: string) => `https://www.lockcoupon.com/codes-promo/${slug}`;
@@ -355,25 +357,27 @@ export async function GET(request: Request) {
       if (!delErr) expiredCleaned = expired.length;
     }
 
+    // Search stores run in PARALLEL (each is ~40-60s of Claude web_search;
+    // sequential would blow past maxDuration with 4+ stores). Each store
+    // only touches its own rows, so no write conflicts.
     const results: Array<Record<string, any>> = [];
     results.push(await refreshTemu());
-    for (const cfg of SEARCH_STORES) {
-      results.push(await refreshSearchStore(cfg));
-      await new Promise((r) => setTimeout(r, 1000));
-    }
+    const searchResults = await Promise.all(
+      SEARCH_STORES.map((cfg) => refreshSearchStore(cfg).catch((e: any) => ({ store: cfg.slug, error: e?.message || 'failed' })))
+    );
+    results.push(...searchResults);
 
     // Tell crawlers the flagship pages changed (same-day recrawl).
+    const storePages = ['temu', ...SEARCH_STORES.map((s) => s.slug)].map(STORE_PAGE);
     const urls = [
-      STORE_PAGE('temu'),
+      ...storePages,
       `${STORE_PAGE('temu')}/nouveau-client`,
       `${STORE_PAGE('temu')}/livraison-gratuite`,
-      STORE_PAGE('aliexpress'),
-      STORE_PAGE('amazon'),
     ];
     await Promise.all([
       submitIndexNow(urls),
       pingSitemap(),
-      notifyGoogle([STORE_PAGE('temu'), STORE_PAGE('aliexpress'), STORE_PAGE('amazon')]),
+      notifyGoogle(storePages),
     ]);
 
     return NextResponse.json({
