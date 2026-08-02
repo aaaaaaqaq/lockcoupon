@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 import { submitIndexNow } from '@/lib/indexnow';
-import { isDuplicateOffer, type OfferLike } from '@/lib/couponSimilarity';
+import { isDuplicateOffer, sameDiscount, titleSimilarity, type OfferLike } from '@/lib/couponSimilarity';
 import { TEMU_AFFILIATE_URL, TEMU_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
 
 /**
@@ -43,7 +43,8 @@ const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY!;
 const CRON_SECRET = process.env.CRON_SECRET || 'lockcoupon-cron-2026';
 
 const COUPON_SOURCES = ['Dealabs', 'Ma-Reduc', 'Savoo', 'PlanReduc', 'Radins.com', 'iGraal'];
-const MAX_CODES = 12;           // per store, after rotation
+const MAX_CODES = 12;           // code-type coupons per store, after rotation
+const MAX_BONS = 10;            // bon+cashback coupons per store, after rotation
 const NEW_EXPIRY_DAYS = 21;     // fresh offers expire → natural churn via cleanup
 
 const SEARCH_STORES: Array<{ slug: string; name: string; url: string }> = [
@@ -264,12 +265,23 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
       discount_value: offer.discount_value || null, discount_type: offer.discount_type || null,
     };
 
-    // Same offer already live (same code, or same discount + similar title)?
-    // → REFRESH its copy in place instead of skipping: the page content
-    // changes daily even when the underlying deal is stable.
-    const dupIdx = existing.findIndex((e) => isDuplicateOffer(candidate, {
-      title: e.title, code: e.code, discount_value: e.discount_value, discount_type: e.discount_type,
-    }, store.name));
+    // Same offer already live? → REFRESH its copy in place instead of
+    // skipping: the page content changes daily even when the underlying
+    // deal is stable. Matching is deliberately AGGRESSIVE for code-less
+    // offers: our creative daily rewrites make titles too different for
+    // bigram similarity ("12€ offerts dès 99€" vs "12€ remisés pour 99€ de
+    // commande"), so a code-less candidate with the same discount as a
+    // code-less existing row IS the same deal (2026-08-02 double-insert).
+    const dupIdx = existing.findIndex((e) => {
+      const ex: OfferLike = { title: e.title, code: e.code, discount_value: e.discount_value, discount_type: e.discount_type };
+      if (isDuplicateOffer(candidate, ex, store.name)) return true;
+      if (!candidate.code && !e.code) {
+        const bothHaveValue = !!candidate.discount_value && !!e.discount_value;
+        if (bothHaveValue && sameDiscount(candidate, ex)) return true;
+        if (!bothHaveValue && titleSimilarity(candidate.title, e.title) >= 0.55) return true;
+      }
+      return false;
+    });
 
     if (dupIdx >= 0) {
       const { error: upErr } = await supabase.from('coupons').update({
@@ -282,7 +294,11 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
       continue;
     }
 
-    if (knownOffers.some((k) => isDuplicateOffer(candidate, k, store.name))) continue; // intra-batch dupe
+    const intraDupe = knownOffers.some((k) =>
+      isDuplicateOffer(candidate, k, store.name) ||
+      (!candidate.code && !k.code && !!candidate.discount_value && !!k.discount_value && sameDiscount(candidate, k))
+    );
+    if (intraDupe) continue; // intra-batch dupe
 
     const { error: insErr } = await supabase.from('coupons').insert({
       store_id: store.id,
@@ -303,7 +319,9 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
     if (insErr) errors++; else { inserted++; knownOffers.push(candidate); }
   }
 
-  // Rotation: keep at most MAX_CODES code-type coupons — delete the oldest.
+  // Rotation: keep at most MAX_CODES code-type and MAX_BONS bon/cashback
+  // coupons per store — delete the oldest overflow. Hard guarantee against
+  // pile-up even when dedup misses a reworded offer.
   let deleted = 0;
   const { data: codeRows } = await supabase
     .from('coupons').select('id, created_at')
@@ -312,7 +330,16 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
   if (codeRows && codeRows.length > MAX_CODES) {
     const overflow = codeRows.slice(MAX_CODES).map((c) => c.id);
     const { error: delErr } = await supabase.from('coupons').delete().in('id', overflow);
-    if (!delErr) deleted = overflow.length;
+    if (!delErr) deleted += overflow.length;
+  }
+  const { data: bonRows } = await supabase
+    .from('coupons').select('id, created_at')
+    .eq('store_id', store.id).in('type', ['bon', 'cashback'])
+    .order('created_at', { ascending: false });
+  if (bonRows && bonRows.length > MAX_BONS) {
+    const overflow = bonRows.slice(MAX_BONS).map((c) => c.id);
+    const { error: delErr } = await supabase.from('coupons').delete().in('id', overflow);
+    if (!delErr) deleted += overflow.length;
   }
 
   // Re-elect a single best offer: newest row with the highest discount value.
