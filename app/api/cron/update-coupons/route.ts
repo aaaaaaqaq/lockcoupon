@@ -105,6 +105,8 @@ const STORE_URLS: Record<string, string> = {
   'sarenza': 'https://www.sarenza.com',
   'spartoo': 'https://www.spartoo.com',
   'trois-suisses': 'https://www.3suisses.fr',
+  'uber-eats': 'https://www.ubereats.com/fr',
+  'betclic': 'https://www.betclic.fr',
 };
 
 function getStoreUrl(slug: string, storeName: string): string {

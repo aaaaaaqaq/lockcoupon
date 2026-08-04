@@ -340,6 +340,144 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
       { icon: '💬', tip: `Séjour long ou dates creuses ? Écrivez à l'hôte avant de réserver et demandez une offre spéciale — le taux de succès est étonnamment élevé.` },
     ],
   },
+
+  /* ────────────────────────────── KIABI ────────────────────────────── */
+  kiabi: {
+    intro: (s) =>
+      `Kiabi joue déjà la carte des petits prix, mais la marque nordiste garde plusieurs leviers que la plupart des clients n'utilisent jamais : le programme de fidélité Kiabi Community qui convertit chaque achat en euros de réduction, les ventes flash du mercredi, la seconde main en magasin et des codes exclusifs poussés par l'application. En ${s.month}, cette page regroupe ${nbOffres(s)} Kiabi vérifiée${s.offerCount > 1 ? 's' : ''}${s.bestDiscount ? ` — jusqu'à ${s.bestDiscount} de remise` : ''} — avec, pour chaque offre, la condition exacte (minimum d'achat, rayon concerné, web ou magasin).`,
+    metaDescription: (s) =>
+      `${s.codeCount > 0 ? `${s.codeCount} codes promo Kiabi` : `${nbOffres(s)} Kiabi`} testés en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''}. Fidélité Kiabi Community, ventes flash, retrait magasin gratuit : le guide pour payer moins.`,
+    about: (s) => [
+      {
+        heading: 'Codes promo Kiabi : ce qui existe vraiment (et ce qui n\u2019existe pas)',
+        text: `Kiabi n'inonde pas le marché de coupons : la marque préfère les prix bas permanents, les ventes flash et sa carte de fidélité. Les codes qui circulent sont donc peu nombreux mais réels — typiquement une remise de bienvenue newsletter, des codes appli exclusifs et des opérations ponctuelles (-20% sur un rayon, remise dès 60€ d'achat). ${s.codeCount > 0 ? `Les ${s.codeCount} codes de cette page indiquent leur périmètre exact : la plupart excluent les articles déjà soldés et la seconde main.` : `Quand aucun code public ne tourne, les offres listées ici (ventes flash, bons plans rayons) restent le meilleur point d'entrée.`} Méfiez-vous des sites qui promettent du « -50% Kiabi permanent » : ça n'existe tout simplement pas chez ce distributeur.`,
+      },
+      {
+        heading: 'Kiabi Community : la remise que 80% des clients oublient',
+        text: `Le programme de fidélité gratuit de Kiabi transforme chaque euro dépensé en points, convertis automatiquement en bons de réduction utilisables en ligne et en magasin. S'y ajoutent des avantages concrets : offre anniversaire, ventes privées membres avant les soldes, retouches et échanges facilités. Le bon réflexe : créer le compte AVANT votre première commande (les points ne sont pas rétroactifs) et cumuler le bon fidélité avec les ventes flash — Kiabi l'autorise, contrairement aux codes promo classiques qui ne se cumulent pas entre eux.`,
+      },
+      {
+        heading: 'Livraison gratuite, retrait magasin et seconde main',
+        text: `Le retrait en magasin Kiabi est gratuit dès le premier euro — c'est l'astuce n°1 pour les petits paniers, la livraison à domicile n'étant offerte qu'à partir d'un seuil de commande. Pensez aussi au rayon seconde main présent dans de nombreux magasins : des pièces enfant quasi neuves à -50/-70% du prix d'origine, idéal pour les vêtements portés trois mois. Enfin, surveillez les fins de série en ligne : la section « Bonnes affaires » descend régulièrement sous les prix soldés, sans attendre janvier ou juillet.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Pourquoi mon code promo Kiabi ne fonctionne pas ?',
+        answer: `Trois causes classiques : le code exclut les articles soldés ou déjà remisés (le cas le plus fréquent chez Kiabi), il exige un minimum d'achat non atteint, ou il est réservé aux membres Kiabi Community connectés à leur compte. Vérifiez la condition affichée sous chaque code de cette page — et rappelez-vous que les codes Kiabi ne se cumulent jamais entre eux.`,
+      },
+      {
+        question: 'La livraison Kiabi est-elle gratuite ?',
+        answer: `Le retrait en magasin est gratuit sans minimum — c'est l'option la plus économique. La livraison en point relais et à domicile devient gratuite au-delà d'un seuil de panier (variable selon les opérations en cours) ; en dessous, comptez quelques euros. Sur un petit panier, le retrait magasin fait souvent gagner l'équivalent d'un code promo.`,
+      },
+      {
+        question: 'Quand ont lieu les meilleures promos Kiabi ?',
+        answer: `Quatre moments forts : les soldes (janvier et fin juin), les ventes privées membres Kiabi Community qui démarrent quelques jours avant, les ventes flash hebdomadaires en ligne, et la rentrée scolaire (août-septembre) où les lots et promos multi-pièces se multiplient. Entre deux, la section « Bonnes affaires » du site reste alimentée toute l'année.`,
+      },
+      {
+        question: 'Peut-on utiliser un code promo Kiabi en magasin ?',
+        answer: `La plupart des codes promo Kiabi sont réservés au site et à l'application. En magasin, ce sont les bons de fidélité Kiabi Community et les offres locales qui s'appliquent. L'inverse est aussi vrai : certains bons magasins ne passent pas en ligne — la condition est toujours précisée sur l'offre.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '🏬', tip: `Retrait magasin gratuit dès 1€ : sur un petit panier, c'est souvent plus rentable qu'un code promo appliqué à une commande livrée.` },
+      { icon: '💳', tip: `Créez votre compte Kiabi Community AVANT de commander : les points fidélité ne sont pas rétroactifs et se cumulent avec les ventes flash.` },
+      { icon: '📱', tip: `Installez l'application Kiabi : certains codes et ventes flash y sont exclusifs, et les membres voient les ventes privées avant tout le monde.` },
+      { icon: '👖', tip: `Pour les vêtements enfants, passez par le rayon seconde main en magasin : -50 à -70% sur des pièces portées quelques mois.` },
+    ],
+  },
+
+  /* ──────────────────────────── UBER EATS ───────────────────────────── */
+  'uber-eats': {
+    intro: (s) =>
+      `Sur Uber Eats, le prix affiché sur la carte n'est que le début de l'addition : frais de livraison, frais de service et minimum de commande peuvent alourdir la note de 30%. La bonne nouvelle, c'est que la plateforme est aussi l'une des plus généreuses en promotions — codes premières commandes, offres restaurants (-30%, 1 acheté = 1 offert), livraison offerte via Uber One. En ${s.month}, ${nbOffres(s)} Uber Eats ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.bestDiscount ? `, avec jusqu'à ${s.bestDiscount} de réduction` : ''} — chaque offre précise si elle vise les nouveaux clients ou tous les comptes.`,
+    metaDescription: (s) =>
+      `${s.codeCount > 0 ? `${s.codeCount} codes promo Uber Eats` : `${nbOffres(s)} Uber Eats`} vérifiés en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''}. Première commande, Uber One, frais de livraison : les vraies astuces pour payer moins.`,
+    about: (s) => [
+      {
+        heading: 'Codes promo Uber Eats : nouveaux clients vs comptes existants',
+        text: `Uber Eats réserve ses codes les plus généreux aux premières commandes : typiquement une remise fixe (souvent autour de -10 à -20€) avec un minimum de panier, valable uniquement sur un compte qui n'a jamais commandé. Pour les comptes existants, les promos passent par d'autres canaux : offres restaurants directement dans l'application (-20/-30%, menus « 1 acheté = 1 offert »), codes de réactivation envoyés par e-mail aux clients inactifs, et opérations ponctuelles avec des partenaires bancaires ou mobiles. ${s.codeCount > 0 ? `Les ${s.codeCount} codes listés ici précisent leur public — inutile de tester un code « nouveau client » sur un compte qui a déjà commandé, il sera refusé systématiquement.` : ''}`,
+      },
+      {
+        heading: 'Uber One : rentable ou pas ?',
+        text: `L'abonnement Uber One offre la livraison à 0€ et une réduction des frais de service sur les commandes éligibles dépassant le minimum requis (généralement 15€ chez les restaurants partenaires). Le calcul est simple : si vous commandez plus de deux fois par mois, l'abonnement est presque toujours amorti — d'autant qu'Uber propose régulièrement le premier mois gratuit ou à prix réduit. Bonus souvent ignoré : les membres Uber One reçoivent des promos exclusives et des crédits de compensation renforcés en cas de livraison en retard. Pensez à résilier si votre rythme de commande baisse : l'abonnement se renouvelle automatiquement.`,
+      },
+      {
+        heading: 'Réduire les frais : les leviers qui marchent vraiment',
+        text: `À panier égal, l'addition Uber Eats varie fortement selon vos choix. Le retrait sur place (« à emporter ») supprime tous les frais de livraison et une partie des frais de service — sur une commande de 25€, l'économie dépasse souvent 5€. Les offres restaurants dans l'onglet « Promotions » de l'application se cumulent avec les avantages Uber One, mais rarement avec un code promo saisi manuellement. Enfin, commander directement le menu midi ou les formules du restaurant (souvent alignées sur les prix en salle) évite la majoration carte que certains établissements appliquent sur la plateforme.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Pourquoi mon code promo Uber Eats ne fonctionne pas ?',
+        answer: `Les causes les plus fréquentes : le code est réservé aux nouveaux clients et votre compte a déjà commandé ; le minimum de commande n'est pas atteint (les frais de livraison ne comptent pas dans le minimum) ; le code est limité à certaines villes ou restaurants ; ou un autre avantage (offre restaurant, crédit Uber) est déjà appliqué — la plupart des promos Uber Eats ne se cumulent pas.`,
+      },
+      {
+        question: 'Comment avoir la livraison gratuite sur Uber Eats ?',
+        answer: `Trois options : l'abonnement Uber One (livraison à 0€ dès le minimum de commande atteint chez les partenaires, rentable dès 2 commandes/mois), les offres « livraison offerte » ponctuelles affichées sur certains restaurants dans l'application, et le retrait sur place qui supprime purement et simplement les frais. À défaut, grouper une commande à plusieurs dilue les frais fixes.`,
+      },
+      {
+        question: 'Uber Eats propose-t-il un code pour les clients existants ?',
+        answer: `Oui, mais par vagues : codes de réactivation envoyés par e-mail ou notification aux comptes inactifs depuis quelques semaines, offres partenaires (opérateurs, banques) et promotions restaurants dans l'application. Astuce contre-intuitive : espacer ses commandes déclenche souvent un code « on vous a manqué » de -20 à -50%. Les codes publics pour tous les comptes existent aussi ponctuellement — ils sont listés sur cette page dès qu'ils sont vérifiés.`,
+      },
+      {
+        question: 'Les prix sur Uber Eats sont-ils les mêmes qu\u2019au restaurant ?',
+        answer: `Pas toujours : de nombreux restaurants majorent leur carte de 10 à 30% sur la plateforme pour absorber la commission. S'y ajoutent les frais de livraison et de service. Pour comparer honnêtement, regardez le total au moment du paiement — et si le restaurant est proche, le retrait sur place via l'application garde les promos tout en supprimant les frais.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '🥡', tip: `Option « à emporter » : retirer la commande vous-même supprime les frais de livraison ET une partie des frais de service — jusqu'à 5-7€ d'économie par commande.` },
+      { icon: '📬', tip: `Compte inactif = codes de réactivation : espacez vos commandes de quelques semaines et surveillez vos e-mails, Uber Eats relance avec des -20 à -50%.` },
+      { icon: '🔁', tip: `Plus de 2 commandes par mois ? Uber One est quasi toujours rentable — profitez du premier mois offert, et résiliez si votre rythme baisse.` },
+      { icon: '🏷️', tip: `Ouvrez l'onglet « Promotions » de l'appli avant de choisir le restaurant : les offres -30% et « 1 acheté = 1 offert » y sont souvent plus rentables qu'un code.` },
+    ],
+  },
+
+  /* ───────────────────────────── BETCLIC ────────────────────────────── */
+  betclic: {
+    intro: (s) =>
+      `Betclic ne fonctionne pas comme une boutique classique : ici, pas de « -20% sur le panier », mais une offre de bienvenue sous forme de premier pari remboursé en paris gratuits, des boosts de cotes quotidiens et des missions dans l'application. En ${s.month}, cette page vérifie ${nbOffres(s)} Betclic active${s.offerCount > 1 ? 's' : ''} — avec les conditions réelles de chaque offre (mise minimale, délais d'utilisation des freebets) expliquées sans le jargon. Réservé aux plus de 18 ans : les jeux d'argent comportent des risques.`,
+    metaDescription: (s) =>
+      `Offre Betclic vérifiée en ${s.month} : premier pari remboursé en paris gratuits, boosts de cotes, missions appli. Conditions réelles expliquées. 18+, jouez responsable.`,
+    about: (s) => [
+      {
+        heading: 'Comment fonctionne l\u2019offre de bienvenue Betclic',
+        text: `L'offre nouveau client de Betclic suit toujours la même mécanique : votre premier pari est remboursé s'il est perdant, sous forme de paris gratuits (freebets), jusqu'à un plafond défini par l'opération en cours. Points à connaître avant de se lancer : le remboursement couvre le premier pari uniquement (d'où l'intérêt de ne pas le « gaspiller » sur une petite mise), les freebets doivent être utilisés dans un délai limité, et les gains issus d'un freebet sont versés hors mise initiale. Un code promo Betclic se saisit au moment de l'inscription — pas après — et l'offre est strictement réservée aux nouveaux comptes vérifiés (identité + RIB), conformément à la réglementation ANJ.`,
+      },
+      {
+        heading: 'Au-delà du bonus : boosts de cotes, missions et MyBetclic',
+        text: `Une fois l'offre de bienvenue consommée, Betclic reste l'un des opérateurs français les plus actifs en promotions récurrentes : cotes boostées quotidiennes sur les grandes affiches (Ligue 1, Ligue des Champions, tennis), missions dans l'application qui débloquent des freebets, et opérations spéciales pendant les grands tournois. Le programme MyBetclic centralise ces avantages personnalisés. Réflexe utile : consulter l'onglet promotions avant chaque gros événement sportif — c'est là que les offres les plus intéressantes tombent, souvent pour 24 à 48h seulement.`,
+      },
+      {
+        heading: 'Jeu responsable : les règles du jeu en France',
+        text: `Betclic est un opérateur agréé par l'Autorité Nationale des Jeux (ANJ) : inscription réservée aux majeurs, vérification d'identité obligatoire avant tout retrait, et outils de modération intégrés — limites de dépôt, auto-exclusion, historique des mises. Aucune offre listée sur cette page ne transforme les paris en « argent facile » : un bonus rembourse au mieux une partie du risque, jamais la totalité. Fixez un budget avant de parier et tenez-vous-y. Besoin d'aide ? Joueurs Info Service : 09 74 75 13 13 (appel non surtaxé).`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Comment utiliser un code promo Betclic ?',
+        answer: `Le code se saisit dans le champ dédié du formulaire d'inscription, avant la création du compte — il est impossible de l'ajouter après coup. Une fois le compte vérifié (identité et coordonnées bancaires, exigées par la réglementation française), l'offre de bienvenue s'active sur votre premier pari.`,
+      },
+      {
+        question: 'Comment fonctionnent les freebets Betclic ?',
+        answer: `Un freebet est un pari gratuit : si vous misez un freebet de 10€ à une cote de 3,00, vous recevez 20€ de gains réels (les gains sont versés hors mise). Les freebets ont une durée de validité limitée — souvent quelques jours — et ne sont généralement pas fractionnables. Ils ne peuvent pas être retirés directement : il faut les jouer.`,
+      },
+      {
+        question: 'L\u2019offre de bienvenue Betclic est-elle cumulable ?',
+        answer: `Non : une seule offre de bienvenue par personne (et par foyer, selon les conditions), sur un premier compte uniquement. Créer plusieurs comptes viole les conditions de Betclic et la réglementation ANJ — les comptes multiples sont fermés et les gains annulés. Après le bonus de bienvenue, ce sont les promotions récurrentes (boosts, missions) qui prennent le relais.`,
+      },
+      {
+        question: 'Betclic est-il légal et fiable en France ?',
+        answer: `Oui : Betclic est agréé par l'Autorité Nationale des Jeux (ANJ) pour les paris sportifs, hippiques et le poker en France. Les fonds des joueurs sont cantonnés, les retraits exigent une vérification d'identité complète, et l'opérateur applique les outils de jeu responsable imposés par la loi (limites, auto-exclusion). L'inscription est réservée aux personnes majeures résidant en France.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '📝', tip: `Le code promo se saisit À L'INSCRIPTION uniquement : impossible de l'ajouter après création du compte — vérifiez le champ avant de valider.` },
+      { icon: '🎯', tip: `Ne gaspillez pas l'offre de bienvenue sur une petite mise : le remboursement couvre uniquement le premier pari, jusqu'au plafond de l'offre en cours.` },
+      { icon: '⏳', tip: `Les freebets expirent vite (souvent sous quelques jours) : utilisez-les dès réception, et rappelez-vous que les gains sont versés hors mise.` },
+      { icon: '🛡️', tip: `Fixez vos limites de dépôt dès l'inscription dans les paramètres du compte : c'est l'outil jeu responsable le plus efficace. 18+, jouer comporte des risques.` },
+    ],
+  },
 };
 
 export function getEditorial(slug: string): StoreEditorial | null {
