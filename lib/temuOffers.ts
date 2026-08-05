@@ -9,6 +9,18 @@
 // ─── Temu codes pool ─────────────────────────────────────
 export const TEMU_AFFILIATE_URL = 'https://temu.com/kuiper/uk1.html?subj=bundle-un&_bg_fs=1&_p_mat2_type=a1001&_p_jump_id=875&_x_vst_scene=adg&_p_rfs=1&_x_ads_csite=pc_bottom&_x_ads_channel=kol_affiliate&_x_cid=2005367855kol_affiliate&_x_campaign=affiliate';
 
+/** Karim's personal Temu affiliate codes — ALWAYS published as the top 5
+ *  codes on /codes-promo/temu (sort_order 1-5, fixed order below). Daily
+ *  rotation refreshes their title/description ONLY — never swap these codes.
+ *  Codes ranked 6+ rotate freely from TEMU_CODES (minus these). */
+export const TEMU_PINNED_CODES = [
+  'alc091671',
+  'ale223283',
+  'ale070484',
+  'alj280805',
+  'alj113371',
+];
+
 export const TEMU_CODES = [
   'frt46705','frw46705','fro24466','frx24466','frr48830','frr32018','frp32018','fry39595','fry72123',
   'fri18242','frw18242','frv99624','frj76452','frg76452','frx99845','frt99845','frg02804','frh02804',

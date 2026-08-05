@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 import { submitIndexNow } from '@/lib/indexnow';
-import { TEMU_AFFILIATE_URL, TEMU_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
+import { TEMU_AFFILIATE_URL, TEMU_CODES, TEMU_PINNED_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
 
 export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
@@ -63,7 +63,10 @@ export async function GET(request: Request) {
     // 3. Pick 10 random codes and 10 UNIQUE offer templates (uniqueness
     // guard: one coupon per template title per batch — duplicate templates
     // would recreate the same-title dupes the 2026-07-27 cleanup removed).
-    const selectedCodes = pickRandom(TEMU_CODES, 10);
+    // Top 5 = pinned personal affiliate codes, always, in this exact order.
+    // Ranks 6+ rotate from the pool (minus pinned).
+    const temuPool = TEMU_CODES.filter((c) => !TEMU_PINNED_CODES.includes(c));
+    const selectedCodes = [...TEMU_PINNED_CODES, ...pickRandom(temuPool, 5)];
     const uniqueTemplates: typeof OFFER_TEMPLATES = [];
     for (const t of pickRandom(OFFER_TEMPLATES, OFFER_TEMPLATES.length)) {
       if (!uniqueTemplates.some((u) => u.title === t.title)) uniqueTemplates.push(t);
@@ -87,6 +90,7 @@ export async function GET(request: Request) {
       discount_value: selectedOffers[i].discount_value,
       discount_type: selectedOffers[i].discount_type,
       type: 'code' as const,
+      sort_order: i + 1,
       affiliate_url: TEMU_AFFILIATE_URL,
       expiry_date: expiryStr,
       is_best: selectedOffers[i].is_best,

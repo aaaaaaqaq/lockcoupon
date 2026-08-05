@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 import { submitIndexNow } from '@/lib/indexnow';
 import { isDuplicateOffer, sameDiscount, titleSimilarity, type OfferLike } from '@/lib/couponSimilarity';
-import { TEMU_AFFILIATE_URL, TEMU_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
+import { TEMU_AFFILIATE_URL, TEMU_CODES, TEMU_PINNED_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
 
 /**
  * /api/cron/daily-refresh — daily content-freshness rotation for the
@@ -160,13 +160,20 @@ async function refreshTemu(): Promise<Record<string, any>> {
     await supabase.from('coupons').delete().in('id', existing.map((c) => c.id));
   }
 
-  const codes = pickRandom(TEMU_CODES, offers.length);
+  // Top 5 = pinned personal affiliate codes, always, in this exact order
+  // (only their copy is refreshed daily). Ranks 6+ rotate from the pool.
+  const pool = TEMU_CODES.filter((c) => !TEMU_PINNED_CODES.includes(c));
+  const codes = [
+    ...TEMU_PINNED_CODES,
+    ...pickRandom(pool, Math.max(0, offers.length - TEMU_PINNED_CODES.length)),
+  ].slice(0, offers.length);
   const expiry = new Date();
   expiry.setDate(expiry.getDate() + 30);
   const rows = offers.map((offer, i) => ({
     store_id: store.id,
     title: offer.title,
     code: codes[i].toLowerCase(),
+    sort_order: i + 1,
     description: offer.description,
     discount_value: offer.discount_value,
     discount_type: offer.discount_type,
