@@ -119,7 +119,7 @@ export default async function HomePage() {
                     >
                       {store.logo_url ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={store.logo_url} alt="" className="w-5 h-5 rounded-full object-contain bg-white" loading="lazy" />
+                        <img src={store.logo_url} alt={`Logo ${store.name}`} className="w-5 h-5 rounded-full object-contain bg-white" loading="lazy" />
                       ) : (
                         <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
                           {store.logo_letter || store.name[0]}

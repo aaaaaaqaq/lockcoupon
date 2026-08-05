@@ -97,26 +97,46 @@ export const getAllStores = cache(async (): Promise<Store[]> => {
   }
 });
 
-/** Offer count per store_id in ONE query — used by the sitemap to exclude
+/** Paginated whole-table select: Supabase REST silently caps any query at
+ *  1000 rows. With 1300+ coupons, a bare .select() drops ~26% of rows —
+ *  which made the sitemap's zero-offer filter and intent-page gate evaluate
+ *  WRONG data (Bing: "important pages missing in sitemaps"). Loop .range()
+ *  pages until a short page signals the end. */
+async function selectAllRows<T>(table: string, columns: string): Promise<T[] | null> {
+  const PAGE = 1000;
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from(table)
+      .select(columns)
+      .order('id', { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) return null;
+    if (data) rows.push(...(data as T[]));
+    if (!data || data.length < PAGE) break;
+  }
+  return rows;
+}
+
+/** Offer count per store_id — used by the sitemap to exclude
  *  zero-offer (thin) store pages until they have offers again. */
 export async function getCouponCountsByStore(): Promise<Record<string, number>> {
-  const { data, error } = await supabase.from('coupons').select('store_id');
-  if (error || !data) return {};
+  const data = await selectAllRows<{ store_id: string }>('coupons', 'store_id');
+  if (!data) return {};
   const counts: Record<string, number> = {};
-  for (const row of data as { store_id: string }[]) {
+  for (const row of data) {
     counts[row.store_id] = (counts[row.store_id] || 0) + 1;
   }
   return counts;
 }
 
-/** Light coupon rows (store_id + text fields) in ONE query — lets the
- *  sitemap apply the intent-page gate (≥2 offers matching the intent's
- *  filter) without N per-store queries. */
+/** Light coupon rows (store_id + text fields) — lets the sitemap apply the
+ *  intent-page gate (≥2 offers matching the intent's filter) without N
+ *  per-store queries. */
 export type CouponLight = Pick<Coupon, 'store_id' | 'title' | 'description'>;
 export async function getAllCouponsLight(): Promise<CouponLight[]> {
-  const { data, error } = await supabase.from('coupons').select('store_id,title,description');
-  if (error || !data) return [];
-  return data as CouponLight[];
+  const data = await selectAllRows<CouponLight>('coupons', 'store_id,title,description');
+  return data ?? [];
 }
 
 export async function incrementCouponUsage(couponId: string): Promise<void> {

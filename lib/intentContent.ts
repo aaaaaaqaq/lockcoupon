@@ -117,20 +117,25 @@ function capitalize(str: string): string {
 export function intentTitle(store: Store, intent: IntentDef): string {
   const { monthCap, year } = monthYear();
   const n = store.name;
+  // BUDGET: root layout appends " | LockCoupon" (+13) — Bing flags rendered
+  // titles > 65 chars ("Title too long"). Raw title must stay ≤ 52.
+  const MAX = 65 - ' | LockCoupon'.length; // = 52
 
   if (intent.slug === 'soldes') {
     const t = `Soldes ${n} ${year} : codes promo ${monthCap} vérifiés`;
-    if (t.length <= 60) return t;
+    if (t.length <= MAX) return t;
     const short = `Soldes ${n} ${year} : codes promo vérifiés`;
-    return short.length <= 60 ? short : `Soldes ${n} ${year}`;
+    return short.length <= MAX ? short : `Soldes ${n} ${year}`;
   }
 
   const full = `Code Promo ${n} ${intent.titleKeyword} ${monthCap} ${year}`;
-  if (full.length <= 60) return full;
+  if (full.length <= MAX) return full;
   const noMonth = `Code Promo ${n} ${intent.titleKeyword} ${year}`;
-  if (noMonth.length <= 60) return noMonth;
-  const minimal = `${intent.titleKeyword} ${n} ${year}`;
-  return minimal.length <= 60 ? minimal : `${intent.titleKeyword} ${n}`;
+  if (noMonth.length <= MAX) return noMonth;
+  const noDate = `Code Promo ${n} ${intent.titleKeyword}`;
+  if (noDate.length <= MAX) return noDate;
+  const minimal = `${intent.titleKeyword} ${n}`;
+  return minimal.length <= MAX ? minimal : minimal.slice(0, MAX - 1) + '…';
 }
 
 export function intentDescription(store: Store, intent: IntentDef, coupons: Coupon[]): string {

@@ -48,11 +48,22 @@ export default function AdminPage() {
 
   const loadData = useCallback(async () => {
     const { data: s } = await supabase.from('stores').select('*').order('name');
-    const { data: c } = await supabase.from('coupons').select('*').order('sort_order', { ascending: true }).order('created_at', { ascending: false });
+    // Paginate: Supabase caps every query at 1000 rows and there are 1300+ coupons.
+    const c: Coupon[] = [];
+    for (let from = 0; ; from += 1000) {
+      const { data: page } = await supabase
+        .from('coupons')
+        .select('*')
+        .order('sort_order', { ascending: true })
+        .order('created_at', { ascending: false })
+        .range(from, from + 999);
+      if (page) c.push(...page);
+      if (!page || page.length < 1000) break;
+    }
     const { data: p } = await supabase.from('blog_posts').select('*').order('created_at', { ascending: false });
     const { data: sub } = await adminApi({ table: 'subscribers', action: 'select' });
     if (s) setStores(s);
-    if (c) setCoupons(c);
+    if (c.length) setCoupons(c);
     if (p) setPosts(p);
     if (sub) setSubscribers([...sub].sort((a, b) => (b.created_at || '').localeCompare(a.created_at || '')));
   }, [adminApi]);

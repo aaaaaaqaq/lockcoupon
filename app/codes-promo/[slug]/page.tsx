@@ -19,8 +19,13 @@ interface Props {
   params: { slug: string };
 }
 
-/* ── SEO helper: build CTR-optimized title ≤ 60 chars ───────────
-   Includes real numbers (offer count, best discount) — proven CTR lever. */
+/* ── SEO helper: build CTR-optimized title ───────────
+   Includes real numbers (offer count, best discount) — proven CTR lever.
+   BUDGET: the root layout appends " | LockCoupon" (+13 chars) via the title
+   template, and Bing Webmaster flags rendered titles > 65 chars ("Title too
+   long", Aug 2026). So the RAW title here must stay ≤ 52 chars. */
+const TITLE_BUDGET = 65 - ' | LockCoupon'.length; // = 52
+
 function buildTitle(storeName: string, stats: StoreStats): string {
   const now = new Date();
   const monthNames = [
@@ -31,32 +36,26 @@ function buildTitle(storeName: string, stats: StoreStats): string {
   const year = now.getFullYear();
   const { offerCount, maxDiscount } = stats;
 
-  const base = `Code Promo ${storeName} ${month} ${year}`;
-
-  // Canonical format (Fix 3): "Code Promo Shein → 18 offres vérifiées (jusqu'à 50%) | Juillet 2026"
-  // — total_offers (what the visitor actually sees on the page) + best discount,
-  // computed by storeStats(): the SAME source as H1, meta description and body.
+  // Ladder: drop the least valuable segment first (discount → "vérifiées" →
+  // count → month). Keyword "Code Promo {store}" + freshness date win.
+  // All numbers still come from storeStats(): same source as H1/meta/body.
+  const candidates: string[] = [];
   if (offerCount > 1 && maxDiscount) {
-    const full = `Code Promo ${storeName} → ${offerCount} offres vérifiées (jusqu'à ${maxDiscount}) | ${month} ${year}`;
-    if (full.length <= 68) return full;
-    const noDiscount = `Code Promo ${storeName} → ${offerCount} offres vérifiées | ${month} ${year}`;
-    if (noDiscount.length <= 62) return noDiscount;
+    candidates.push(`Code Promo ${storeName} → ${offerCount} offres vérifiées (jusqu'à ${maxDiscount}) | ${month} ${year}`);
+    candidates.push(`Code Promo ${storeName} → ${offerCount} offres (${maxDiscount}) | ${month} ${year}`);
   }
   if (offerCount > 1) {
-    const withCount = `Code Promo ${storeName} → ${offerCount} offres vérifiées | ${month} ${year}`;
-    if (withCount.length <= 62) return withCount;
-    const short = `${base} : ${offerCount} offres`;
-    if (short.length <= 60) return short;
+    candidates.push(`Code Promo ${storeName} → ${offerCount} offres vérifiées | ${month} ${year}`);
+    candidates.push(`Code Promo ${storeName} → ${offerCount} offres | ${month} ${year}`);
   }
-  if (base.length <= 60) return base;
+  candidates.push(`Code Promo ${storeName} ${month} ${year}`);
+  candidates.push(`Code Promo ${storeName} ${year}`);
+  candidates.push(`Code Promo ${storeName}`);
 
-  const withYear = `Code Promo ${storeName} — ${year}`;
-  if (withYear.length <= 60) return withYear;
-
-  const minimal = `Code Promo ${storeName}`;
-  if (minimal.length <= 60) return minimal;
-
-  const maxName = 60 - 'Code Promo  …'.length;
+  for (const c of candidates) {
+    if (c.length <= TITLE_BUDGET) return c;
+  }
+  const maxName = TITLE_BUDGET - 'Code Promo …'.length;
   return `Code Promo ${storeName.slice(0, maxName)}…`;
 }
 
