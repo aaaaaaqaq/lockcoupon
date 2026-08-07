@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { getAllStores, getCouponsByStoreId, Store, Coupon } from '@/lib/supabase';
 import { getCategoryBySlug, CATEGORIES } from '@/lib/categories';
+import { getCategoryEditorial } from '@/lib/categoryContent';
 import { absoluteUrl } from '@/lib/site';
 
 
@@ -68,6 +69,20 @@ export default async function CategoryPage({ params }: Props) {
   const month = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
   const totalCodes = storesWithCounts.reduce((s, sc) => s + sc.couponCount, 0);
 
+  const editorial = getCategoryEditorial(cat.slug);
+
+  const faqSchema = editorial
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'FAQPage',
+        mainEntity: editorial.faq.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: { '@type': 'Answer', text: item.answer },
+        })),
+      }
+    : null;
+
   const breadcrumbSchema = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
@@ -81,6 +96,9 @@ export default async function CategoryPage({ params }: Props) {
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }} />
+      {faqSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      )}
       <Navbar />
       <main>
         <section className="bg-[#1a1a1a] relative overflow-hidden">
@@ -158,13 +176,16 @@ export default async function CategoryPage({ params }: Props) {
           </div>
         </section>
 
-        {/* SEO content */}
+        {/* SEO content — unique per-category editorial (thin-content fix, Aug 2026) */}
         <section className="max-w-[1200px] mx-auto px-4 py-8 md:py-12">
           <div className="max-w-[800px] mx-auto">
             <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-4">
               Comment économiser sur vos achats {cat.name.toLowerCase()}
             </h2>
             <div className="text-muted text-[14px] md:text-[15px] leading-relaxed space-y-4">
+              {editorial?.intro.map((para, i) => (
+                <p key={`intro-${i}`}>{para}</p>
+              ))}
               <p>
                 LockCoupon réunit les meilleurs codes promo {cat.name.toLowerCase()} en France. Notre équipe vérifie chaque offre quotidiennement pour vous garantir des réductions qui fonctionnent réellement. Que vous cherchiez une promotion sur{' '}
                 {storesWithCounts.slice(0, 3).map((sc, i) => (
@@ -180,6 +201,35 @@ export default async function CategoryPage({ params }: Props) {
                 <Link href="/top-codes-promo" className="text-primary hover:underline">top codes promo</Link> pour encore plus d&apos;économies.
               </p>
             </div>
+
+            {editorial && (
+              <>
+                <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mt-10 mb-6">
+                  Comment ça marche : le code promo {cat.name.toLowerCase()} en 3 étapes
+                </h2>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {editorial.steps.map((step, i) => (
+                    <div key={i} className="bg-white border border-border rounded-xl p-5">
+                      <div className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-[15px] font-extrabold mb-3">{i + 1}</div>
+                      <h3 className="text-text-main text-[15px] font-bold mb-2">{step.title}</h3>
+                      <p className="text-muted text-[13px] leading-relaxed">{step.text}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mt-10 mb-6">
+                  Questions fréquentes — codes promo {cat.name.toLowerCase()}
+                </h2>
+                <div className="space-y-3">
+                  {editorial.faq.map((item, i) => (
+                    <details key={i} className="bg-white border border-border rounded-xl overflow-hidden">
+                      <summary className="px-5 py-4 text-text-main text-[15px] font-semibold cursor-pointer hover:bg-bg">{item.question}</summary>
+                      <p className="px-5 pb-4 text-muted text-[14px] leading-relaxed">{item.answer}</p>
+                    </details>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
         </section>
       </main>

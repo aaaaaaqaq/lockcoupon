@@ -1,11 +1,12 @@
 import Link from 'next/link';
 import FooterNewsletter from './FooterNewsletter';
+import { CATEGORIES } from '@/lib/categories';
 
 export default function Footer() {
   return (
     <footer className="border-t border-border bg-[#1a1a1a] mt-10">
       <div className="max-w-[1200px] mx-auto px-4 py-10 md:py-14">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-10">
+        <div className="grid grid-cols-2 md:grid-cols-5 gap-8 mb-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-3">
@@ -35,6 +36,23 @@ export default function Footer() {
               <Link href="/top-codes-promo" className="block text-white/50 hover:text-white text-[13px] transition-colors">Top Codes Promo</Link>
               <Link href="/guide-achat" className="block text-white/50 hover:text-white text-[13px] transition-colors">Guide d&apos;achat</Link>
               <Link href="/blog" className="block text-white/50 hover:text-white text-[13px] transition-colors">Blog</Link>
+            </div>
+          </nav>
+
+          {/* Catégories — orphan-page fix (SEMrush Aug 2026): every category
+              page is now linked from every page of the site via the footer. */}
+          <nav aria-label="Catégories">
+            <h3 className="text-white font-bold text-[14px] mb-3">Catégories</h3>
+            <div className="space-y-2">
+              {CATEGORIES.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/codes-promo/categorie/${cat.slug}`}
+                  className="block text-white/50 hover:text-white text-[13px] transition-colors"
+                >
+                  {cat.name}
+                </Link>
+              ))}
             </div>
           </nav>
 

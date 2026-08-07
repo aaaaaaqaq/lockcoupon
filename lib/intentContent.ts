@@ -73,6 +73,7 @@ export const INTENT_SLUGS = Object.keys(INTENTS);
  *  keeps them out of hub links & the sitemap too). */
 export const SUPPRESSED_INTENTS: Record<string, string[]> = {
   temu: ['premiere-commande', 'livraison-gratuite'], // nouveau-client + livraison-gratuite exist as static pages
+  shein: ['livraison-gratuite'], // hand-written static page (Aug 2026) shadows the dynamic intent route
 };
 
 export function isSuppressed(storeSlug: string, intentSlug: string): boolean {

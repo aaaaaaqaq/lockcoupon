@@ -11,6 +11,7 @@ import Toast from '@/components/Toast';
 import Footer from '@/components/Footer';
 import { Store, Coupon } from '@/lib/supabase';
 import { allSubpagesFor } from '@/lib/storeSubpages';
+import { CATEGORIES, getCategoriesForStore } from '@/lib/categories';
 import AnswerBox from '@/components/AnswerBox';
 import { storeFaqItems, storeAboutSections, storeTips, storeStats } from '@/lib/storeContent';
 import { IconCheckCircle, IconChart, IconFlame, IconSearch, IconClipboard, IconBook, IconTrophy, IconStore, IconNewspaper } from '@/components/icons';
@@ -153,7 +154,7 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
 
         {/* Freshness signal */}
         <div className="max-w-[1200px] mx-auto px-4 pt-4 flex items-center gap-4 flex-wrap">
-          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconCheckCircle size={14} className="text-green-600" /> Vérifié le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconCheckCircle size={14} className="text-green-600" /> Codes vérifiés le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
           <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconChart size={14} className="text-blue-500" /> {stats.offerCount} offre{stats.offerCount > 1 ? 's' : ''} active{stats.offerCount > 1 ? 's' : ''}</p>
           {stats.totalUsage > 0 && (
             <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconFlame size={14} className="text-orange-500" /> {stats.totalUsage.toLocaleString('fr-FR')} utilisations</p>
@@ -252,6 +253,34 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
         {/* SEO content sections */}
         <StoreAboutSection store={store} coupons={coupons} />
         <StoreFAQSection store={store} coupons={coupons} />
+
+        {/* Catégories populaires — orphan-page fix (SEMrush Aug 2026): links
+            every category hub from every store page; the store's own
+            categories are listed first. */}
+        <section aria-label="Catégories populaires" className="max-w-[1200px] mx-auto px-4 py-8">
+          <div className="max-w-[800px] mx-auto">
+            <h2 className="text-text-main text-[20px] md:text-[24px] font-extrabold mb-6">
+              Catégories populaires
+            </h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {(() => {
+                const own = getCategoriesForStore(store.slug);
+                const ownSlugs = new Set(own.map((c) => c.slug));
+                const ordered = [...own, ...CATEGORIES.filter((c) => !ownSlugs.has(c.slug))];
+                return ordered.map((cat) => (
+                  <Link
+                    key={cat.slug}
+                    href={`/codes-promo/categorie/${cat.slug}`}
+                    className={`bg-white border rounded-xl p-4 text-center hover:shadow-md transition-all ${ownSlugs.has(cat.slug) ? 'border-primary/40' : 'border-border'}`}
+                  >
+                    <div className="text-[24px] mb-1.5">{cat.emoji}</div>
+                    <span className="text-text-main text-[13px] font-semibold">Codes promo {cat.name}</span>
+                  </Link>
+                ));
+              })()}
+            </div>
+          </div>
+        </section>
 
         {/* Internal links */}
         <nav aria-label="Pages utiles" className="max-w-[1200px] mx-auto px-4 py-6">

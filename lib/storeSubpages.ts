@@ -61,5 +61,25 @@ export const STORE_SUBPAGES: Record<string, StoreSubpage[]> = {
       desc: 'Parrainez vos proches et cumulez crédits, cadeaux et réductions exclusives.',
       icon: '🤝',
     },
+    {
+      href: '/codes-promo/temu/cadeau-gratuit',
+      title: 'Cadeau gratuit Temu',
+      desc: 'Roue de bienvenue, parrainage, jeux de l\u2019appli : comment obtenir de vrais cadeaux gratuits.',
+      icon: '🎁',
+    },
+    {
+      href: '/codes-promo/temu/code-reduction',
+      title: 'Code réduction Temu',
+      desc: 'Les codes de réduction testés en caisse, classés par famille : nouveaux clients, paliers, tous comptes.',
+      icon: '🏷️',
+    },
+  ],
+  shein: [
+    {
+      href: '/codes-promo/shein/livraison-gratuite',
+      title: 'Livraison gratuite SHEIN',
+      desc: 'Seuil de 29€, jours sans minimum, délais France et astuces frais de port.',
+      icon: '📦',
+    },
   ],
 };

@@ -55,6 +55,18 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
         heading: 'Les pièges à éviter avec les promos Temu',
         text: `Les prix barrés de Temu sont souvent théâtraux : un « -80% » calculé sur un prix de référence gonflé peut cacher une remise réelle de 20%. Avant de valider, comparez le prix final avec la même référence ailleurs (AliExpress ou Amazon Marketplace vendent parfois le même article). Méfiez-vous aussi des codes « influenceurs » partagés en masse sur TikTok : la plupart sont des liens de parrainage déguisés qui ne réduisent rien du tout. Les codes de cette page sont testés en caisse, sur un vrai panier, avant publication — et retirés dès qu'ils expirent.`,
       },
+      {
+        heading: 'Livraison, retours et douane : le vrai coût d\u2019une commande Temu',
+        text: `La livraison standard vers la France est gratuite sur la quasi-totalité des commandes, en 6 à 11 jours ouvrés — et Temu crédite un bon de compensation si le colis dépasse la date annoncée, une garantie que peu de marketplaces offrent. La TVA est incluse dans le prix affiché et aucun frais de douane ne s'applique sous 150€ de commande : le total en caisse est bien le prix final. Côté retours, vous disposez de 90 jours, le premier renvoi de chaque commande est gratuit via étiquette prépayée, et sur les petits articles Temu rembourse souvent sans exiger le retour physique. Deux réflexes tout de même : groupez vos renvois en un seul colis, et si votre panier dépasse 150€, scindez-le en deux commandes pour rester sous le seuil douanier.`,
+      },
+      {
+        heading: 'Temu, AliExpress ou Amazon : où est la vraie bonne affaire ?',
+        text: `Sur les petits prix du quotidien (accessoires, gadgets, maison), Temu est généralement imbattable une fois les coupons appliqués — c'est sa raison d'être. AliExpress reprend l'avantage sur l'électronique de marque (Xiaomi, Anker…) grâce à ses boutiques officielles et ses entrepôts européens plus fournis. Amazon reste le réflexe pour tout ce qui doit arriver demain ou bénéficier d'un SAV français rapide. La méthode gagnante : repérez l'article sur Temu, vérifiez la même référence sur les deux autres, puis appliquez le meilleur code de la plateforme retenue — nos pages AliExpress et Amazon listent leurs offres vérifiées au même rythme que celle-ci.`,
+      },
+      {
+        heading: 'Notre méthode de vérification des codes Temu',
+        text: `Chaque code publié ici passe par le même protocole : test en caisse sur un panier réel, identification de la famille (nouveau client, palier, tous comptes, app), puis re-vérification automatisée plusieurs fois par jour — les codes morts sont retirés au passage suivant, jamais laissés en vitrine. Les compteurs d'utilisation affichés sur chaque offre viennent de nos visiteurs réels : un code très utilisé récemment est un code qui passe. C'est aussi pour ça que cette page évolue d'un jour à l'autre : mieux vaut 8 codes qui fonctionnent que 40 recopiés d'un site à l'autre depuis des mois.`,
+      },
     ],
     faq: (s) => [
       {
@@ -72,6 +84,14 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
       {
         question: 'Faut-il créer un nouveau compte pour profiter des offres Temu ?',
         answer: `Les remises de bienvenue (roue à coupons, premier panier jusqu'à -50%) exigent effectivement un compte neuf. En revanche, multiplier les comptes sur le même appareil ou la même adresse viole les conditions de Temu et fait sauter les coupons. La bonne approche : épuiser les offres nouveau client, puis basculer sur les codes clients existants de cette page, réapprovisionnés à chaque mise à jour.`,
+      },
+      {
+        question: 'Temu est-il fiable pour commander en France ?',
+        answer: `Sur le paiement et la livraison, oui : transactions sécurisées, TVA incluse, remboursement automatique en cas de colis perdu et 90 jours pour retourner un article. La vigilance porte sur les produits eux-mêmes : lisez les avis avec photos, vérifiez les tailles sur les guides de mensurations, et évitez les catégories sensibles (électrique, normes CE) pour lesquelles les marketplaces asiatiques restent inégales.`,
+      },
+      {
+        question: 'Quand ont lieu les plus grosses promos Temu de l\u2019année ?',
+        answer: `Quatre pics dominent : le Black Friday (fin novembre), le 11.11, les anniversaires de la plateforme et les soldes d'été/hiver françaises où Temu aligne des opérations spéciales France. Au quotidien, les ventes flash tournent par créneaux — 8h-10h et 14h-16h heure française sont les fenêtres les plus agressives. Les codes de cette page se cumulent avec ces événements, c'est le moment où ils rapportent le plus.`,
       },
     ],
     tips: (s) => [
@@ -101,6 +121,18 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
         heading: 'Tailles, retours et frais : ce qu\u2019il faut savoir avant de commander',
         text: `La livraison SHEIN devient gratuite dès 29€ d'achat (offre listée plus haut quand elle est active) — en dessous, comptez environ 4€. Le premier retour de chaque commande est gratuit sous 35 jours, les suivants sont facturés : groupez vos renvois en un seul colis. Côté tailles, fiez-vous au tableau de mensurations propre à chaque article plutôt qu'à votre taille habituelle : les coupes varient fortement d'un fabricant à l'autre, et les avis clients avec photos signalent presque toujours si un modèle taille petit.`,
       },
+      {
+        heading: 'L\u2019application SHEIN : coupons exclusifs et check-ins quotidiens',
+        text: `Comme chez Temu, l'application mobile est le cœur du système promo SHEIN : check-ins quotidiens qui créditent des points, coupons app-exclusifs poussés par notification, ventes flash réservées et roue de bienvenue pour les nouveaux comptes. Le rituel gagnant avant une grosse commande : ouvrir l'appli chaque jour pendant une semaine (30 secondes de check-in), récolter points et coupons, puis passer commande avec le meilleur code de cette page appliqué par-dessus. Les prix produits sont identiques entre site et application — seul l'accès aux coupons change, donc rien n'empêche de préparer le panier sur grand écran et de payer sur mobile.`,
+      },
+      {
+        heading: 'SHEIN, Temu ou ASOS : quelle plateforme pour quel achat ?',
+        text: `Les trois jouent des rôles différents. SHEIN domine sur la profondeur de catalogue mode à petit prix et les tailles étendues ; Temu est plus agressif sur les accessoires et la maison, mais son rayon vêtements est moins fourni en guides de tailles fiables ; ASOS vend des marques (Nike, Adidas, Levi's…) avec des retours simples — à prix plus élevé, mais avec une qualité prévisible. Notre conseil : basiques et pièces tendance éphémères chez SHEIN avec un code de cette page ; pièces durables et chaussures de marque chez ASOS pendant leurs opérations à -25%. Les deux pages sont vérifiées au même rythme.`,
+      },
+      {
+        heading: 'Notre protocole de vérification des codes SHEIN',
+        text: `Chaque code SHEIN de cette page est testé en caisse sur un panier réel avant publication, avec sa condition exacte relevée (palier minimum, catégories exclues, nouveaux clients). Les vérifications automatisées tournent ensuite plusieurs fois par jour : un code qui cesse de passer est retiré au contrôle suivant. C'est pourquoi le nombre d'offres varie d'un jour à l'autre — nous préférons une liste courte et exacte à une vitrine de codes morts recopiés entre agrégateurs. Les compteurs d'utilisation reflètent les copies réelles de nos visiteurs : fiez-vous aux codes les plus utilisés récemment.`,
+      },
     ],
     faq: (s) => [
       {
@@ -119,12 +151,78 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
         question: 'Les ventes flash SHEIN sont-elles de vraies remises ?',
         answer: `Majoritairement oui, car elles portent sur des sélections courtes et tournent plusieurs fois par jour — mais le prix barré peut être ancien. Réflexe utile : la remise flash s'ajoute rarement aux codes promo ; comparez le prix flash sans code au prix normal avec code avant de choisir. Sur les basiques, le code générique gagne souvent.`,
       },
+      {
+        question: 'La livraison SHEIN est-elle gratuite en France ?',
+        answer: `Oui dès 29€ d'achat en livraison standard (7 à 12 jours ouvrés) ; sous ce seuil, comptez environ 4€. SHEIN organise aussi des jours de livraison gratuite sans minimum, souvent le dimanche. Délais, transporteurs et astuces détaillés sur notre page dédiée livraison gratuite SHEIN.`,
+      },
+      {
+        question: 'Pourquoi mon code SHEIN est-il refusé ?',
+        answer: `Quatre causes dominent : le palier minimum n'est pas atteint (les paliers sont calculés après remises automatiques), le code est réservé aux nouveaux clients, la catégorie est exclue (certaines sélections déjà démarquées refusent les codes), ou un autre code est déjà appliqué — SHEIN n'accepte qu'un code par commande. La condition exacte figure sous chaque offre de cette page.`,
+      },
     ],
     tips: (s) => [
       { icon: '📸', tip: `Déposez un avis photo après chaque commande SHEIN : les points crédités (100 pts = 1€) se déduisent en caisse en plus des codes promo.` },
       { icon: '📱', tip: `Faites le check-in quotidien dans l'application quelques jours avant une grosse commande : les points et coupons in-app s'accumulent vite.` },
       { icon: '📏', tip: `Vérifiez le tableau de mensurations de chaque article (pas votre taille habituelle) et les photos d'avis clients : c'est le meilleur antidote aux retours payants.` },
       { icon: '🗓️', tip: `Gardez vos gros paniers pour l'anniversaire SHEIN (fin mai-juin), le 11.11 et le Black Friday — les remises y dépassent nettement les codes du reste de l'année.` },
+    ],
+  },
+
+  /* ───────────────────────────── ASOS ───────────────────────────── */
+  asos: {
+    intro: (s) =>
+      `ASOS est probablement l'enseigne mode la plus généreuse en codes promo du marché français : des opérations -20 à -30% sur tout le site reviennent presque chaque mois, et la plateforme les assume comme levier commercial principal. Le défi n'est donc pas de trouver UN code ASOS, mais de savoir lequel est actif aujourd'hui, sur quel périmètre (tout le site, sélection, marques exclues) et jusqu'à quand. En ${s.month}, cette page suit ${nbOffres(s)} ASOS vérifiée${s.offerCount > 1 ? 's' : ''}${s.bestDiscount ? ` — remise maximale testée : ${s.bestDiscount}` : ''} — re-testées plusieurs fois par jour, car les codes ASOS expirent vite, souvent en 48 à 72 heures.`,
+    metaDescription: (s) =>
+      `${s.codeCount > 0 ? `${s.codeCount} codes promo ASOS` : `${nbOffres(s)} ASOS`} testés en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''}. Opérations -25%, marques exclues, livraison Premier : les conditions réelles, sans codes morts.`,
+    about: (s) => [
+      {
+        heading: 'Comment fonctionnent les codes promo ASOS',
+        text: `ASOS alterne deux types d'opérations. Les codes « sitewide » (-20%, -25%, parfois -30% pour des fenêtres de 24-72h) s'appliquent à presque tout le catalogue, y compris — c'est rare dans la mode — aux articles déjà soldés : c'est le moment où les remises finales atteignent -70% sur l'outlet. Les codes ciblés, eux, visent une sélection (robes, sneakers, une marque précise) ou un public (étudiants, nouveaux clients). Chaque code de cette page indique son périmètre et sa date d'expiration ; vérifiez aussi la liste des marques exclues (certaines marques premium comme Nike ou Dr. Martens sortent régulièrement du périmètre des codes sitewide).`,
+      },
+      {
+        heading: 'La remise étudiante ASOS : -10% permanent, et plus pendant les opérations',
+        text: `ASOS accorde une remise étudiante permanente de 10% contre vérification du statut (via UNiDAYS ou Student Beans) — utilisable toute l'année, y compris sur les nouveautés. Pendant les périodes de rentrée et d'examens, elle grimpe ponctuellement à -15 voire -20%. Attention à la règle d'or : un seul code par commande chez ASOS — pendant une opération sitewide à -25%, désactivez le code étudiant et utilisez le code de l'opération, pas l'inverse. Le code étudiant reprend le relais le reste du temps.`,
+      },
+      {
+        heading: 'ASOS Premier : la livraison illimitée qui change le calcul',
+        text: `Pour un peu moins de 30€ par an, ASOS Premier offre la livraison express illimitée sans minimum de commande. Le seuil de rentabilité est vite atteint : dès 4-5 commandes annuelles sous le seuil de livraison gratuite standard, l'abonnement est amorti — et il change surtout le comportement d'achat : plus besoin de gonfler un panier pour éviter les frais de port, vous commandez la bonne pièce au bon moment, pendant la bonne opération de codes. Les retours restent gratuits pour tout le monde, Premier ou non, sous 28 jours pour un remboursement.`,
+      },
+      {
+        heading: 'Le calendrier des opérations ASOS',
+        text: `Les codes sitewide ASOS suivent un rythme quasi mensuel, avec des pics fiables : rentrée de septembre, Black Friday (historiquement l'opération la plus forte de l'année, jusqu'à -30% sur tout), Noël, janvier (soldes + code par-dessus) et les paydays de fin de mois, où ASOS lance régulièrement des fenêtres de 48h. Entre deux opérations, l'outlet ASOS et la section « dernière chance » tournent en continu — un code ciblé s'y ajoute parfois. Si aucun code sitewide n'est actif aujourd'hui, il y en aura très probablement un dans les deux semaines : mettez votre panier en favoris et revenez vérifier cette page.`,
+      },
+      {
+        heading: 'Tailles, retours et astuces panier chez ASOS',
+        text: `ASOS affiche pour chaque article les mensurations du mannequin et la taille portée — croisez-les avec le guide des tailles par marque, car un 40 Nike et un 40 ASOS Design ne taillent pas pareil. L'outil « Fit Assistant » affine ses recommandations à mesure que vous commandez. Côté panier : les articles ASOS restent réservés 60 minutes seulement, mais la liste d'envies est illimitée — stockez-y vos repérages en attendant la prochaine opération de codes. Enfin, surveillez les baisses de prix : un article de la liste d'envies qui passe en démarque + un code sitewide, c'est la combinaison la plus rentable du site.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Quand ASOS lance-t-il ses codes -25% ?',
+        answer: `À rythme quasi mensuel : rentrée, paydays de fin de mois, Black Friday (le pic annuel, jusqu'à -30%), Noël et janvier. Ces opérations durent 24 à 72 heures — c'est pourquoi cette page est re-vérifiée plusieurs fois par jour. Astuce : préparez votre liste d'envies à l'avance et déclenchez l'achat quand le code tombe.`,
+      },
+      {
+        question: 'Pourquoi mon code ASOS ne fonctionne-t-il pas ?',
+        answer: `Vérifiez dans l'ordre : la date d'expiration (les codes ASOS vivent 48-72h), les marques exclues (certaines marques premium sortent du périmètre), le cumul (un seul code par commande — le code étudiant ne s'ajoute pas à un code sitewide) et le pays du site (un code du site UK ne passe pas sur asos.fr). Chaque code de cette page précise son périmètre exact.`,
+      },
+      {
+        question: 'Les codes ASOS s\u2019appliquent-ils aux articles soldés ?',
+        answer: `Oui, la plupart des codes sitewide ASOS fonctionnent sur l'outlet et les articles démarqués — une rareté dans la mode en ligne. C'est la combinaison la plus puissante du site : -70% d'outlet + -25% de code. Seules les exclusions de marques listées dans les conditions du code y échappent.`,
+      },
+      {
+        question: 'ASOS Premier vaut-il le coût ?',
+        answer: `Dès 4-5 commandes par an, oui : pour un peu moins de 30€ annuels, la livraison express devient illimitée et sans minimum. Vous cessez de gonfler vos paniers pour atteindre la livraison gratuite, et vous pouvez commander pendant les fenêtres de codes de 48h sans contrainte de seuil. Les retours restent gratuits dans tous les cas.`,
+      },
+      {
+        question: 'Comment obtenir la remise étudiante ASOS ?',
+        answer: `Vérifiez votre statut étudiant via UNiDAYS ou Student Beans, puis liez-le à votre compte ASOS : la remise de 10% permanente s'active sous forme de code personnel. Pendant les opérations de rentrée, elle monte ponctuellement à -15/-20%. Rappel : elle ne se cumule pas avec un code sitewide — utilisez le plus fort des deux.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '⏰', tip: `Les codes sitewide ASOS vivent 48 à 72h : préparez votre liste d'envies à l'avance et achetez pendant la fenêtre — pas de panique, une nouvelle opération arrive presque chaque mois.` },
+      { icon: '🎓', tip: `Étudiant ? Activez la remise permanente de 10% via UNiDAYS — mais basculez sur le code sitewide quand une opération -25% est active, les deux ne se cumulent pas.` },
+      { icon: '🛍️', tip: `Combinez outlet + code : la plupart des codes ASOS s'appliquent aux articles déjà démarqués, ce qui produit les remises finales les plus fortes du site (-70% et plus).` },
+      { icon: '👟', tip: `Vérifiez les marques exclues avant de remplir le panier : Nike, Dr. Martens et quelques marques premium sortent régulièrement du périmètre des codes sitewide.` },
     ],
   },
 
