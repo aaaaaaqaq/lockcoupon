@@ -46,9 +46,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!store) return {};
 
   const coupons = await getCouponsByStoreId(store.id).catch(() => []);
-  // Same gate as the page body: <2 matching offers ⇒ the page 404s,
-  // so don't emit metadata for it either.
-  if (!intentAvailable(coupons, intent)) return {};
+  // Thin-page gate: <2 matching offers ⇒ page still renders (never 404 an
+  // indexed URL) but flips to noindex,follow until offers come back.
+  const available = intentAvailable(coupons, intent);
   const title = intentTitle(store, intent);
   const description = intentDescription(store, intent, coupons);
   const canonical = absoluteUrl(`/codes-promo/${params.slug}/${params.intent}`);
@@ -57,7 +57,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title,
     description,
     alternates: { canonical },
-    robots: { index: true, follow: true },
+    robots: available ? { index: true, follow: true } : { index: false, follow: true },
     openGraph: {
       title,
       description,
@@ -78,9 +78,9 @@ export default async function IntentPage({ params }: Props) {
   if (!store) notFound();
 
   const coupons = await getCouponsByStoreId(store.id);
-  // Thin-page gate: the sub-page only exists when ≥2 offers actually match
-  // this intent's filter. Below that, return a real 404 (not a thin page).
-  if (!intentAvailable(coupons, intent)) notFound();
+  // Thin-page gate: below 2 matching offers the page is noindexed (see
+  // generateMetadata) but still renders — 404ing an already-indexed URL
+  // throws away Google traffic (seen with /back-market/soldes trending in GSC).
   const { matched, others } = splitCouponsByIntent(coupons, intent);
   const ordered = [...matched, ...others];
   const sections = intentSections(store, intent, coupons);
