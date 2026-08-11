@@ -445,13 +445,13 @@ export async function GET(request: Request) {
     };
     if (dry) return NextResponse.json({ success: true, dry: true, ...plan });
 
-    // ── Execute: codes in parallel with sequential article generation ──────
+    // ── Execute: EVERYTHING in parallel — sequential article generation blew
+    // past maxDuration on 2026-08-11 (each web_search article ≈ 2-3 min).
     const codesPromise = Promise.all(
       todaysCodes.map((c) => refreshEventCodes(c.ev, c.storeSlug).catch((e: any) => ({ store: c.storeSlug, error: e?.message || 'failed' })))
     );
 
-    const articleResults: Array<Record<string, any>> = [];
-    for (const task of todaysArticles) {
+    const articlePromises = todaysArticles.map(async (task) => {
       const cover = EVENT_COVERS[task.ev.def.slug] || EVENT_COVERS.default;
       let prompt: string;
       if (task.kind === 'pillar') {
@@ -460,13 +460,18 @@ export async function GET(request: Request) {
           .map((s) => ({ name: (s as any).name, slug: (s as any).slug }));
         prompt = buildPillarPrompt(task.ev, links);
       } else {
+        // Link the event pillar if it exists OR is being published this run
+        // (deterministic slug → the link resolves either way).
         const pSlug = pillarSlug(task.ev);
-        const pillarUrl = (await slugExists(pSlug)) ? `/blog/${pSlug}` : null;
+        const pillarQueued = todaysArticles.some((t) => t.kind === 'pillar' && t.slug === pSlug);
+        const pillarUrl = pillarQueued || (await slugExists(pSlug)) ? `/blog/${pSlug}` : null;
         prompt = buildStoreArticlePrompt(task.ev, task.store!, pillarUrl);
       }
-      articleResults.push(await publishArticle({ title: task.title, slug: task.slug, prompt, cover }));
-    }
+      return publishArticle({ title: task.title, slug: task.slug, prompt, cover })
+        .catch((e: any) => ({ slug: task.slug, error: e?.message || 'failed' }));
+    });
 
+    const articleResults = await Promise.all(articlePromises);
     const codeResults = await codesPromise;
 
     // ── Notify crawlers ────────────────────────────────────────────────────
