@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 import { submitIndexNow } from '@/lib/indexnow';
 import { isDuplicateOffer, type OfferLike } from '@/lib/couponSimilarity';
+import { getStoreUrl } from '@/lib/storeUrls';
 
 export const maxDuration = 300;
 export const dynamic = 'force-dynamic';
@@ -25,95 +26,6 @@ const COUPON_SOURCES = ['Dealabs', 'Ma-Reduc', 'Savoo', 'PlanReduc', 'Radins.com
 const STORES_PER_RUN = 3;
 const MIN_COUPONS = 3;
 
-const STORE_URLS: Record<string, string> = {
-  'shein': 'https://fr.shein.com',
-  'zara': 'https://www.zara.com/fr',
-  'hm': 'https://www2.hm.com/fr_fr',
-  'asos': 'https://www.asos.com/fr',
-  'mango': 'https://shop.mango.com/fr',
-  'boohoo': 'https://fr.boohoo.com',
-  'prettylittlething': 'https://www.prettylittlething.fr',
-  'zalando': 'https://www.zalando.fr',
-  'la-redoute': 'https://www.laredoute.fr',
-  'kiabi': 'https://www.kiabi.com',
-  'uniqlo': 'https://www.uniqlo.com/fr',
-  'lacoste': 'https://www.lacoste.com/fr',
-  'ralph-lauren': 'https://www.ralphlauren.fr',
-  'tommy-hilfiger': 'https://fr.tommy.com',
-  'calvin-klein': 'https://www.calvinklein.fr',
-  'bershka': 'https://www.bershka.com/fr',
-  'pull-and-bear': 'https://www.pullandbear.com/fr',
-  'etam': 'https://www.etam.com',
-  'veepee': 'https://www.veepee.fr',
-  'showroomprive': 'https://www.showroomprive.com',
-  'galeries-lafayette': 'https://www.galerieslafayette.com',
-  'printemps': 'https://www.printemps.com',
-  'jennyfer': 'https://www.jennyfer.com',
-  'celio': 'https://www.celio.com',
-  'jules': 'https://www.jules.com',
-  'promod': 'https://www.promod.fr',
-  'nike': 'https://www.nike.com/fr',
-  'adidas': 'https://www.adidas.fr',
-  'puma': 'https://eu.puma.com/fr',
-  'new-balance': 'https://www.newbalance.fr',
-  'foot-locker': 'https://www.footlocker.fr',
-  'decathlon': 'https://www.decathlon.fr',
-  'reebok': 'https://www.reebok.fr',
-  'asics': 'https://www.asics.com/fr',
-  'the-north-face': 'https://www.thenorthface.fr',
-  'timberland': 'https://www.timberland.fr',
-  'vans': 'https://www.vans.fr',
-  'converse': 'https://www.converse.com/fr',
-  'courir': 'https://www.courir.com',
-  'intersport': 'https://www.intersport.fr',
-  'skechers': 'https://www.skechers.fr',
-  'samsung': 'https://www.samsung.com/fr',
-  'apple': 'https://www.apple.com/fr',
-  'xiaomi': 'https://www.mi.com/fr',
-  'dyson': 'https://www.dyson.fr',
-  'philips': 'https://www.philips.fr',
-  'fnac': 'https://www.fnac.com',
-  'darty': 'https://www.darty.com',
-  'boulanger': 'https://www.boulanger.com',
-  'ldlc': 'https://www.ldlc.com',
-  'back-market': 'https://www.backmarket.fr',
-  'cdiscount': 'https://www.cdiscount.com',
-  'materiel-net': 'https://www.materiel.net',
-  'micromania': 'https://www.micromania.fr',
-  'booking': 'https://www.booking.com',
-  'expedia': 'https://www.expedia.fr',
-  'airbnb': 'https://www.airbnb.fr',
-  'sephora': 'https://www.sephora.fr',
-  'nocibe-fr': 'https://www.nocibe.fr',
-  'yves-rocher': 'https://www.yves-rocher.fr',
-  'marionnaud': 'https://www.marionnaud.fr',
-  'aroma-zone': 'https://www.aroma-zone.com',
-  'ikea': 'https://www.ikea.com/fr',
-  'leroy-merlin': 'https://www.leroymerlin.fr',
-  'conforama': 'https://www.conforama.fr',
-  'maisons-du-monde': 'https://www.maisonsdumonde.com',
-  'but': 'https://www.but.fr',
-  'bhv': 'https://www.bhv.fr',
-  'temu': 'https://www.temu.com/fr',
-  'amazon': 'https://www.amazon.fr',
-  'aliexpress': 'https://fr.aliexpress.com',
-  'auchan': 'https://www.auchan.fr',
-  'carrefour': 'https://www.carrefour.fr',
-  'leclerc': 'https://www.e.leclerc',
-  'rakuten': 'https://fr.shopping.rakuten.com',
-  'ebay': 'https://www.ebay.fr',
-  'sarenza': 'https://www.sarenza.com',
-  'spartoo': 'https://www.spartoo.com',
-  'trois-suisses': 'https://www.3suisses.fr',
-  'uber-eats': 'https://www.ubereats.com/fr',
-  'betclic': 'https://www.betclic.fr',
-};
-
-function getStoreUrl(slug: string, storeName: string): string {
-  if (STORE_URLS[slug]) return STORE_URLS[slug];
-  const clean = storeName.toLowerCase().replace(/\s+/g, '').replace(/[^a-z0-9]/g, '');
-  return `https://www.${clean}.fr`;
-}
 
 interface ScrapedCoupon {
   title: string;

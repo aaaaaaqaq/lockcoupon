@@ -13,6 +13,10 @@
       "schedule": "0 8 * * *"
     },
     {
+      "path": "/api/cron/events?secret=lockcoupon-cron-2026",
+      "schedule": "0 7 * * *"
+    },
+    {
       "path": "/api/cron/update-coupons?secret=lockcoupon-cron-2026",
       "schedule": "30 5 * * *"
     },
