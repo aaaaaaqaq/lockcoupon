@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
-import { submitIndexNow } from '@/lib/indexnow';
+import { submitIndexNow, storeUrlsWithIntents } from '@/lib/indexnow';
 import { isDuplicateOffer, sameDiscount, titleSimilarity, type OfferLike } from '@/lib/couponSimilarity';
 import { TEMU_AFFILIATE_URL, TEMU_CODES, TEMU_PINNED_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
 
@@ -403,8 +403,10 @@ export async function GET(request: Request) {
 
     // Tell crawlers the flagship pages changed (same-day recrawl).
     const storePages = ['temu', ...SEARCH_STORES.map((s) => s.slug)].map(STORE_PAGE);
+    // Intent sub-pages included: rotation can 404 or revive them — IndexNow
+    // must learn about dead links too (Bing SEO report, Aug 2026).
     const urls = [
-      ...storePages,
+      ...storeUrlsWithIntents(['temu', ...SEARCH_STORES.map((s) => s.slug)]),
       `${STORE_PAGE('temu')}/nouveau-client`,
       `${STORE_PAGE('temu')}/livraison-gratuite`,
     ];

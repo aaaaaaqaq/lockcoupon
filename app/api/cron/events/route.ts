@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
-import { submitIndexNow } from '@/lib/indexnow';
+import { submitIndexNow, storeUrlsWithIntents } from '@/lib/indexnow';
 import { isDuplicateOffer, sameDiscount, type OfferLike } from '@/lib/couponSimilarity';
 import { getStoreUrl } from '@/lib/storeUrls';
 import { getUpcomingEvents, formatDateFr, type ShoppingEventInstance } from '@/lib/shoppingEvents';
@@ -476,11 +476,13 @@ export async function GET(request: Request) {
 
     // ── Notify crawlers ────────────────────────────────────────────────────
     const newPostUrls = articleResults.filter((r) => !r.error).map((r) => `${SITE}/blog/${r.slug}`);
-    const storeUrls = todaysCodes.map((c) => STORE_PAGE(c.storeSlug));
-    const urls = [...newPostUrls, ...storeUrls];
+    const storePages = todaysCodes.map((c) => STORE_PAGE(c.storeSlug));
+    // IndexNow gets intent sub-pages too (dead-link freshness); Google
+    // Indexing API stays on posts + store pages to protect the daily quota.
+    const urls = [...newPostUrls, ...storePages];
     if (urls.length > 0) {
       await Promise.all([
-        submitIndexNow([...urls, `${SITE}/blog`]),
+        submitIndexNow([...newPostUrls, ...storeUrlsWithIntents(todaysCodes.map((c) => c.storeSlug)), `${SITE}/blog`]),
         pingSitemap(),
         notifyGoogle(urls),
       ]);

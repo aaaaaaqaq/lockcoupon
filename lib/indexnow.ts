@@ -11,9 +11,31 @@
  * Non-fatal by design: failures are logged, never thrown.
  */
 
+import { INTENT_SLUGS, isSuppressed } from './intentContent';
+
 const INDEXNOW_KEY = 'lockcoupon2026indexnow';
 const HOST = 'www.lockcoupon.com';
 const SITE_URL = `https://${HOST}`;
+
+/**
+ * Store page + all its programmatic intent sub-pages (suppressed combos
+ * excluded). Coupon-mutating crons submit THESE (not just the store page):
+ * intent pages exist only while ≥2 offers match, so a rotation can 404 a
+ * previously-live sub-page — Bing must be told about dead links too
+ * (Bing SEO report "Notify IndexNow of dead links", Aug 2026:
+ * /codes-promo/kiabi/soldes). Submitting a URL = recrawl request, valid for
+ * both new content and 404 discovery.
+ */
+export function storeUrlsWithIntents(storeSlugs: string[]): string[] {
+  const out: string[] = [];
+  for (const slug of storeSlugs) {
+    out.push(`${SITE_URL}/codes-promo/${slug}`);
+    for (const intent of INTENT_SLUGS) {
+      if (!isSuppressed(slug, intent)) out.push(`${SITE_URL}/codes-promo/${slug}/${intent}`);
+    }
+  }
+  return out;
+}
 
 export async function submitIndexNow(urls: string[]): Promise<void> {
   if (!urls || urls.length === 0) return;

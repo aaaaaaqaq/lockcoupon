@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
-import { submitIndexNow } from '@/lib/indexnow';
+import { submitIndexNow, storeUrlsWithIntents } from '@/lib/indexnow';
 import { isDuplicateOffer, type OfferLike } from '@/lib/couponSimilarity';
 import { getStoreUrl } from '@/lib/storeUrls';
 
@@ -360,8 +360,10 @@ export async function GET(request: Request) {
       .map((s: { slug: string }) => `https://www.lockcoupon.com/codes-promo/${s.slug}`);
     await pingSitemap();
     await notifyGoogle(updatedStoreUrls);
-    // IndexNow → Bing/Yandex instant recrawl (Bing powers ChatGPT search)
-    await submitIndexNow(updatedStoreUrls);
+    // IndexNow → Bing/Yandex instant recrawl (Bing powers ChatGPT search).
+    // Includes intent sub-pages: rotation can kill/revive them → Bing must
+    // recrawl to see 404s (dead-link freshness) or new pages.
+    await submitIndexNow(storeUrlsWithIntents(selectedStores.slice(0, 20).map((s: { slug: string }) => s.slug)));
 
     return NextResponse.json({
       success: true,
