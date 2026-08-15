@@ -138,11 +138,14 @@ export default async function StorePageSSR({ params }: Props) {
   if (!store) notFound();
 
   const coupons = await getCouponsByStoreId(store.id);
+  // Editorial how-to steps (Amazon…) feed BOTH the visible section
+  // (StorePageClient) and the HowTo JSON-LD — schema always matches the page.
+  const editorialSteps = getEditorial(store.slug)?.howToSteps?.(storeStats(coupons));
 
   return (
     <>
       <CouponSchema store={store} coupons={coupons} />
-      <HowToSchema store={store} />
+      <HowToSchema store={store} steps={editorialSteps} />
       <StorePageClient store={store} coupons={coupons} />
       <RecentVerifications store={store} coupons={coupons} />
       <RelatedArticles storeName={store.name} storeSlug={store.slug} />

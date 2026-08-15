@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 import { submitIndexNow, storeUrlsWithIntents } from '@/lib/indexnow';
 import { isDuplicateOffer, sameDiscount, titleSimilarity, type OfferLike } from '@/lib/couponSimilarity';
+import { reviewOffer, queueForReview } from '@/lib/couponReview';
 import { TEMU_AFFILIATE_URL, TEMU_CODES, TEMU_PINNED_CODES, OFFER_TEMPLATES } from '@/lib/temuOffers';
 
 /**
@@ -204,6 +205,8 @@ interface ScrapedOffer {
   discount_type: 'percent' | 'euro' | 'free' | 'cashback' | null;
   type: 'code' | 'bon' | 'cashback' | null;
   expiry_date: string | null;
+  source: string | null;
+  source_url: string | null;
 }
 
 function buildSearchPrompt(storeName: string): string {
@@ -223,13 +226,14 @@ RÈGLES D'EXTRACTION :
 - UNIQUEMENT des codes/offres réellement trouvés dans les résultats. Ne JAMAIS inventer un code.
 - Ignore les offres marquées expirées.
 - Vise 5 à 8 offres, priorité aux vrais codes alphanumériques ; complète avec les meilleures offres sans code (type "bon").
+- Pour CHAQUE offre, renseigne "source" (nom du site) et "source_url" (URL EXACTE de la page où tu as vu l'offre dans les résultats de recherche). Un code sans source_url réelle sera mis en quarantaine au lieu d'être publié — ne fabrique JAMAIS une URL.
 
 RÉÉCRITURE (important pour le SEO) :
 - title : réécris ENTIÈREMENT avec tes mots, accrocheur, 45-75 caractères, mentionne ${storeName}. INTERDIT de copier le titre du site source.
 - description : 55-90 mots, français naturel et original : ce que couvre l'offre, comment l'utiliser, conditions connues. Chaque description doit avoir un ton/angle différent.
 
 RÉPONSE : UNIQUEMENT un JSON valide (pas de backticks) :
-[{"title":"...","description":"...","code":"LECODE" ou null,"discount_value":"20" ou null,"discount_type":"percent"|"euro"|"free"|"cashback"|null,"type":"code"|"bon"|"cashback","expiry_date":"2026-08-31" ou null}]
+[{"title":"...","description":"...","code":"LECODE" ou null,"discount_value":"20" ou null,"discount_type":"percent"|"euro"|"free"|"cashback"|null,"type":"code"|"bon"|"cashback","expiry_date":"2026-08-31" ou null,"source":"Dealabs","source_url":"https://www.dealabs.com/..."}]
 
 Si RIEN trouvé : []`;
 }
@@ -261,7 +265,7 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
   defaultExpiry.setDate(defaultExpiry.getDate() + NEW_EXPIRY_DAYS);
   const defaultExpiryStr = defaultExpiry.toISOString().split('T')[0];
 
-  let inserted = 0, refreshed = 0, errors = 0;
+  let inserted = 0, refreshed = 0, errors = 0, quarantined = 0;
   const knownOffers: OfferLike[] = existing.map((e) => ({
     title: e.title, code: e.code, discount_value: e.discount_value, discount_type: e.discount_type,
   }));
@@ -306,6 +310,30 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
       (!candidate.code && !k.code && !!candidate.discount_value && !!k.discount_value && sameDiscount(candidate, k))
     );
     if (intraDupe) continue; // intra-batch dupe
+
+    // Review gate: a NEW code goes live only with a source_url on a trusted
+    // aggregator; anything else waits in coupon_review_queue for a human.
+    const verdict = reviewOffer({ code: offer.code || null, source: offer.source, source_url: offer.source_url });
+    if (!verdict.live) {
+      const q = await queueForReview(supabase, {
+        store_id: store.id,
+        store_slug: cfg.slug,
+        title: offer.title,
+        description: offer.description,
+        code: offer.code || null,
+        discount_value: offer.discount_value || null,
+        discount_type: offer.discount_type || null,
+        type: offer.type || (offer.code ? 'code' : 'bon'),
+        expiry_date: offer.expiry_date || null,
+        affiliate_url: cfg.url,
+        source: offer.source || null,
+        source_url: offer.source_url || null,
+        reason: verdict.reason || 'raison inconnue',
+        cron: 'daily-refresh',
+      });
+      if (q === 'queued') quarantined++;
+      continue;
+    }
 
     const { error: insErr } = await supabase.from('coupons').insert({
       store_id: store.id,
@@ -365,7 +393,7 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
     await supabase.from('coupons').update({ is_best: true }).eq('id', best.id);
   }
 
-  return { store: cfg.slug, found: found.length, inserted, refreshed, deleted, errors };
+  return { store: cfg.slug, found: found.length, inserted, refreshed, deleted, quarantined, errors };
 }
 
 // ─── Handler ─────────────────────────────────────────────────────────────

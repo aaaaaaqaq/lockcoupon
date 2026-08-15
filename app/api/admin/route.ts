@@ -17,7 +17,7 @@ const supabase = createClient(
   global: { fetch: (url: any, init?: any) => fetch(url, { ...init, cache: 'no-store' }) },
 });
 
-const TABLES = new Set(['stores', 'coupons', 'blog_posts', 'subscribers']);
+const TABLES = new Set(['stores', 'coupons', 'blog_posts', 'subscribers', 'coupon_review_queue']);
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -35,6 +35,44 @@ export async function POST(request: Request) {
   };
 
   if (action === 'verify') return NextResponse.json({ ok: true });
+
+  // ── Review queue lifecycle (coupon quarantine, Aug 2026) ──
+  // approve_review: copy the queued offer into live `coupons`, mark approved.
+  // reject_review: mark rejected. Both require match.id.
+  if (action === 'approve_review' || action === 'reject_review') {
+    const id = match && typeof match === 'object' ? (match as Record<string, unknown>).id : null;
+    if (!id) return NextResponse.json({ error: 'match.id required' }, { status: 400 });
+    const { data: row, error: selErr } = await supabase
+      .from('coupon_review_queue').select('*').eq('id', id).maybeSingle();
+    if (selErr) return NextResponse.json({ error: selErr.message }, { status: 500 });
+    if (!row) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+    if (row.status !== 'pending') return NextResponse.json({ error: `Already ${row.status}` }, { status: 400 });
+
+    if (action === 'approve_review') {
+      const { error: insErr } = await supabase.from('coupons').insert({
+        store_id: row.store_id,
+        title: row.title,
+        description: row.description,
+        code: row.code,
+        discount_value: row.discount_value,
+        discount_type: row.discount_type,
+        type: row.type || (row.code ? 'code' : 'bon'),
+        expiry_date: row.expiry_date,
+        is_best: false,
+        is_exclusive: false,
+        is_verified: true, // human-approved
+        affiliate_url: row.affiliate_url,
+        usage_count: 0,
+      });
+      if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
+    }
+    const { error: upErr } = await supabase
+      .from('coupon_review_queue')
+      .update({ status: action === 'approve_review' ? 'approved' : 'rejected', reviewed_at: new Date().toISOString() })
+      .eq('id', id);
+    return NextResponse.json({ error: upErr?.message || null });
+  }
+
   if (!table || !TABLES.has(table)) {
     return NextResponse.json({ error: 'Table not allowed' }, { status: 400 });
   }

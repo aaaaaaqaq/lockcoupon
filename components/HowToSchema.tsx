@@ -2,16 +2,30 @@ import { Store } from '@/lib/supabase';
 
 interface HowToSchemaProps {
   store: Store;
+  /** Editorial store-specific steps ({title, desc}); falls back to the
+   *  generic 3 steps. Must mirror the visible how-to section. */
+  steps?: { title: string; desc: string }[];
 }
 
-export default function HowToSchema({ store }: HowToSchemaProps) {
+export default function HowToSchema({ store, steps }: HowToSchemaProps) {
+  const customSteps = steps && steps.length >= 3
+    ? steps.map((s, i) => ({
+        '@type': 'HowToStep',
+        position: i + 1,
+        // Editorial titles carry a "1. " prefix for the visible cards — strip it here.
+        name: s.title.replace(/^\d+\.\s*/, ''),
+        text: s.desc,
+        ...(i === 0 ? { url: `https://www.lockcoupon.com/codes-promo/${store.slug}` } : {}),
+      }))
+    : null;
+
   const schema = {
     '@context': 'https://schema.org',
     '@type': 'HowTo',
     name: `Comment utiliser un code promo ${store.name}`,
     description: `Guide étape par étape pour utiliser un code promo ${store.name} et économiser sur vos achats en ligne.`,
     totalTime: 'PT2M',
-    step: [
+    step: customSteps || [
       {
         '@type': 'HowToStep',
         position: 1,

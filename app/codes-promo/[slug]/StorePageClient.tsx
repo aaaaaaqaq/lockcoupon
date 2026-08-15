@@ -14,6 +14,7 @@ import { allSubpagesFor } from '@/lib/storeSubpages';
 import { CATEGORIES, getCategoriesForStore } from '@/lib/categories';
 import AnswerBox from '@/components/AnswerBox';
 import { storeFaqItems, storeAboutSections, storeTips, storeStats } from '@/lib/storeContent';
+import { getEditorial } from '@/lib/storeEditorial';
 import { IconCheckCircle, IconChart, IconFlame, IconSearch, IconClipboard, IconBook, IconTrophy, IconStore, IconNewspaper } from '@/components/icons';
 
 interface StorePageClientProps {
@@ -82,6 +83,7 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
   // Unique per-store editorial content: category-aware intro, buying guidance
   // and offer-type explainer built from this store's live data (thin-content fix).
   const aboutSections = storeAboutSections(store, coupons);
+  const relatedLinks = getEditorial(store.slug)?.relatedLinks;
 
   return (
     <section className="bg-bg border-t border-border">
@@ -99,6 +101,18 @@ function StoreAboutSection({ store, coupons }: { store: Store; coupons: Coupon[]
                 <p>{section.text}</p>
               </div>
             ))}
+            {relatedLinks && relatedLinks.length > 0 && (
+              <p>
+                Vous comparez avant d&apos;acheter ? Consultez aussi{' '}
+                {relatedLinks.map((l, i) => (
+                  <span key={l.href}>
+                    {i > 0 && (i === relatedLinks.length - 1 ? ' et ' : ', ')}
+                    <Link href={l.href} className="text-primary hover:underline">notre {l.anchor}</Link>
+                  </span>
+                ))}
+                {' '}pour comparer les remises du moment.
+              </p>
+            )}
             <p>
               Vous cherchez d&apos;autres bons plans ? Consultez le{' '}
               <Link href="/top-codes-promo" className="text-primary hover:underline">top 20 des codes promo</Link>,
@@ -176,7 +190,17 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
             ))}
           </div>
 
-          {filtered.length === 0 && (
+          {coupons.length === 0 ? (
+            /* Honest zero-offer state — never fill the gap with invented codes */
+            <div className="text-center py-12">
+              <p className="text-text-main text-[17px] font-bold mb-2">Aucun code actif pour le moment</p>
+              <p className="text-muted text-[14px] max-w-[520px] mx-auto">
+                Nos vérifications tournent plusieurs fois par jour et les offres expirées sont
+                retirées immédiatement — nous préférons une liste vide à un code inventé.
+                Repassez un peu plus tard, ou explorez les boutiques similaires en bas de page.
+              </p>
+            </div>
+          ) : filtered.length === 0 && (
             <div className="text-center py-12 text-muted">
               <p className="text-[16px]">Aucun coupon trouvé dans cette catégorie.</p>
             </div>
@@ -190,17 +214,33 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
               Comment utiliser un code promo {store.name}
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              {[
-                { icon: <IconSearch size={30} className="text-primary" />, title: '1. Choisissez votre code', desc: `Parcourez les ${stats.offerCount} offres ${store.name} ci-dessus et trouvez celle qui correspond à vos achats.` },
-                { icon: <IconClipboard size={30} className="text-primary" />, title: '2. Copiez le code', desc: `Cliquez sur "Voir le code" pour le révéler. Il est automatiquement copié dans votre presse-papier.` },
-                { icon: <IconCheckCircle size={30} className="text-green-600" />, title: '3. Profitez de la réduction', desc: `Rendez-vous sur ${store.name}, remplissez votre panier et collez le code au moment du paiement.` },
-              ].map((step, i) => (
-                <div key={i} className="bg-white border border-border rounded-xl p-5 text-center">
-                  <div className="mb-3 flex justify-center">{step.icon}</div>
-                  <h3 className="text-text-main text-[15px] font-bold mb-2">{step.title}</h3>
-                  <p className="text-muted text-[13px] leading-relaxed">{step.desc}</p>
-                </div>
-              ))}
+              {(() => {
+                // Store-specific steps (editorial, 4-6) override the generic 3;
+                // HowToSchema (page.tsx) reads the same source so JSON-LD matches.
+                const stepIcons = [
+                  <IconSearch key="i0" size={30} className="text-primary" />,
+                  <IconClipboard key="i1" size={30} className="text-primary" />,
+                  <IconStore key="i2" size={30} className="text-primary" />,
+                  <IconClipboard key="i3" size={30} className="text-primary" />,
+                  <IconCheckCircle key="i4" size={30} className="text-green-600" />,
+                  <IconTrophy key="i5" size={30} className="text-primary" />,
+                ];
+                const custom = getEditorial(store.slug)?.howToSteps?.(stats);
+                const steps = custom && custom.length >= 3
+                  ? custom.map((s, i) => ({ icon: stepIcons[Math.min(i, stepIcons.length - 1)], title: s.title, desc: s.desc }))
+                  : [
+                      { icon: stepIcons[0], title: '1. Choisissez votre code', desc: `Parcourez les ${stats.offerCount} offres ${store.name} ci-dessus et trouvez celle qui correspond à vos achats.` },
+                      { icon: stepIcons[1], title: '2. Copiez le code', desc: `Cliquez sur "Voir le code" pour le révéler. Il est automatiquement copié dans votre presse-papier.` },
+                      { icon: stepIcons[4], title: '3. Profitez de la réduction', desc: `Rendez-vous sur ${store.name}, remplissez votre panier et collez le code au moment du paiement.` },
+                    ];
+                return steps.map((step, i) => (
+                  <div key={i} className="bg-white border border-border rounded-xl p-5 text-center">
+                    <div className="mb-3 flex justify-center">{step.icon}</div>
+                    <h3 className="text-text-main text-[15px] font-bold mb-2">{step.title}</h3>
+                    <p className="text-muted text-[13px] leading-relaxed">{step.desc}</p>
+                  </div>
+                ));
+              })()}
             </div>
           </div>
         </section>

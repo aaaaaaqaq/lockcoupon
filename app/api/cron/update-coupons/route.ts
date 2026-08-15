@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import { pingSitemap, notifyGoogle } from '@/lib/google-indexing';
 import { submitIndexNow, storeUrlsWithIntents } from '@/lib/indexnow';
 import { isDuplicateOffer, type OfferLike } from '@/lib/couponSimilarity';
+import { reviewOffer, queueForReview } from '@/lib/couponReview';
 import { getStoreUrl } from '@/lib/storeUrls';
 
 export const maxDuration = 300;
@@ -35,6 +36,7 @@ interface ScrapedCoupon {
   type: 'code' | 'cashback' | 'bon' | null;
   expiry_date: string | null;
   source: string;
+  source_url: string | null;
 }
 
 interface StoreRecord {
@@ -73,9 +75,12 @@ RÉPONSE : Réponds UNIQUEMENT avec un JSON valide (pas de backticks, pas de tex
     "discount_type": "percent" ou "euro" ou "free" ou "cashback" ou null,
     "type": "code" ou "bon" ou "cashback",
     "expiry_date": "2026-04-30" ou null si pas de date,
-    "source": "nom du site source (Dealabs, Ma-Reduc, etc.)"
+    "source": "nom du site source (Dealabs, Ma-Reduc, etc.)",
+    "source_url": "URL EXACTE de la page où tu as vu l'offre (jamais inventée)"
   }
 ]
+
+IMPORTANT : un code sans source_url réelle sera mis en quarantaine au lieu d'être publié. Ne fabrique JAMAIS une URL.
 
 Si tu ne trouves AUCUN code promo valide, réponds exactement : []`;
 }
@@ -106,7 +111,8 @@ RÉPONSE : Réponds UNIQUEMENT avec un JSON valide (pas de backticks) :
     "discount_type": "percent" ou "euro" ou "free" ou "cashback" ou null,
     "type": "code" ou "bon" ou "cashback",
     "expiry_date": "2026-04-30" ou null,
-    "source": "nom du site source"
+    "source": "nom du site source",
+    "source_url": "URL EXACTE de la page où tu as vu l'offre (jamais inventée)"
   }
 ]
 
@@ -151,8 +157,8 @@ async function callClaude(prompt: string): Promise<ScrapedCoupon[]> {
   } catch { return []; }
 }
 
-async function upsertCoupons(storeId: string, storeSlug: string, storeName: string, coupons: ScrapedCoupon[]): Promise<{ inserted: number; skipped: number; errors: number }> {
-  let inserted = 0, skipped = 0, errors = 0;
+async function upsertCoupons(storeId: string, storeSlug: string, storeName: string, coupons: ScrapedCoupon[]): Promise<{ inserted: number; skipped: number; quarantined: number; errors: number }> {
+  let inserted = 0, skipped = 0, quarantined = 0, errors = 0;
   const storeUrl = getStoreUrl(storeSlug, storeName);
 
   // Uniqueness guard (2026-07-27 dedupe): fetch the store's existing offers
@@ -182,6 +188,30 @@ async function upsertCoupons(storeId: string, storeSlug: string, storeName: stri
 
       if (isDuplicate) { skipped++; continue; }
 
+      // Review gate: a NEW code goes live only with a source_url on a trusted
+      // aggregator; anything else waits in coupon_review_queue for a human.
+      const verdict = reviewOffer({ code: coupon.code || null, source: coupon.source, source_url: coupon.source_url });
+      if (!verdict.live) {
+        const q = await queueForReview(supabase, {
+          store_id: storeId,
+          store_slug: storeSlug,
+          title: coupon.title,
+          description: null,
+          code: coupon.code || null,
+          discount_value: coupon.discount_value || null,
+          discount_type: coupon.discount_type || null,
+          type: coupon.type || (coupon.code ? 'code' : 'bon'),
+          expiry_date: coupon.expiry_date || null,
+          affiliate_url: storeUrl,
+          source: coupon.source || null,
+          source_url: coupon.source_url || null,
+          reason: verdict.reason || 'raison inconnue',
+          cron: 'update-coupons',
+        });
+        if (q === 'queued') quarantined++;
+        continue;
+      }
+
       const { error: insertError } = await supabase.from('coupons').insert({
         store_id: storeId,
         title: coupon.title,
@@ -192,7 +222,8 @@ async function upsertCoupons(storeId: string, storeSlug: string, storeName: stri
         expiry_date: coupon.expiry_date || null,
         is_best: false,
         is_exclusive: false,
-        is_verified: false,
+        // Passed the review gate: codes here carry a trusted source_url.
+        is_verified: !!coupon.code,
         affiliate_url: storeUrl,
         usage_count: 0,
       });
@@ -200,7 +231,7 @@ async function upsertCoupons(storeId: string, storeSlug: string, storeName: stri
       if (insertError) { errors++; } else { inserted++; existingOffers.push(candidate); }
     } catch { errors++; }
   }
-  return { inserted, skipped, errors };
+  return { inserted, skipped, quarantined, errors };
 }
 
 async function getStoreCouponCount(storeId: string): Promise<number> {
@@ -304,6 +335,7 @@ export async function GET(request: Request) {
       needed_extra: boolean;
       found_extra: number;
       inserted_extra: number;
+      quarantined: number;
       coupons_after: number;
     }> = [];
 
@@ -313,9 +345,11 @@ export async function GET(request: Request) {
 
       const updateCoupons = await callClaude(buildSearchPrompt(store.name));
       let insertedUpdate = 0;
+      let quarantinedTotal = 0;
       if (updateCoupons.length > 0) {
         const r = await upsertCoupons(store.id, store.slug, store.name, updateCoupons);
         insertedUpdate = r.inserted;
+        quarantinedTotal += r.quarantined;
       }
 
       const couponsAfterUpdate = await getStoreCouponCount(store.id);
@@ -331,6 +365,7 @@ export async function GET(request: Request) {
         if (extraCoupons.length > 0) {
           const r = await upsertCoupons(store.id, store.slug, store.name, extraCoupons);
           insertedExtra = r.inserted;
+          quarantinedTotal += r.quarantined;
         }
       }
 
@@ -346,6 +381,7 @@ export async function GET(request: Request) {
         needed_extra: neededExtra,
         found_extra: foundExtra,
         inserted_extra: insertedExtra,
+        quarantined: quarantinedTotal,
         coupons_after: couponsAfter,
       };
 

@@ -30,12 +30,70 @@ export interface StoreEditorial {
   faq: (s: StoreStats) => FaqItem[];
   /** Optional replacement for the generated tips block. */
   tips?: (s: StoreStats) => { icon: string; tip: string }[];
+  /** Optional replacement for the generic 3-step how-to (store-specific,
+   *  4-6 steps). Also feeds the HowTo JSON-LD so schema matches the page. */
+  howToSteps?: (s: StoreStats) => { title: string; desc: string }[];
+  /** Optional related-merchant links (descriptive French anchors), rendered
+   *  at the end of the about block for internal linking. */
+  relatedLinks?: { href: string; anchor: string }[];
 }
 
 const nbOffres = (s: StoreStats) =>
   `${s.offerCount} offre${s.offerCount > 1 ? 's' : ''}`;
 
 export const EDITORIAL: Record<string, StoreEditorial> = {
+  /* ───────────────────────────── AMAZON ───────────────────────────── */
+  amazon: {
+    intro: (s) =>
+      `« Amazon code promo » est l'une des recherches shopping les plus tapées de France — et l'une de celles qui ramènent le plus de codes morts, recopiés de site en site depuis des mois. Cette page prend le contre-pied : nous suivons ${nbOffres(s)} Amazon réellement actives en ${s.month}${s.bestDiscount ? `, avec une remise maximale vérifiée de ${s.bestDiscount}` : ''}, entre codes promo à saisir au paiement, coupons à cocher sur les fiches produits et avantages réservés aux membres Prime. Chaque offre affiche ses conditions exactes — minimum d'achat, sélection concernée, Prime ou non — pour que votre code de remise Amazon fonctionne du premier coup.`,
+    metaDescription: (s) =>
+      `✅ ${s.offerCount} offre${s.offerCount > 1 ? 's' : ''} Amazon vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month} : codes promo actifs, coupons et remises Prime testés sur amazon.fr${s.bestDiscount ? ` · Jusqu'à ${s.bestDiscount} de réduction` : ''}.`,
+    about: (s) => [
+      {
+        heading: 'Où Amazon cache vraiment ses réductions',
+        text: `Contrairement aux boutiques classiques, Amazon distribue peu de codes publics : l'essentiel des remises passe par d'autres mécanismes. Les coupons Amazon d'abord — cette case à cocher sur certaines fiches produits, qui déduit la remise automatiquement au paiement, sans code à saisir. Les Ventes Flash ensuite, renouvelées plusieurs fois par jour. Viennent enfin Amazon Warehouse (produits retournés ou reconditionnés, remisés selon leur état), l'Outlet (fins de série) et « Abonnez-vous et économisez » sur les produits du quotidien. Les codes promo Amazon actifs, eux, sont presque toujours liés à une opération précise : première commande via l'application, retrait en point relais, catégorie ciblée… C'est exactement ce que recense la liste en haut de page${s.codeCount > 0 ? `, avec ${s.codeCount} code${s.codeCount > 1 ? 's' : ''} à saisir en ${s.month}` : ''}.`,
+      },
+      {
+        heading: 'Codes promo Amazon actifs : notre méthode de vérification',
+        text: `Chaque code Amazon publié ici doit être accompagné d'une preuve de source avant publication ; un code que nous ne pouvons pas tracer part en file de relecture manuelle au lieu d'apparaître sur cette page. Les offres expirées sont purgées quotidiennement et la date de dernière vérification s'affiche en haut de page. Un code Amazon a par ailleurs presque toujours des conditions — réservé aux membres Prime, à la première commande, à une catégorie précise — que nous indiquons sous chaque offre. Si un code est refusé au paiement, vérifiez d'abord que vos articles sont « Expédiés par Amazon » : la plupart des codes excluent les vendeurs tiers de la marketplace.`,
+      },
+      {
+        heading: 'Prime, Warehouse, Abonnez-vous et économisez : réduire la note sans coupon Amazon',
+        text: `Le coupon Amazon n'est pas toujours la meilleure affaire. L'abonnement Prime amortit vite son coût si vous commandez régulièrement : livraison rapide illimitée, Prime Video et accès anticipé aux Ventes Flash ; les étudiants bénéficient de Prime Student, avec une période d'essai gratuite puis un tarif réduit de moitié. Amazon Warehouse est un réflexe à prendre pour le high-tech : produits contrôlés, remisés selon l'état, avec les mêmes droits de retour. Enfin, « Abonnez-vous et économisez » réduit le prix des produits récurrents (courses, hygiène, bébé) et se cumule avec les coupons des fiches produits — souvent la remise totale la plus élevée du site.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: 'Les codes promo Amazon sont-ils cumulables ?',
+        answer: `Non — Amazon n'accepte qu'un seul code promotionnel par commande. En revanche, un code se cumule avec les remises automatiques : coupons à cocher sur les fiches produits, prix Ventes Flash et remise « Abonnez-vous et économisez ». Pour maximiser la réduction, appliquez d'abord ces remises automatiques, puis saisissez le code le plus avantageux au moment du paiement.`,
+      },
+      {
+        question: 'Pourquoi mon code promo Amazon ne fonctionne-t-il pas ?',
+        answer: `Dans la grande majorité des cas, l'une de ces conditions n'est pas remplie : montant minimum d'achat non atteint, code réservé aux membres Prime ou à la première commande, article vendu par un vendeur tiers de la marketplace plutôt qu'« Expédié par Amazon », catégorie non éligible, ou code déjà utilisé sur votre compte. Vérifiez les conditions affichées sous chaque offre de cette page avant de conclure qu'un code est expiré.`,
+      },
+      {
+        question: `Existe-t-il un code de remise Amazon sans minimum d'achat ?`,
+        answer: `C'est rare : la plupart des codes Amazon exigent un panier minimum ou visent une sélection précise. Si aucun code sans minimum n'est listé ci-dessus, la meilleure alternative reste les coupons à cocher directement sur les fiches produits : ils s'appliquent sans code et généralement sans minimum, la remise étant déduite automatiquement au paiement.`,
+      },
+      {
+        question: 'Amazon propose-t-il des réductions pour les étudiants ?',
+        answer: `Oui. Prime Student, réservé aux étudiants, offre une période d'essai gratuite puis un abonnement à moitié prix par rapport à Prime classique, avec les mêmes avantages : livraison rapide, Prime Video et Ventes Flash en avant-première. Quand une offre Prime Student est active, elle figure dans la liste en haut de cette page.`,
+      },
+    ],
+    howToSteps: (s) => [
+      { title: '1. Choisissez votre offre', desc: `Parcourez les ${s.offerCount} offres Amazon vérifiées ci-dessus et repérez celle qui correspond à votre panier — chaque carte précise ses conditions (minimum d'achat, Prime, catégorie).` },
+      { title: '2. Copiez le code', desc: `Cliquez sur « Voir le code » : il s'affiche et se copie automatiquement dans votre presse-papier.` },
+      { title: '3. Remplissez votre panier sur amazon.fr', desc: `Ajoutez vos articles en privilégiant la mention « Expédié par Amazon » — la plupart des codes excluent les vendeurs tiers de la marketplace.` },
+      { title: '4. Collez le code au paiement', desc: `À l'étape du paiement, collez le code dans le champ « Cartes cadeaux et codes promotionnels », puis cliquez sur « Appliquer ».` },
+      { title: '5. Vérifiez la remise avant de valider', desc: `Le montant déduit apparaît dans le récapitulatif de commande. S'il n'apparaît pas, revérifiez les conditions de l'offre avant de confirmer.` },
+    ],
+    relatedLinks: [
+      { href: '/codes-promo/cdiscount', anchor: 'code promo Cdiscount' },
+      { href: '/codes-promo/fnac', anchor: 'codes promo Fnac vérifiés' },
+      { href: '/codes-promo/aliexpress', anchor: 'code réduction AliExpress' },
+    ],
+  },
+
   /* ────────────────────────────── TEMU ────────────────────────────── */
   temu: {
     intro: (s) =>
