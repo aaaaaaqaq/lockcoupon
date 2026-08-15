@@ -64,6 +64,7 @@ export default function Footer() {
               <Link href="/contact" className="block text-white/50 hover:text-white text-[13px] transition-colors">Contact</Link>
               <Link href="/politique-de-confidentialite" className="block text-white/50 hover:text-white text-[13px] transition-colors">Politique de confidentialité</Link>
               <Link href="/conditions-utilisation" className="block text-white/50 hover:text-white text-[13px] transition-colors">Conditions d&apos;utilisation</Link>
+              <a href="mailto:partnerships@lockcoupon.com" className="block text-white/50 hover:text-white text-[13px] transition-colors break-all">partnerships@lockcoupon.com</a>
             </div>
           </nav>
 
