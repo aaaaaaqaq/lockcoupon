@@ -63,7 +63,7 @@ export default function AboutPage() {
             <p>
               Vous avez une question, une suggestion ou un partenariat à proposer ? N&apos;hésitez pas à nous écrire via notre{' '}
               <Link href="/contact" className="text-primary hover:underline">page de contact</Link>.
-              Vous pouvez aussi nous envoyer un email directement à contact@lockcoupon.com.
+              Vous pouvez aussi nous envoyer un email directement à partnerships@lockcoupon.com.
             </p>
           </div>
 

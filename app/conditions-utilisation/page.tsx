@@ -81,7 +81,7 @@ export default function TermsPage() {
 
             <section>
               <h2 className="text-text-main text-[20px] font-bold mb-3">11. Contact</h2>
-              <p>Pour toute question concernant ces conditions, veuillez nous contacter à contact@lockcoupon.com ou via notre <Link href="/contact" className="text-primary hover:underline">page de contact</Link>.</p>
+              <p>Pour toute question concernant ces conditions, veuillez nous contacter à partnerships@lockcoupon.com ou via notre <Link href="/contact" className="text-primary hover:underline">page de contact</Link>.</p>
             </section>
           </div>
 

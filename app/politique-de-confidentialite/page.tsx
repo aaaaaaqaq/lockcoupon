@@ -72,7 +72,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-text-main text-[20px] font-bold mb-3">8. Vos droits (RGPD)</h2>
-              <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression, de limitation du traitement et de portabilité de vos données. Vous avez également le droit de retirer votre consentement à tout moment. Pour exercer ces droits, contactez-nous à : contact@lockcoupon.com</p>
+              <p>Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d&apos;un droit d&apos;accès, de rectification, de suppression, de limitation du traitement et de portabilité de vos données. Vous avez également le droit de retirer votre consentement à tout moment. Pour exercer ces droits, contactez-nous à : partnerships@lockcoupon.com</p>
             </section>
 
             <section>
@@ -82,7 +82,7 @@ export default function PrivacyPage() {
 
             <section>
               <h2 className="text-text-main text-[20px] font-bold mb-3">10. Contact</h2>
-              <p>Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter à contact@lockcoupon.com ou via notre <Link href="/contact" className="text-primary hover:underline">page de contact</Link>.</p>
+              <p>Pour toute question relative à cette politique de confidentialité ou pour exercer vos droits, vous pouvez nous contacter à partnerships@lockcoupon.com ou via notre <Link href="/contact" className="text-primary hover:underline">page de contact</Link>.</p>
             </section>
           </div>
 

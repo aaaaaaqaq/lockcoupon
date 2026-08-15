@@ -71,7 +71,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer service',
-      email: 'contact@lockcoupon.com',
+      email: 'partnerships@lockcoupon.com',
       availableLanguage: 'French',
     },
   };

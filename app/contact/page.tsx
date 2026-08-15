@@ -12,7 +12,7 @@ export default function ContactPage() {
 
   const handleSubmit = () => {
     if (!form.name || !form.email || !form.message) return;
-    const mailtoLink = `mailto:contact@lockcoupon.com?subject=${encodeURIComponent(form.subject || 'Contact LockCoupon')}&body=${encodeURIComponent(`Nom: ${form.name}\nEmail: ${form.email}\n\n${form.message}`)}`;
+    const mailtoLink = `mailto:partnerships@lockcoupon.com?subject=${encodeURIComponent(form.subject || 'Contact LockCoupon')}&body=${encodeURIComponent(`Nom: ${form.name}\nEmail: ${form.email}\n\n${form.message}`)}`;
     window.open(mailtoLink);
     setSent(true);
   };
@@ -74,7 +74,7 @@ export default function ContactPage() {
             <h2 className="text-text-main text-[20px] font-bold mb-3">Autres moyens de nous joindre</h2>
             <div className="text-muted text-[14px] leading-relaxed space-y-3">
               <p>
-                Vous pouvez nous écrire directement à <strong className="text-text-main">contact@lockcoupon.com</strong>.
+                Vous pouvez nous écrire directement à <strong className="text-text-main">partnerships@lockcoupon.com</strong>.
                 Notre équipe répond généralement sous 24 heures ouvrées.
               </p>
               <p>
