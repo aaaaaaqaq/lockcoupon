@@ -11,7 +11,7 @@
  * Non-fatal by design: failures are logged, never thrown.
  */
 
-import { INTENT_SLUGS, isSuppressed } from './intentContent';
+import { INTENT_SLUGS, isSuppressed, intentIndexable } from './intentContent';
 
 const INDEXNOW_KEY = 'lockcoupon2026indexnow';
 const HOST = 'www.lockcoupon.com';
@@ -30,6 +30,10 @@ export function storeUrlsWithIntents(storeSlugs: string[]): string[] {
   const out: string[] = [];
   for (const slug of storeSlugs) {
     out.push(`${SITE_URL}/codes-promo/${slug}`);
+    // Only ping intent URLs for stores whose intent pages are indexable
+    // (editorial stores) — the rest are noindexed (GSC Aug 2026), pinging
+    // them would just invite crawls of pages we told engines to skip.
+    if (!intentIndexable(slug)) continue;
     for (const intent of INTENT_SLUGS) {
       if (!isSuppressed(slug, intent)) out.push(`${SITE_URL}/codes-promo/${slug}/${intent}`);
     }

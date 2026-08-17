@@ -81,7 +81,6 @@ export const STORE_URLS: Record<string, string> = {
   'spartoo': 'https://www.spartoo.com',
   'trois-suisses': 'https://www.3suisses.fr',
   'uber-eats': 'https://www.ubereats.com/fr',
-  'betclic': 'https://www.betclic.fr',
 };
 
 export function getStoreUrl(slug: string, storeName: string): string {

@@ -20,6 +20,12 @@
 import type { StoreStats, FaqItem, AboutSection } from './storeContent';
 
 export interface StoreEditorial {
+  /** Optional replacement for the generated <title> ladder (buildTitle in
+   *  app/codes-promo/[slug]/page.tsx). Must stay ≤ 52 chars raw — the root
+   *  layout appends " | LockCoupon" (+13) and Bing flags rendered titles
+   *  > 65 chars. Used when a store ranks on queries the generic
+   *  "Code Promo X" pattern doesn't cover (e.g. adidas → "adidas coupon"). */
+  title?: (s: StoreStats) => string;
   /** Hero/about lead paragraph — must interpolate live stats. */
   intro: (s: StoreStats) => string;
   /** Custom meta description (CTR rescue) — keep ≤ 160 chars if possible. */
@@ -163,9 +169,9 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
   /* ────────────────────────────── SHEIN ───────────────────────────── */
   shein: {
     intro: (s) =>
-      `Chez SHEIN, le code promo n'est que la moitié de l'équation : la plateforme superpose points de fidélité, ventes flash triquotidiennes, remises app-exclusives et cashback — et la plupart de ces leviers se cumulent au même paiement. En ${s.month}, cette page suit ${nbOffres(s)} SHEIN vérifiée${s.offerCount > 1 ? 's' : ''}${s.bestDiscount ? ` (jusqu'à ${s.bestDiscount})` : ''}, du bon d'inscription au cashback permanent, avec les conditions exactes de chacune. Objectif : que vous ne payiez jamais le prix affiché sur shein.com.`,
+      `Chez SHEIN, le code promo n'est que la moitié de l'équation : la plateforme superpose points de fidélité, ventes flash triquotidiennes — les fameux « deals » du jour —, remises app-exclusives et cashback, et la plupart de ces leviers se cumulent au même paiement. En ${s.month}, cette page suit ${nbOffres(s)} SHEIN vérifiée${s.offerCount > 1 ? 's' : ''}${s.bestDiscount ? ` (jusqu'à ${s.bestDiscount})` : ''} : codes promo, deals et bons plans sans code, du bon d'inscription au cashback permanent, avec les conditions exactes de chacune. Objectif : que vous ne payiez jamais le prix affiché sur shein.com.`,
     metaDescription: (s) =>
-      `${nbOffres(s)} SHEIN vérifiées en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes, points cumulables, cashback et livraison offerte dès 29€. Conditions réelles testées, sans codes morts.`,
+      `${nbOffres(s)} SHEIN vérifiées en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes, deals & bons plans, cashback et livraison offerte dès 29€. Conditions réelles testées, sans codes morts.`,
     about: (s) => [
       {
         heading: 'Codes SHEIN + points fidélité : le cumul que presque personne n\u2019utilise',
@@ -589,49 +595,60 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
     ],
   },
 
-  /* ───────────────────────────── BETCLIC ────────────────────────────── */
-  betclic: {
+  /* ───────────────────────────── ADIDAS ────────────────────────────── */
+  // GSC Aug 2026: /codes-promo/adidas ranks p.1 for "adidas coupon" (7.6),
+  // "adidas code" (9.8) and "adidas coupon code" (10.0) — English-word
+  // queries typed by FRENCH users — with ZERO clicks. Title + copy must
+  // therefore carry BOTH "code promo Adidas" and "coupon Adidas" naturally.
+  adidas: {
+    title: (s) => {
+      const MAX = 52; // root layout appends " | LockCoupon" (+13), cap 65
+      const monthCap = s.month.charAt(0).toUpperCase() + s.month.slice(1);
+      const disc = s.bestDiscount ? ` -${s.bestDiscount.replace(/^-/, '')}` : '';
+      const candidates = [
+        `Coupon Adidas → ${s.codeCount || s.offerCount} codes promo vérifiés${disc} | ${monthCap}`,
+        `Coupon Adidas → ${s.codeCount || s.offerCount} codes vérifiés${disc} | ${monthCap}`,
+        `Coupon & Code Promo Adidas${disc} | ${monthCap}`,
+        `Coupon & Code Promo Adidas | ${monthCap}`,
+        `Code Promo Adidas ${new Date().getFullYear()}`,
+      ];
+      return candidates.find((c) => c.length <= MAX) ?? candidates[candidates.length - 1];
+    },
     intro: (s) =>
-      `Betclic ne fonctionne pas comme une boutique classique : ici, pas de « -20% sur le panier », mais une offre de bienvenue sous forme de premier pari remboursé en paris gratuits, des boosts de cotes quotidiens et des missions dans l'application. En ${s.month}, cette page vérifie ${nbOffres(s)} Betclic active${s.offerCount > 1 ? 's' : ''} — avec les conditions réelles de chaque offre (mise minimale, délais d'utilisation des freebets) expliquées sans le jargon. Réservé aux plus de 18 ans : les jeux d'argent comportent des risques.`,
+      `Coupon Adidas, code promo ou remise adiClub : chez adidas, les vraies économies passent par trois canaux distincts qui ne se valent pas — et qui, parfois, se cumulent. En ${s.month}, cette page vérifie ${nbOffres(s)} adidas${s.bestDiscount ? ` (jusqu'à ${s.bestDiscount} de réduction)` : ''}, du code promo classique à saisir en caisse aux ventes outlet permanentes, avec les conditions réelles de chaque offre : minimum d'achat, exclusions (les nouveautés et collabs sont presque toujours hors périmètre) et cumul possible avec les avantages membres adiClub.`,
     metaDescription: (s) =>
-      `Offre Betclic vérifiée en ${s.month} : premier pari remboursé en paris gratuits, boosts de cotes, missions appli. Conditions réelles expliquées. 18+, jouez responsable.`,
+      `✅ ${nbOffres(s)} & coupons Adidas testés en ${s.month}${s.bestDiscount ? ` : jusqu'à ${s.bestDiscount}` : ''} sur sneakers, survêtements et outlet. Codes promo vérifiés aujourd'hui, conditions réelles incluses.`,
     about: (s) => [
       {
-        heading: 'Comment fonctionne l\u2019offre de bienvenue Betclic',
-        text: `L'offre nouveau client de Betclic suit toujours la même mécanique : votre premier pari est remboursé s'il est perdant, sous forme de paris gratuits (freebets), jusqu'à un plafond défini par l'opération en cours. Points à connaître avant de se lancer : le remboursement couvre le premier pari uniquement (d'où l'intérêt de ne pas le « gaspiller » sur une petite mise), les freebets doivent être utilisés dans un délai limité, et les gains issus d'un freebet sont versés hors mise initiale. Un code promo Betclic se saisit au moment de l'inscription — pas après — et l'offre est strictement réservée aux nouveaux comptes vérifiés (identité + RIB), conformément à la réglementation ANJ.`,
+        heading: 'Coupon Adidas, code promo, remise adiClub : quelle différence ?',
+        text: `Trois mécaniques coexistent chez adidas et beaucoup d'acheteurs les confondent. Le code promo Adidas (ou « coupon Adidas », le terme anglais que tape la moitié des chercheurs français) est une suite de caractères à saisir dans le champ dédié du panier — c'est ce que recense la liste en haut de page${s.codeCount > 0 ? `, avec ${s.codeCount} code${s.codeCount > 1 ? 's' : ''} actif${s.codeCount > 1 ? 's' : ''} en ${s.month}` : ''}. La remise adiClub, elle, est liée à votre compte membre : offres personnalisées, accès anticipé aux soldes et bons d'achat contre des points. Enfin, l'outlet adidas affiche des prix déjà barrés, sans code — mais un coupon « outlet » peut parfois s'y ajouter, c'est le meilleur cumul du site. Avant de payer, vérifiez toujours les trois canaux : le bon réflexe prend dix secondes et évite de rater une remise supérieure.`,
       },
       {
-        heading: 'Au-delà du bonus : boosts de cotes, missions et MyBetclic',
-        text: `Une fois l'offre de bienvenue consommée, Betclic reste l'un des opérateurs français les plus actifs en promotions récurrentes : cotes boostées quotidiennes sur les grandes affiches (Ligue 1, Ligue des Champions, tennis), missions dans l'application qui débloquent des freebets, et opérations spéciales pendant les grands tournois. Le programme MyBetclic centralise ces avantages personnalisés. Réflexe utile : consulter l'onglet promotions avant chaque gros événement sportif — c'est là que les offres les plus intéressantes tombent, souvent pour 24 à 48h seulement.`,
+        heading: 'adiClub : le programme qui débloque les meilleurs coupons Adidas',
+        text: `L'inscription à adiClub est gratuite et change immédiatement la donne : les membres reçoivent un code de bienvenue sur leur première commande, la livraison standard offerte sans minimum, et cumulent des points sur chaque achat comme sur leurs activités Running (via l'app adidas Running). Ces points se convertissent en bons de réduction exclusifs — souvent plus généreux que les codes publics. Les niveaux supérieurs ouvrent l'accès anticipé aux drops et aux soldes membres, ces ventes privées où les pourcentages dépassent ce qu'un coupon Adidas classique offre au grand public. Si vous achetez adidas plus d'une fois par an, adiClub est objectivement le premier « code promo » à activer.`,
       },
       {
-        heading: 'Jeu responsable : les règles du jeu en France',
-        text: `Betclic est un opérateur agréé par l'Autorité Nationale des Jeux (ANJ) : inscription réservée aux majeurs, vérification d'identité obligatoire avant tout retrait, et outils de modération intégrés — limites de dépôt, auto-exclusion, historique des mises. Aucune offre listée sur cette page ne transforme les paris en « argent facile » : un bonus rembourse au mieux une partie du risque, jamais la totalité. Fixez un budget avant de parier et tenez-vous-y. Besoin d'aide ? Joueurs Info Service : 09 74 75 13 13 (appel non surtaxé).`,
+        heading: 'Outlet, fins de série et périodes chaudes : payer sa paire au juste prix',
+        text: `La section outlet d'adidas.fr est alimentée en continu par les fins de série : sneakers icônes (Samba, Gazelle, Campus, Stan Smith selon les stocks), survêtements, maillots des saisons précédentes — avec des démarques qui atteignent régulièrement -50%. Les codes promo « spécial outlet » se cumulent avec ces prix barrés lors d'opérations ponctuelles : c'est là que se font les meilleures affaires de l'année, avec les soldes légales (janvier/juin-juillet), le Black Friday et la rentrée sportive de septembre. Attention aux exclusions permanentes : les nouveautés, les collaborations (Y-3, Gucci, Wales Bonner…) et certaines exclusivités web refusent la quasi-totalité des codes, quelle que soit la période.`,
       },
     ],
     faq: (s) => [
       {
-        question: 'Comment utiliser un code promo Betclic ?',
-        answer: `Le code se saisit dans le champ dédié du formulaire d'inscription, avant la création du compte — il est impossible de l'ajouter après coup. Une fois le compte vérifié (identité et coordonnées bancaires, exigées par la réglementation française), l'offre de bienvenue s'active sur votre premier pari.`,
+        question: 'Comment utiliser un coupon Adidas sur adidas.fr ?',
+        answer: `Ajoutez vos articles au panier, ouvrez le récapitulatif et repérez le champ « Entrer le code promo » avant l'étape de paiement. Collez votre coupon Adidas, validez : la remise s'applique immédiatement au sous-total si les conditions sont remplies (minimum d'achat, articles éligibles). Un seul code par commande — si vous en avez plusieurs, testez-les pour garder le plus avantageux.`,
       },
       {
-        question: 'Comment fonctionnent les freebets Betclic ?',
-        answer: `Un freebet est un pari gratuit : si vous misez un freebet de 10€ à une cote de 3,00, vous recevez 20€ de gains réels (les gains sont versés hors mise). Les freebets ont une durée de validité limitée — souvent quelques jours — et ne sont généralement pas fractionnables. Ils ne peuvent pas être retirés directement : il faut les jouer.`,
+        question: 'Pourquoi mon code promo Adidas ne fonctionne-t-il pas ?',
+        answer: `Trois causes couvrent l'essentiel des refus : l'article est exclu (nouveautés, collaborations et éditions limitées refusent presque tous les codes), le minimum d'achat n'est pas atteint, ou le code est réservé à un segment précis — nouveaux membres adiClub, étudiants, personnel via UNiDAYS. Vérifiez les conditions affichées sous chaque offre de cette page : nous les indiquons précisément pour éviter les mauvaises surprises en caisse.`,
       },
       {
-        question: 'L\u2019offre de bienvenue Betclic est-elle cumulable ?',
-        answer: `Non : une seule offre de bienvenue par personne (et par foyer, selon les conditions), sur un premier compte uniquement. Créer plusieurs comptes viole les conditions de Betclic et la réglementation ANJ — les comptes multiples sont fermés et les gains annulés. Après le bonus de bienvenue, ce sont les promotions récurrentes (boosts, missions) qui prennent le relais.`,
+        question: 'Un coupon Adidas est-il cumulable avec les soldes ou l\u2019outlet ?',
+        answer: `Avec l'outlet, oui lors d'opérations dédiées : adidas publie ponctuellement des codes « extra » qui s'ajoutent aux prix déjà barrés — le cumul le plus rentable du site. Pendant les soldes légales, la plupart des codes publics sont désactivés sur les articles démarqués, mais les avantages adiClub (points, bons membres) restent actifs. Comparez toujours le total panier avec et sans code : c'est la seule preuve fiable.`,
       },
       {
-        question: 'Betclic est-il légal et fiable en France ?',
-        answer: `Oui : Betclic est agréé par l'Autorité Nationale des Jeux (ANJ) pour les paris sportifs, hippiques et le poker en France. Les fonds des joueurs sont cantonnés, les retraits exigent une vérification d'identité complète, et l'opérateur applique les outils de jeu responsable imposés par la loi (limites, auto-exclusion). L'inscription est réservée aux personnes majeures résidant en France.`,
+        question: 'Adidas propose-t-il une réduction étudiante ?',
+        answer: `Oui : les étudiants vérifiés via UNiDAYS bénéficient d'une remise permanente sur adidas.fr (généralement autour de -10 à -15%, hors exclusions). Elle fonctionne comme un code personnel généré après vérification du statut étudiant et n'est pas cumulable avec un autre coupon Adidas sur la même commande — choisissez la remise la plus forte selon votre panier.`,
       },
-    ],
-    tips: (s) => [
-      { icon: '📝', tip: `Le code promo se saisit À L'INSCRIPTION uniquement : impossible de l'ajouter après création du compte — vérifiez le champ avant de valider.` },
-      { icon: '🎯', tip: `Ne gaspillez pas l'offre de bienvenue sur une petite mise : le remboursement couvre uniquement le premier pari, jusqu'au plafond de l'offre en cours.` },
-      { icon: '⏳', tip: `Les freebets expirent vite (souvent sous quelques jours) : utilisez-les dès réception, et rappelez-vous que les gains sont versés hors mise.` },
-      { icon: '🛡️', tip: `Fixez vos limites de dépôt dès l'inscription dans les paramètres du compte : c'est l'outil jeu responsable le plus efficace. 18+, jouer comporte des risques.` },
     ],
   },
 };

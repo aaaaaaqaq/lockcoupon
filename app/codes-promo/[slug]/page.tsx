@@ -72,11 +72,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const month = now.toLocaleString('fr-FR', { month: 'long' });
   const year = now.getFullYear();
 
-  const title = buildTitle(store.name, stats);
-
   // Priority stores: hand-written meta description (CTR rescue — temu was at
   // 0.1% CTR with the generic template); everyone else keeps the generated one.
+  // Same for <title>: an editorial title() override wins over the generic
+  // "Code Promo X" ladder (adidas ranks for "adidas coupon" — English — at 0 CTR).
   const editorial = getEditorial(params.slug);
+  const title = editorial?.title ? editorial.title(stats) : buildTitle(store.name, stats);
   const description = editorial
     ? editorial.metaDescription(stats)
     : stats.maxDiscount

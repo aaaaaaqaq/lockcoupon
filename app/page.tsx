@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import type React from 'react';
@@ -118,8 +119,7 @@ export default async function HomePage() {
                       className="inline-flex items-center gap-1.5 bg-white/[0.08] hover:bg-white/[0.16] border border-white/10 rounded-full pl-1.5 pr-3.5 py-1.5 text-white/85 text-[13px] font-semibold transition-colors"
                     >
                       {store.logo_url ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={store.logo_url} alt={`Logo ${store.name}`} className="w-5 h-5 rounded-full object-contain bg-white" loading="lazy" />
+                        <Image src={store.logo_url} alt={`Logo ${store.name}`} width={20} height={20} loading="lazy" className="w-5 h-5 rounded-full object-contain bg-white" />
                       ) : (
                         <span className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold text-white" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
                           {store.logo_letter || store.name[0]}
@@ -246,7 +246,7 @@ export default async function HomePage() {
                 {displayStores.map((store) => (
                   <Link key={store.id} href={`/codes-promo/${store.slug}`} className="bg-white border border-border rounded-xl p-4 flex flex-col items-center gap-2.5 hover:shadow-lg hover:-translate-y-0.5 transition-all group">
                     {store.logo_url ? (
-                      <img src={store.logo_url} alt={`Logo ${store.name}`} width={48} height={48} loading="lazy" className="w-12 h-12 md:w-14 md:h-14 rounded-xl object-contain group-hover:scale-105 transition-transform" />
+                      <Image src={store.logo_url} alt={`Logo ${store.name}`} width={56} height={56} loading="lazy" className="w-12 h-12 md:w-14 md:h-14 rounded-xl object-contain group-hover:scale-105 transition-transform" />
                     ) : (
                       <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center text-white text-[20px] md:text-[24px] font-bold group-hover:scale-105 transition-transform shadow-sm" style={{ backgroundColor: store.logo_color || '#C0392B' }}>
                         {store.logo_letter || store.name[0]}

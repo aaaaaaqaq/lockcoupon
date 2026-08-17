@@ -66,7 +66,7 @@ const STORE_CAT: Record<string, string> = {
   'sephora':'beaute','nocibe-fr':'beaute','yves-rocher':'beaute','marionnaud':'beaute',
   'ikea':'maison','leroy-merlin':'maison','conforama':'maison','but':'maison',
   'temu':'general','amazon':'general','aliexpress':'general','ebay':'general','rakuten':'general',
-  'uber-eats':'general','betclic':'general',
+  'uber-eats':'general',
 };
 
 const PRIORITY_STORES = [

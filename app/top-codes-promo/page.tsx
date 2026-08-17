@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { cache } from 'react';
 import type { Metadata } from 'next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -9,22 +10,7 @@ import { supabase } from '@/lib/supabase';
 export const revalidate = 60;
 
 
-export const metadata: Metadata = {
-  title: 'Top 20 Codes Promo du Moment',
-  description: 'Top 20 des meilleurs codes promo en France. Vérifiés chaque jour, classés par popularité et taux de succès. Mis à jour quotidiennement.',
-  alternates: {
-    canonical: 'https://www.lockcoupon.com/top-codes-promo',
-  },
-  openGraph: {
-    title: 'Top 20 Codes Promo du Moment',
-    description: 'Top 20 des meilleurs codes promo en France. Vérifiés chaque jour, classés par popularité et taux de succès.',
-    url: 'https://www.lockcoupon.com/top-codes-promo',
-    type: 'website',
-    images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
-  },
-};
-
-async function getTopCoupons() {
+const getTopCoupons = cache(async () => {
   const { data } = await supabase
     .from('coupons')
     .select('*, stores(name, slug, logo_url, logo_color, logo_letter)')
@@ -32,6 +18,42 @@ async function getTopCoupons() {
     .order('usage_count', { ascending: false })
     .limit(20);
   return data || [];
+});
+
+export async function generateMetadata(): Promise<Metadata> {
+  const coupons = await getTopCoupons();
+
+  const monthRaw = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
+  const month = monthRaw.charAt(0).toUpperCase() + monthRaw.slice(1);
+
+  const maxPercent = coupons.reduce((max: number, c: any) => {
+    const v = c.discount_type === 'percent' ? Number(c.discount_value) || 0 : 0;
+    return v > max ? v : max;
+  }, 0);
+  const discount = maxPercent >= 10 ? `-${maxPercent}%` : '-70%';
+
+  const topStores = Array.from(
+    new Set(coupons.map((c: any) => c.stores?.name).filter(Boolean))
+  ).slice(0, 3);
+  const storesTxt = topStores.length >= 2 ? topStores.join(', ') : 'Shein, Temu, Adidas';
+
+  const title = `Top 20 codes promo vérifiés — ${month} | Jusqu'à ${discount}`;
+  const description = `${coupons.length || 20} codes promo testés aujourd'hui : jusqu'à ${discount} chez ${storesTxt}. Classés par taux de succès, vérifiés et mis à jour chaque jour. 100% gratuits.`;
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: 'https://www.lockcoupon.com/top-codes-promo',
+    },
+    openGraph: {
+      title,
+      description,
+      url: 'https://www.lockcoupon.com/top-codes-promo',
+      type: 'website',
+      images: [{ url: '/opengraph-image', width: 1200, height: 630 }],
+    },
+  };
 }
 
 export default async function TopCodesPage() {

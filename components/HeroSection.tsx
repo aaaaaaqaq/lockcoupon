@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Store, Coupon } from '@/lib/supabase';
 import { storeStats } from '@/lib/storeContent';
 import { IconCheckCircle, IconStar, IconCalendar } from '@/components/icons';
@@ -64,7 +65,7 @@ export default function HeroSection({ store, coupons, onOpenBest }: HeroProps) {
               {/* Store logo */}
               <div className="relative">
                 {store.logo_url ? (
-                  <img src={store.logo_url} alt={store.name} className="w-[72px] h-[72px] rounded-2xl object-contain shadow-lg bg-white" />
+                  <Image src={store.logo_url} alt={store.name} width={72} height={72} priority className="w-[72px] h-[72px] rounded-2xl object-contain shadow-lg bg-white" />
                 ) : (
                   <div
                     className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-white text-[32px] font-bold shadow-lg"

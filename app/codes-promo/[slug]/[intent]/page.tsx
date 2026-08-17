@@ -24,6 +24,7 @@ import {
   INTENTS,
   isSuppressed,
   intentAvailable,
+  intentIndexable,
   intentTitle,
   intentDescription,
   intentAnswer,
@@ -48,7 +49,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const coupons = await getCouponsByStoreId(store.id).catch(() => []);
   // Thin-page gate: <2 matching offers ⇒ page still renders (never 404 an
   // indexed URL) but flips to noindex,follow until offers come back.
-  const available = intentAvailable(coupons, intent);
+  // Quality gate: template-content stores (no storeEditorial entry) keep
+  // their intent pages noindexed — they rank pos 60-90 and only drag the
+  // site average (GSC Aug 2026). See intentIndexable() for the rationale.
+  const available = intentAvailable(coupons, intent) && intentIndexable(params.slug);
   const title = intentTitle(store, intent);
   const description = intentDescription(store, intent, coupons);
   const canonical = absoluteUrl(`/codes-promo/${params.slug}/${params.intent}`);

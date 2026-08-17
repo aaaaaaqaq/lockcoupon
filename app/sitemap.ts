@@ -3,7 +3,7 @@ import { getAllStores, getPostsLight, getAllCouponsLight, type CouponLight, type
 import { CATEGORIES } from '@/lib/categories';
 import { slugFromTitle } from '@/lib/slugs';
 import { SITE_URL } from '@/lib/site';
-import { INTENTS, isSuppressed, intentAvailable } from '@/lib/intentContent';
+import { INTENTS, isSuppressed, intentAvailable, intentIndexable } from '@/lib/intentContent';
 
 // Regenerate the sitemap every hour instead of only at deploy time — a static
 // sitemap kept emitting stores/posts deleted from Supabase between deploys
@@ -114,6 +114,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const intentUrls: MetadataRoute.Sitemap = [];
   for (const store of stores) {
     const storeCoupons = couponsByStore.get(store.id) || [];
+    // Quality gate (GSC Aug 2026): intent pages of template-content stores
+    // are noindexed (pos 60-90 dead weight) — keep them out of the sitemap.
+    if (!intentIndexable(store.slug)) continue;
     for (const intent of Object.values(INTENTS)) {
       if (isSuppressed(store.slug, intent.slug)) continue;
       if (!intentAvailable(storeCoupons, intent)) continue;

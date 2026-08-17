@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -129,7 +130,7 @@ export default async function CategoryPage({ params }: Props) {
                 className="bg-white border border-border rounded-xl p-5 hover:shadow-lg hover:-translate-y-0.5 transition-all group flex items-center gap-4"
               >
                 {store.logo_url ? (
-                  <img src={store.logo_url} alt={`Logo ${store.name}`} className="w-14 h-14 rounded-xl object-contain shrink-0" loading="lazy" />
+                  <Image src={store.logo_url} alt={`Logo ${store.name}`} width={56} height={56} loading="lazy" className="w-14 h-14 rounded-xl object-contain shrink-0" />
                 ) : (
                   <div
                     className="w-14 h-14 rounded-xl flex items-center justify-center text-white text-[24px] font-bold shrink-0"

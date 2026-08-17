@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { IconNewspaper } from '@/components/icons';
 import type { PostLight } from '@/lib/supabase';
 
@@ -13,8 +14,18 @@ function PostCard({ post }: { post: PostLight }) {
     <article className="h-full">
       <Link href={`/blog/${post.slug}`} className="bg-white border border-border rounded-xl overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all group block h-full">
         {post.cover_image ? (
-          <div className="h-[180px] overflow-hidden">
-            <img src={post.cover_image} alt={post.title} loading="lazy" className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          <div className="h-[180px] overflow-hidden relative">
+            {/* next/image: AVIF/WebP + srcset — raw Unsplash covers were served
+                full-size to mobiles. sizes matches the carousel grid (1-up
+                mobile, 2-up tablet, 3-up desktop, container capped 1200px). */}
+            <Image
+              src={post.cover_image}
+              alt={post.title}
+              fill
+              loading="lazy"
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
           </div>
         ) : (
           <div className="h-[180px] bg-gradient-to-br from-primary/10 to-primary/5 flex items-center justify-center">

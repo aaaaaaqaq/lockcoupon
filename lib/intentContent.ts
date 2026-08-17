@@ -13,6 +13,7 @@
  */
 
 import { hashSlug, pick, storeFlavor, storeStats, type FaqItem, type StoreStats } from './storeContent';
+import { getEditorial } from './storeEditorial';
 import { bestDiscountLabel } from './discount';
 import type { Store, Coupon } from './supabase';
 
@@ -99,6 +100,20 @@ export function intentMatchCount(coupons: Pick<Coupon, 'title' | 'description'>[
 /** True when the store×intent sub-page may exist at all. */
 export function intentAvailable(coupons: Pick<Coupon, 'title' | 'description'>[], intent: IntentDef): boolean {
   return intentMatchCount(coupons, intent) >= INTENT_MIN_MATCHED;
+}
+
+/** Quality gate for INDEXING (GSC Aug 2026): programmatic intent pages on
+ *  template-content stores rank position 60-90 (showroomprive/livraison-
+ *  gratuite 67.8, rakuten/premiere-commande 88.3…) — deep enough to never
+ *  earn a click while dragging the site-wide average position (29.9).
+ *  Rule: intent sub-pages are indexable ONLY for stores with hand-written
+ *  editorial content (lib/storeEditorial.ts) — the pages that actually rank
+ *  (zara/soldes 11.7, temu & shein sub-pages). Everything else stays
+ *  reachable but flips to noindex,follow, leaves the sitemap and loses its
+ *  hub links, consolidating signals on the store page. Promoting a store =
+ *  write its editorial entry; the intents follow automatically. */
+export function intentIndexable(storeSlug: string): boolean {
+  return getEditorial(storeSlug) !== null;
 }
 
 /* ── date helpers ──────────────────────────────────────────────── */
