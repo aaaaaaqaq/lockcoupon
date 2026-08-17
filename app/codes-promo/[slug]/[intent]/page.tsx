@@ -25,6 +25,7 @@ import {
   isSuppressed,
   intentAvailable,
   intentIndexable,
+  intentEvergreen,
   intentTitle,
   intentDescription,
   intentAnswer,
@@ -52,7 +53,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   // Quality gate: template-content stores (no storeEditorial entry) keep
   // their intent pages noindexed — they rank pos 60-90 and only drag the
   // site average (GSC Aug 2026). See intentIndexable() for the rationale.
-  const available = intentAvailable(coupons, intent) && intentIndexable(params.slug);
+  // intentEvergreen: /soldes pages of editorial stores stay indexed year-round
+  // (seasonal hub — zara/soldes lost its 11.7 ranking when summer copy rotated).
+  const available =
+    (intentAvailable(coupons, intent) || intentEvergreen(params.slug, params.intent)) &&
+    intentIndexable(params.slug);
   const title = intentTitle(store, intent);
   const description = intentDescription(store, intent, coupons);
   const canonical = absoluteUrl(`/codes-promo/${params.slug}/${params.intent}`);

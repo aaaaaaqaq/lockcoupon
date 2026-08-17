@@ -116,6 +116,18 @@ export function intentIndexable(storeSlug: string): boolean {
   return getEditorial(storeSlug) !== null;
 }
 
+/** Seasonal exception to the ≥2-matching-offers gate: the /soldes page of an
+ *  editorial store is an EVERGREEN seasonal hub. Zara/soldes ranked 11.7 for
+ *  « zara promo 2026 soldes » (588 imp) but flipped to noindex the day the
+ *  summer soldes copy rotated out of the offer titles — losing the ranking
+ *  every off-season, then having to re-earn it in January, is worse than
+ *  keeping the page live: its editorial content (legal soldes calendar,
+ *  cumul strategy, FAQ) is store-specific and valid year-round, and the page
+ *  still lists every active offer. Other intents keep the strict gate. */
+export function intentEvergreen(storeSlug: string, intentSlug: string): boolean {
+  return intentSlug === 'soldes' && intentIndexable(storeSlug);
+}
+
 /* ── date helpers ──────────────────────────────────────────────── */
 
 function monthYear(): { month: string; monthCap: string; year: number } {

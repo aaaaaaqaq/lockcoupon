@@ -3,7 +3,7 @@ import { getAllStores, getPostsLight, getAllCouponsLight, type CouponLight, type
 import { CATEGORIES } from '@/lib/categories';
 import { slugFromTitle } from '@/lib/slugs';
 import { SITE_URL } from '@/lib/site';
-import { INTENTS, isSuppressed, intentAvailable, intentIndexable } from '@/lib/intentContent';
+import { INTENTS, isSuppressed, intentAvailable, intentIndexable, intentEvergreen } from '@/lib/intentContent';
 
 // Regenerate the sitemap every hour instead of only at deploy time — a static
 // sitemap kept emitting stores/posts deleted from Supabase between deploys
@@ -119,7 +119,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     if (!intentIndexable(store.slug)) continue;
     for (const intent of Object.values(INTENTS)) {
       if (isSuppressed(store.slug, intent.slug)) continue;
-      if (!intentAvailable(storeCoupons, intent)) continue;
+      if (!intentAvailable(storeCoupons, intent) && !intentEvergreen(store.slug, intent.slug)) continue;
       intentUrls.push({
         url: `${baseUrl}/codes-promo/${store.slug}/${intent.slug}`,
         lastModified: dailyStamp,

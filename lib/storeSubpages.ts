@@ -1,7 +1,7 @@
 // Store-specific subpages (SEO silo hub links)
 // Rendered on the main store page to interlink long-tail landing pages.
 
-import { INTENTS, isSuppressed, intentAvailable, intentIndexable } from './intentContent';
+import { INTENTS, isSuppressed, intentAvailable, intentIndexable, intentEvergreen } from './intentContent';
 import type { Coupon } from './supabase';
 
 export interface StoreSubpage {
@@ -24,7 +24,7 @@ export function allSubpagesFor(slug: string, storeName: string, coupons: Coupon[
   // Aug 2026) also lose their hub links — don't funnel internal PageRank
   // into pages Google is told not to index.
   const auto: StoreSubpage[] = Object.values(INTENTS)
-    .filter((intent) => !isSuppressed(slug, intent.slug) && intentIndexable(slug) && intentAvailable(coupons, intent))
+    .filter((intent) => !isSuppressed(slug, intent.slug) && intentIndexable(slug) && (intentAvailable(coupons, intent) || intentEvergreen(slug, intent.slug)))
     .map((intent) => ({
       href: `/codes-promo/${slug}/${intent.slug}`,
       title: `${intent.label} ${storeName}`,
