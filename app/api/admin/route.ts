@@ -23,8 +23,10 @@ export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
   if (!body) return NextResponse.json({ error: 'Bad request' }, { status: 400 });
 
-  const adminPassword = process.env.ADMIN_PASSWORD || 'lockcoupon2026';
-  if (body.password !== adminPassword) {
+  const adminPassword = process.env.ADMIN_PASSWORD;
+  // No hardcoded fallback: if the env var is unset, deny everything rather than
+  // silently accepting a well-known default (the repo is public).
+  if (!adminPassword || typeof body.password !== 'string' || body.password !== adminPassword) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
