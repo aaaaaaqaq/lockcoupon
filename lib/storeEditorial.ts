@@ -651,6 +651,216 @@ export const EDITORIAL: Record<string, StoreEditorial> = {
       },
     ],
   },
+
+  /* ────────────────────────── MASSIMO DUTTI ───────────────────────── */
+  'massimo-dutti': {
+    intro: (s) =>
+      `Massimo Dutti, c'est le vestiaire premium du groupe Inditex — lin, laine, cuir, coupes sobres — et une politique promo à l'avenant : discrète mais réelle. Contrairement à Zara, la marque distribue ponctuellement de vrais codes promo Massimo Dutti (offres d'inscription, opérations privées) et pratique des démarques profondes en janvier et fin juin. En ${s.month}, ${nbOffres(s)} ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.codeCount > 0 ? `, dont ${s.codeCount} code${s.codeCount > 1 ? 's' : ''} à saisir` : ''}${s.bestDiscount ? `, jusqu'à ${s.bestDiscount}` : ''} — chacune testée sur massimodutti.com avant publication.`,
+    metaDescription: (s) =>
+      `✅ ${nbOffres(s)} Massimo Dutti vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes actifs, ventes privées, dates des démarques. Testé sur massimodutti.com.`,
+    about: (s) => [
+      {
+        heading: 'Comment Massimo Dutti remise (sans le crier sur les toits)',
+        text: `La marque protège son image premium : pas de bandeaux « -50% sur tout », mais trois leviers bien réels. Les ventes privées d'abord, ouvertes aux inscrits quelques jours avant les soldes publiques — c'est là que le stock est complet dans toutes les tailles. Les codes ponctuels ensuite, liés à l'inscription à la newsletter ou à des opérations ciblées${s.codeCount > 0 ? ` (${s.codeCount} actif${s.codeCount > 1 ? 's' : ''} en ${s.month}, listé${s.codeCount > 1 ? 's' : ''} plus haut)` : ''}. La section « Promotions » du site enfin, qui regroupe toute l'année des fins de série remisées — souvent des pièces intemporelles (chemises, mailles) dont la coupe ne change pas d'une saison à l'autre.`,
+      },
+      {
+        heading: 'Le calendrier qui compte : ventes privées puis démarques',
+        text: `Deux fenêtres concentrent les vraies remises : début janvier et fin juin, aux dates légales françaises, avec des deuxièmes démarques 10 à 15 jours plus tard qui font passer costumes, manteaux de laine et pièces en cuir sous -40%. Le réflexe rentable : créer un compte et s'inscrire à la newsletter avant ces dates, car Massimo Dutti ouvre régulièrement ses soldes en avant-première aux membres. Sur des pièces à 100-200€, accéder au stock 48h avant tout le monde vaut tous les codes.`,
+      },
+      {
+        heading: 'Livraison, retours : acheter premium sans frais cachés',
+        text: `Le retrait en boutique Massimo Dutti est gratuit, et les retours en magasin le sont aussi — utile pour ajuster une taille sur une chemise ou un blazer sans payer de réexpédition. Astuce de saison : les basiques permanents (chemises en lin l'été, mailles mérinos l'hiver) sont réassortis en continu, mais les pièces de collection ne le sont pas ; si un article vous plaît en début de démarque, il ne sera probablement plus là à la deuxième.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: `Existe-t-il des codes promo Massimo Dutti valides ?`,
+        answer: `Oui, mais par vagues : offres d'inscription à la newsletter, opérations privées ponctuelles et codes événementiels. ${s.codeCount > 0 ? `En ${s.month}, ${s.codeCount} code${s.codeCount > 1 ? 's sont actifs' : ' est actif'} sur cette page, testé${s.codeCount > 1 ? 's' : ''} avant publication.` : `Quand aucun code public ne circule, cette page liste les avantages réellement actifs (ventes privées, promotions, livraison) plutôt que des codes morts.`} Méfiez-vous des sites qui promettent en permanence « -30% sur tout Massimo Dutti » : la marque ne fait jamais ça.`,
+      },
+      {
+        question: `Quand ont lieu les soldes Massimo Dutti ?`,
+        answer: `Aux dates légales françaises — début janvier et fin juin — précédées de ventes privées réservées aux inscrits. Les premières démarques tournent autour de -30%, les deuxièmes passent sous -40/-50% sur les manteaux, costumes et pièces en cuir. Inscrivez-vous avant : l'accès anticipé aux membres est le vrai bon plan de la marque.`,
+      },
+      {
+        question: `Massimo Dutti a-t-il un outlet ?`,
+        answer: `Pas d'outlet en ligne permanent en France, mais la section « Promotions » du site joue ce rôle avec des fins de série remisées toute l'année, et certains magasins d'usine physiques (centres de marques) proposent la marque. Pour l'essentiel, les meilleures affaires restent les deuxièmes démarques de janvier et juillet.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '✉️', tip: `Inscrivez-vous à la newsletter avant janvier et juin : Massimo Dutti ouvre ses ventes privées aux membres avant les soldes publiques — stock complet, toutes tailles.` },
+      { icon: '🧥', tip: `Visez les pièces chères (manteaux laine, cuir, costumes) pendant les deuxièmes démarques : c'est là que le -40/-50% tombe, et l'économie se compte en dizaines d'euros.` },
+      { icon: '🏬', tip: `Retours et retraits gratuits en boutique : commandez deux tailles d'une chemise, gardez la bonne, rapportez l'autre — ça ne coûte rien.` },
+      { icon: '🏷️', tip: `La section « Promotions » du site remise des intemporels toute l'année : vérifiez-la avant de payer un basique au prix plein.` },
+    ],
+  },
+
+  /* ────────────────────────────── OYSHO ───────────────────────────── */
+  oysho: {
+    intro: (s) =>
+      `Oysho — la marque sport, lingerie et homewear d'Inditex — applique la même doctrine que ses grandes sœurs Zara et Bershka : très peu de codes publics, mais des démarques saisonnières profondes et des opérations ciblées sur l'app. En ${s.month}, ${nbOffres(s)} Oysho ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.codeCount > 0 ? `, dont ${s.codeCount} code${s.codeCount > 1 ? 's' : ''} à saisir au paiement` : ''}${s.bestDiscount ? `, avec jusqu'à ${s.bestDiscount} de remise` : ''}. Voici où sont les vraies économies sur les leggings, brassières et pyjamas de la marque.`,
+    metaDescription: (s) =>
+      `✅ ${nbOffres(s)} Oysho vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes actifs, dates des soldes, astuces app. Sport, lingerie, homewear — testé sur oysho.com.`,
+    about: (s) => [
+      {
+        heading: 'Où Oysho remise vraiment : soldes, mid-season et app',
+        text: `Comme toutes les marques Inditex, Oysho vend l'essentiel de ses collections à prix plein et concentre ses remises sur trois moments : les soldes légales (janvier, fin juin) où la lingerie et le homewear passent vite sous -40%, des opérations mi-saison ponctuelles sur une sélection (souvent annoncées d'abord sur l'application), et de rares codes liés à l'inscription ou à un événement${s.codeCount > 0 ? ` — ${s.codeCount} ${s.codeCount > 1 ? 'sont actifs' : 'est actif'} en ${s.month}, listé${s.codeCount > 1 ? 's' : ''} en haut de page` : ''}. L'app Oysho est le canal à surveiller : notifications de baisse de prix sur les favoris et accès anticipé à certaines promos.`,
+      },
+      {
+        heading: 'Sport vs lingerie : deux calendriers différents',
+        text: `Les collections sport (leggings, brassières, running) suivent les saisons d'entraînement : les remises les plus intéressantes tombent en janvier (après les résolutions, sur les fins de série de l'hiver) et en été sur les collections yoga/beachwear. La lingerie et le homewear, eux, sont massivement démarqués pendant les soldes légales, avec des deuxièmes démarques qui font descendre les pyjamas et ensembles sous -50%. Les basiques permanents (culottes à l'unité, chaussettes) ne sont presque jamais remisés — inutile d'attendre.`,
+      },
+      {
+        heading: 'Livraison et retours : le calcul Oysho',
+        text: `Le retrait en boutique Oysho est gratuit, et les retours en magasin également — le point relais, lui, est facturé sur la plupart des commandes. Sur des paniers souvent légers (une brassière, deux culottes), choisir le Click & Collect évite que les frais de port mangent la remise. Les tailles de brassières partent vite en démarque : mettez vos modèles en favoris dans l'app avant les soldes pour être notifié dès la première baisse.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: `Existe-t-il des codes promo Oysho valides ?`,
+        answer: `Ponctuellement : Oysho, comme Zara ou Bershka, ne pratique pas le couponing permanent. Les codes authentiques sont liés à l'inscription, à des opérations app ou à des événements précis. ${s.codeCount > 0 ? `En ${s.month}, ${s.codeCount} code${s.codeCount > 1 ? 's sont vérifiés' : ' est vérifié'} sur cette page.` : `Aucun code public ne circule actuellement : cette page liste les promotions réellement actives à la place.`} Un site qui affiche dix codes Oysho permanents recycle du vide.`,
+      },
+      {
+        question: `Quand ont lieu les soldes Oysho ?`,
+        answer: `Aux dates légales françaises : début janvier et fin juin, pendant 4 semaines, avec des deuxièmes démarques 10-15 jours après le lancement. La lingerie, les pyjamas et le homewear descendent sous -40/-50% en deuxième démarque ; le sport technique est remisé plus tôt mais en stocks limités par taille.`,
+      },
+      {
+        question: `Comment payer les leggings et brassières Oysho moins cher ?`,
+        answer: `Trois réflexes : mettre vos modèles en favoris dans l'app (notification dès qu'ils passent en promo), viser les fins de saison sportive (janvier et fin d'été), et retirer en boutique pour ne jamais payer de port sur un petit panier. Les codes vérifiés de cette page s'ajoutent quand une opération est en cours.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '📱', tip: `Installez l'app Oysho et remplissez vos favoris avant janvier et juin : notification immédiate quand vos articles passent en démarque — les tailles de brassières partent en 48h.` },
+      { icon: '🧘', tip: `Collections yoga et beachwear : les vraies remises tombent en fin d'été ; les leggings d'hiver, eux, chutent en janvier.` },
+      { icon: '🏬', tip: `Retrait et retours gratuits en boutique : sur un panier lingerie léger, le Click & Collect évite que les frais de port annulent la remise.` },
+      { icon: '🏷️', tip: `Les basiques permanents (culottes, chaussettes) ne sont quasiment jamais soldés : n'attendez pas, concentrez la chasse aux promos sur les ensembles et le homewear.` },
+    ],
+  },
+
+  /* ────────────────────────────── PUMA ────────────────────────────── */
+  puma: {
+    intro: (s) =>
+      `Puma est l'une des marques sport les plus généreuses en promotions — à condition de savoir où chercher. Entre l'outlet permanent du site (jusqu'à -50% toute l'année), la remise d'inscription à la newsletter, la réduction étudiante et les grandes opérations saisonnières, il est rare de devoir payer une paire de Suede ou un survêtement au prix catalogue. En ${s.month}, ${nbOffres(s)} Puma ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.bestDiscount ? `, jusqu'à ${s.bestDiscount}` : ''} — remises, bons plans et codes quand une opération est active, tous testés sur puma.com avant publication.`,
+    metaDescription: (s) =>
+      `✅ ${nbOffres(s)} Puma vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : outlet -50%, remise newsletter, réduction étudiante, opérations en cours. Testé sur puma.com.`,
+    about: (s) => [
+      {
+        heading: `L'outlet Puma : la remise permanente que beaucoup ratent`,
+        text: `La section outlet de puma.com est le vrai centre de gravité des économies : des centaines de références — sneakers, running, sportswear — remisées de -30 à -50% toute l'année, avec un stock renouvelé chaque semaine. Contrairement aux ventes flash, l'outlet couvre aussi les modèles iconiques (Suede, RS, Palermo) dans les coloris de saisons précédentes. Pendant les grandes opérations (Black Friday, French Days, mi-saison), Puma publie régulièrement des codes « extra » qui s'ajoutent aux prix outlet déjà barrés : c'est le cumul le plus rentable du site, et ces codes sont publiés sur cette page dès qu'ils tombent.`,
+      },
+      {
+        heading: 'Newsletter et réduction étudiante : les remises personnelles',
+        text: `Deux remises « permanentes » méritent le détour avant tout achat plein tarif : l'offre de bienvenue newsletter (une remise sur la première commande, envoyée par email après inscription) et la réduction étudiante via vérification du statut (généralement autour de -20%, hors exclusions), l'une des plus élevées du secteur sport. Ces remises fonctionnent comme des codes personnels : elles ne se cumulent pas entre elles ni avec la plupart des codes publics — comparez le total panier pour choisir la plus forte.`,
+      },
+      {
+        heading: 'Le calendrier Puma : quand tombent les vraies affaires',
+        text: `Black Friday (fin novembre) reste le sommet, avec des remises site-wide et des codes extra sur l'outlet. Les French Days (printemps et automne) et les soldes légales (janvier, fin juin) suivent de près. Entre ces rendez-vous, surveillez les lancements de nouveaux coloris : les précédents basculent en outlet dans les semaines qui suivent. Pour le running technique, la fin de chaque semestre voit les modèles de la saison passée perdre 30 à 40% — la performance de la chaussure, elle, ne change pas.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: `Existe-t-il des codes promo Puma valides ?`,
+        answer: `Oui, par vagues : Puma publie de vrais codes lors des grandes opérations (Black Friday, French Days, mi-saison) et via sa newsletter. ${s.codeCount > 0 ? `En ${s.month}, ${s.codeCount} code${s.codeCount > 1 ? 's sont actifs' : ' est actif'} sur cette page.` : `Hors opération, les remises passent par l'outlet (-30 à -50% permanent), la newsletter et la réduction étudiante — toutes listées plus haut.`} Chaque offre publiée ici est testée sur puma.com avant mise en ligne.`,
+      },
+      {
+        question: `Puma propose-t-il une réduction étudiante ?`,
+        answer: `Oui, l'une des plus généreuses du sport : environ -20% après vérification du statut étudiant (hors exclusions et nouveautés). Elle fonctionne comme un code personnel à usage individuel et n'est généralement pas cumulable avec un autre code sur la même commande — sur un panier outlet déjà remisé, comparez les deux totaux.`,
+      },
+      {
+        question: `Peut-on cumuler un code Puma avec l'outlet ?`,
+        answer: `Souvent, oui — c'est la spécificité de Puma : lors des opérations, des codes « extra » s'appliquent aux articles outlet déjà barrés, produisant des remises finales de -50 à -60%. Vérifiez les conditions de chaque code (certains excluent les nouveautés ou collaborations) ; les codes de cette page précisent leur périmètre exact.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '👟', tip: `Commencez toujours par l'outlet de puma.com : les iconiques (Suede, RS, Palermo) y sont à -30/-50% dans les coloris des saisons passées — même chaussure, prix cassé.` },
+      { icon: '🎓', tip: `Étudiant ? La remise Puma (~-20% après vérification) est l'une des plus fortes du secteur — souvent plus rentable qu'un code public.` },
+      { icon: '🔄', tip: `Pendant Black Friday et les French Days, guettez les codes « extra » cumulables avec l'outlet : c'est là que tombent les -50/-60% réels.` },
+      { icon: '✉️', tip: `Inscrivez-vous à la newsletter avant un achat plein tarif : la remise de bienvenue arrive par email et s'applique à la première commande.` },
+    ],
+  },
+
+  /* ───────────────────────────── BERSHKA ─────────────────────────── */
+  bershka: {
+    intro: (s) =>
+      `Bershka, la marque jeune d'Inditex, remise plus volontiers que Zara : opérations -20% sur une sélection plusieurs fois par saison, promos app en avant-première et vraies démarques pendant les soldes. En ${s.month}, ${nbOffres(s)} Bershka ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.codeCount > 0 ? `, dont ${s.codeCount} code${s.codeCount > 1 ? 's' : ''} à saisir au paiement` : ''}${s.bestDiscount ? `, jusqu'à ${s.bestDiscount}` : ''}. Voici comment habiller sa garde-robe Bershka sans jamais payer plein pot.`,
+    metaDescription: (s) =>
+      `✅ ${nbOffres(s)} Bershka vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes actifs, promos app, dates des soldes. Testé sur bershka.com.`,
+    about: (s) => [
+      {
+        heading: 'Bershka remise plus souvent que les autres marques Inditex',
+        text: `Positionnée sur un public jeune et des prix d'entrée bas, Bershka s'autorise ce que Zara s'interdit : des opérations promotionnelles régulières en cours de saison — typiquement -20 à -30% sur une sélection (jeans, sweats, robes) pendant quelques jours. Ces opérations sont souvent annoncées d'abord sur l'application et par la newsletter, parfois avec un code à saisir${s.codeCount > 0 ? ` — ${s.codeCount} code${s.codeCount > 1 ? 's sont actifs' : ' est actif'} en ${s.month}, listé${s.codeCount > 1 ? 's' : ''} en haut de page` : ''}. Le rythme est soutenu : si une pièce vous plaît hors promo, il y a de bonnes chances qu'une opération la couvre dans les 3-4 semaines.`,
+      },
+      {
+        heading: `Soldes et fins de collection : le calendrier Bershka`,
+        text: `Les soldes légales (début janvier, fin juin) restent les fenêtres les plus profondes : premières démarques à -30/-40%, deuxièmes sous -50%, avec un stock qui fond très vite sur les tailles S/M — la clientèle Bershka est réactive. Entre les soldes, la rotation ultra-rapide des collections crée une section promotions alimentée en continu par les fins de série. Astuce d'app : les favoris déclenchent des notifications de baisse de prix et de retour en stock, indispensable pour les pièces virales qui partent en quelques jours.`,
+      },
+      {
+        heading: 'Livraison et retours : ne pas manger la remise en frais de port',
+        text: `Le retrait en boutique Bershka est gratuit sans minimum, et les retours en magasin sont gratuits — le retour par transporteur, lui, est généralement facturé. Sur des paniers souvent modestes (un jean, deux tops), le Click & Collect est presque toujours le bon choix : les frais de port sur une petite commande peuvent annuler l'équivalent d'un code -20%. Les boutiques étant présentes dans la plupart des centres commerciaux français, le détour coûte rarement plus que le trajet.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: `Existe-t-il des codes promo Bershka valides ?`,
+        answer: `Oui, plus souvent que chez Zara : Bershka lance régulièrement des opérations -20/-30% sur sélection, parfois avec code, souvent relayées d'abord sur l'app. ${s.codeCount > 0 ? `En ${s.month}, ${s.codeCount} code${s.codeCount > 1 ? 's sont vérifiés' : ' est vérifié'} sur cette page.` : `Hors opération, cette page liste les promotions réellement actives plutôt que des codes expirés.`} Les codes Bershka ont des durées courtes (quelques jours) : vérifiez la date de test affichée sous chaque offre.`,
+      },
+      {
+        question: `Quand ont lieu les soldes Bershka ?`,
+        answer: `Aux dates légales françaises : début janvier et fin juin, 4 semaines, avec des deuxièmes démarques 10-15 jours après l'ouverture qui passent sous -50%. Les tailles courantes partent dans les premiers jours — remplissez vos favoris dans l'app avant le lancement pour être notifié immédiatement.`,
+      },
+      {
+        question: `L'application Bershka donne-t-elle accès à des promos exclusives ?`,
+        answer: `Régulièrement, oui : accès anticipé à certaines opérations, notifications de baisse de prix sur les favoris et promos flash réservées à l'app. C'est le canal le plus fiable pour ne pas rater une opération courte — combiné aux codes vérifiés de cette page, il couvre l'essentiel des occasions d'économiser chez Bershka.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '📱', tip: `Installez l'app Bershka et activez les notifications : les opérations -20/-30% durent quelques jours et l'app les annonce en premier.` },
+      { icon: '⏳', tip: `Une pièce vous plaît hors promo ? Mettez-la en favori et patientez : le rythme promo Bershka est soutenu, une opération la couvrira souvent sous un mois — sauf pièces virales, qui partent avant.` },
+      { icon: '🏬', tip: `Choisissez le retrait en boutique : gratuit sans minimum, alors que les frais de port sur un petit panier peuvent annuler l'équivalent d'un code -20%.` },
+      { icon: '🗓️', tip: `Préparez janvier et fin juin : favoris remplis avant l'ouverture des soldes, les tailles S/M s'évaporent dans les 72 premières heures.` },
+    ],
+  },
+
+  /* ─────────────────────────── NEW BALANCE ────────────────────────── */
+  'new-balance': {
+    intro: (s) =>
+      `New Balance est redevenue l'une des marques sneakers les plus recherchées de France — 530, 550, 9060, 574 — et bonne nouvelle : c'est aussi l'une de celles qui distribuent le plus volontiers de vrais codes de réduction. Entre les codes d'opération, la remise newsletter, la réduction étudiante et l'outlet en ligne, le prix catalogue est rarement une fatalité. En ${s.month}, ${nbOffres(s)} New Balance ${s.offerCount > 1 ? 'sont vérifiées' : 'est vérifiée'} sur cette page${s.codeCount > 0 ? `, dont ${s.codeCount} code${s.codeCount > 1 ? 's' : ''} à saisir au paiement` : ''}${s.bestDiscount ? `, jusqu'à ${s.bestDiscount}` : ''} — chaque offre testée sur newbalance.fr avant publication.`,
+    metaDescription: (s) =>
+      `✅ ${nbOffres(s)} New Balance vérifiée${s.offerCount > 1 ? 's' : ''} en ${s.month}${s.bestDiscount ? ` → jusqu'à ${s.bestDiscount}` : ''} : codes actifs, outlet, remise étudiante. 530, 550, 9060… Testé sur newbalance.fr.`,
+    about: (s) => [
+      {
+        heading: 'Où New Balance distribue ses codes (et lesquels valent le coup)',
+        text: `Trois familles de remises coexistent sur newbalance.fr : les codes d'opération publiés lors des temps forts (Black Friday, French Days, mi-saison), généralement -20 à -30% sur une sélection ; la remise de bienvenue newsletter, envoyée par email après inscription et valable sur la première commande ; et la réduction étudiante après vérification du statut. ${s.codeCount > 0 ? `En ${s.month}, ${s.codeCount} code${s.codeCount > 1 ? 's sont actifs' : ' est actif'} sur cette page, avec leurs conditions exactes.` : `Les codes actifs sont publiés en haut de page dès qu'une opération démarre.`} Attention au périmètre : les modèles les plus demandés (550 en coloris récents, collaborations) sont fréquemment exclus des codes — les conditions affichées sous chaque offre le précisent.`,
+      },
+      {
+        heading: `L'outlet New Balance : les iconiques à -30/-50%`,
+        text: `La section outlet/promotions du site regroupe toute l'année des centaines de références remisées : coloris de saisons passées des 574, 530 ou 997H, running technique de la génération précédente (Fresh Foam, FuelCell) et textile. C'est le premier endroit à vérifier avant d'acheter : une 574 en coloris classique y coûte souvent 30% de moins que la même silhouette en coloris de saison. Pendant les grandes opérations, des codes extra s'appliquent parfois aussi à l'outlet — le cumul le plus rentable du site quand il est actif.`,
+      },
+      {
+        heading: 'Quand acheter ses New Balance moins cher',
+        text: `Le calendrier efficace : Black Friday (fin novembre) pour les remises les plus larges, soldes légales (janvier, fin juin) pour le textile et le running, et les semaines qui suivent chaque sortie de nouveau coloris — les précédents basculent alors en outlet. Pour le running technique, la logique est mécanique : chaque nouvelle version (1080, Rebel, SC Elite) envoie la précédente à -30/-40%, pour une différence de performance marginale. Les lifestyle très demandées (530, 9060) sont rarement remisées en coloris populaires : sur celles-ci, la remise newsletter ou étudiante est souvent la seule vraie économie.`,
+      },
+    ],
+    faq: (s) => [
+      {
+        question: `Existe-t-il des codes promo New Balance valides ?`,
+        answer: `Oui, régulièrement : New Balance publie de vrais codes lors des opérations saisonnières, en plus de la remise newsletter et de la réduction étudiante. ${s.codeCount > 0 ? `En ${s.month}, ${s.codeCount} code${s.codeCount > 1 ? 's sont vérifiés' : ' est vérifié'} sur cette page, chacun testé sur newbalance.fr.` : `Chaque code publié ici est testé sur newbalance.fr avant mise en ligne.`} Vérifiez toujours les exclusions : les coloris récents des modèles stars (550, 9060) sont souvent hors périmètre.`,
+      },
+      {
+        question: `New Balance propose-t-il une réduction étudiante ?`,
+        answer: `Oui : après vérification du statut étudiant, une remise permanente s'applique sur newbalance.fr (hors exclusions, généralement autour de -10 à -20% selon les périodes). Elle fonctionne comme un code personnel et ne se cumule pas avec un autre code sur la même commande — comparez le total avec un code d'opération quand les deux sont disponibles.`,
+      },
+      {
+        question: `Les 530 et 9060 sont-elles parfois en promo ?`,
+        answer: `Rarement en coloris populaires — la demande est trop forte pour justifier une remise. Les vraies occasions : les coloris moins courants qui basculent en outlet, les opérations site-wide type Black Friday (quand ces modèles ne sont pas exclus), et les remises personnelles (newsletter, étudiante) qui s'appliquent au prix catalogue. Pour les 574 et le running, en revanche, l'outlet remise en continu.`,
+      },
+    ],
+    tips: (s) => [
+      { icon: '👟', tip: `Vérifiez l'outlet avant tout achat : les coloris de saisons passées des 574/530/997H y sont à -30/-50% — même silhouette, prix cassé.` },
+      { icon: '🏃', tip: `Running technique : achetez la version précédente (1080, Rebel…) dès que la nouvelle sort — -30/-40% pour une différence marginale sur la route.` },
+      { icon: '🎓', tip: `Étudiant ? La remise après vérification est souvent la seule vraie économie sur les modèles stars (530, 9060) jamais soldés en coloris populaires.` },
+      { icon: '🔍', tip: `Avant de saisir un code, lisez ses exclusions affichées sous l'offre : collaborations et coloris récents des 550 sont fréquemment hors périmètre.` },
+    ],
+  },
 };
 
 export function getEditorial(slug: string): StoreEditorial | null {
