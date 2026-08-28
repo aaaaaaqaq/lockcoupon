@@ -164,6 +164,67 @@ const TEMU_TOPICS = [
     keywords: 'black friday temu, temu black friday codes, promo black friday temu',
     focus: 'Préparer le Black Friday Temu : ce qui s\'est passé les années précédentes, vraies vs fausses promos, alertes à mettre en place, codes à cumuler le jour J.',
   },
+  // ─── Batch 3 (ajouté 2026-08-28) : pool épuisé → cron muet depuis fin août ───
+  {
+    slug: 'temu-coupons-automatiques-panier',
+    title_fn: (m: string) => `Coupons automatiques Temu : comment ça marche vraiment — ${m}`,
+    keywords: 'coupon temu, coupon automatique temu, réduction panier temu, bundle temu',
+    focus: 'Les coupons appliqués automatiquement au panier Temu : quand ils apparaissent, comment les déclencher (paniers groupés, montants seuils), et comment les cumuler avec un code promo.',
+  },
+  {
+    slug: 'temu-11-11-guide',
+    title_fn: (m: string) => `11.11 sur Temu : le guide pour tout rafler — ${m}`,
+    keywords: '11.11 temu, temu 11 novembre, singles day temu, promo 11.11',
+    focus: 'Le Singles Day (11.11) sur Temu : historique des remises constatées, catégories les plus soldées, préparation du panier, codes à cumuler et pièges des fausses promos.',
+  },
+  {
+    slug: 'temu-maison-deco-avis',
+    title_fn: (m: string) => `Maison & déco sur Temu : bonnes affaires ou déceptions ? — ${m}`,
+    keywords: 'temu maison, deco temu avis, rangement temu, cuisine temu qualité',
+    focus: 'Le rayon maison/déco de Temu passé au crible : rangement, cuisine, luminaires, textile — ce qui vaut vraiment le coup, ce qu\'il faut éviter, et comment payer moins cher.',
+  },
+  {
+    slug: 'temu-bijoux-accessoires-avis',
+    title_fn: (m: string) => `Bijoux et accessoires Temu : notre verdict qualité-prix — ${m}`,
+    keywords: 'bijoux temu avis, accessoires temu, montre temu, sac temu qualité',
+    focus: 'Bijoux, montres, sacs et accessoires sur Temu : qualité réelle, matériaux, allergies à éviter, durée de vie, et les astuces pour les payer au meilleur prix.',
+  },
+  {
+    slug: 'temu-application-vs-site-web',
+    title_fn: (m: string) => `Temu : appli ou site web, où sont les meilleures offres ? — ${m}`,
+    keywords: 'application temu, temu app, site temu, offres exclusives app temu',
+    focus: 'Comparatif app Temu vs site web : offres exclusives à l\'application, jeux réservés, notifications de prix, différences de codes promo — et faut-il vraiment installer l\'app.',
+  },
+  {
+    slug: 'temu-supprimer-compte-donnees',
+    title_fn: (m: string) => `Supprimer son compte Temu (et ses données) : la méthode ${m}`,
+    keywords: 'supprimer compte temu, temu données personnelles, désinscription temu, rgpd temu',
+    focus: 'Comment supprimer définitivement son compte Temu et ses données (RGPD) : procédure pas à pas, délais, ce qui est conservé, et comment se désabonner des emails/notifications.',
+  },
+  {
+    slug: 'temu-avis-produits-fiables',
+    title_fn: (m: string) => `Avis produits Temu : comment repérer les fiables — ${m}`,
+    keywords: 'avis produits temu, faux avis temu, notes temu, choisir produit temu',
+    focus: 'Lire les avis produits sur Temu comme un pro : repérer les faux avis, décoder les photos clients, filtres utiles, et notre méthode pour ne jamais se tromper avant d\'acheter.',
+  },
+  {
+    slug: 'temu-cadeaux-petit-budget',
+    title_fn: (m: string) => `Idées cadeaux petit budget sur Temu — ${m}`,
+    keywords: 'cadeau temu, idée cadeau pas cher temu, cadeau petit budget',
+    focus: 'Sélection d\'idées cadeaux à petit prix sur Temu : par profil (ado, collègue, famille), pièges à éviter (délais, qualité), et comment réduire encore la note avec les codes.',
+  },
+  {
+    slug: 'temu-vendeurs-boutiques-officielles',
+    title_fn: (m: string) => `Vendeurs Temu : reconnaître les boutiques sérieuses — ${m}`,
+    keywords: 'vendeur temu, boutique temu, marketplace temu, vendeurs fiables temu',
+    focus: 'Comment fonctionne la marketplace Temu côté vendeurs : reconnaître une boutique sérieuse, badges et notes à vérifier, litiges vendeur, et l\'impact sur les prix.',
+  },
+  {
+    slug: 'temu-credits-solde-portefeuille',
+    title_fn: (m: string) => `Crédits et solde Temu : tout comprendre pour en profiter — ${m}`,
+    keywords: 'crédit temu, solde temu, portefeuille temu, remboursement crédit temu',
+    focus: 'Les crédits Temu (remboursements, gestes commerciaux, jeux) : comment les obtenir, où les voir, durée de validité, cumul avec les codes promo, et pièges à connaître.',
+  },
 ];
 
 // ─── Build prompt ─────────────────────────────────────────────────────────────
