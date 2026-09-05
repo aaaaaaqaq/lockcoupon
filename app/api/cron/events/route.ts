@@ -51,7 +51,11 @@ const PILLAR_WINDOW_MAX = 35;   // pillar publishes between J-35…
 const PILLAR_WINDOW_MIN = 15;   // …and J-15 (still worth it if cron was down)
 const STORE_ARTICLE_WINDOW = 21;
 const CODES_WINDOW = 7;
-const ARTICLES_PER_RUN = 2;     // hard cap — content velocity control
+const ARTICLES_PER_RUN = 1;     // hard cap — content velocity control
+// Post Aug-18 algorithmic suppression: site-wide budget is ~4-6 articles/week.
+// General cron = Mon/Thu, Temu = Tue/Fri → event store-articles only Wed/Sat (UTC).
+// Pillars (1 per event, rare) may publish any day. ?maxArticles= still forces a run.
+const STORE_ARTICLE_DAYS = new Set([3, 6]); // 3=Wed, 6=Sat
 const CODE_STORES_PER_RUN = 3;
 const MAX_CODES = 12;           // same rotation caps as daily-refresh
 const MAX_BONS = 10;
@@ -366,7 +370,9 @@ export async function GET(request: Request) {
   }
   const dry = searchParams.get('dry') === '1';
   const onlyEvent = searchParams.get('event');
-  const maxArticles = Math.min(parseInt(searchParams.get('maxArticles') || '', 10) || ARTICLES_PER_RUN, 4);
+  const forcedMax = parseInt(searchParams.get('maxArticles') || '', 10);
+  const maxArticles = Math.min(forcedMax || ARTICLES_PER_RUN, 4);
+  const storeArticlesToday = !!forcedMax || STORE_ARTICLE_DAYS.has(new Date().getUTCDay());
 
   try {
     const now = new Date();
@@ -396,7 +402,7 @@ export async function GET(request: Request) {
         }
       }
       // Phase 2 — store articles (priority order from the calendar)
-      if (daysUntilStart <= STORE_ARTICLE_WINDOW && daysUntilEnd >= 0) {
+      if (storeArticlesToday && daysUntilStart <= STORE_ARTICLE_WINDOW && daysUntilEnd >= 0) {
         for (const storeSlug of def.stores) {
           const store = storeBySlug.get(storeSlug);
           if (!store) continue;
@@ -441,6 +447,7 @@ export async function GET(request: Request) {
         end: e.end.toISOString().split('T')[0], daysUntilStart: e.daysUntilStart, active: e.active,
       })),
       articles: todaysArticles.map((t) => ({ kind: t.kind, slug: t.slug, title: t.title })),
+      storeArticlesToday, maxArticles,
       codes: todaysCodes.map((c) => ({ event: c.ev.def.slug, store: c.storeSlug })),
     };
     if (dry) return NextResponse.json({ success: true, dry: true, ...plan });
