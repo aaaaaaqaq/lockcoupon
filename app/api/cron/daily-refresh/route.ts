@@ -14,7 +14,8 @@ import { TEMU_AFFILIATE_URL, TEMU_CODES, TEMU_PINNED_CODES, OFFER_TEMPLATES } fr
  *   • TEMU — wipes yesterday's code coupons, publishes 10 affiliate-pool
  *     codes with FRESH Claude-written titles/descriptions (never the same
  *     copy two days in a row; static OFFER_TEMPLATES as fallback).
- *   • ALIEXPRESS / AMAZON / SHEIN / BERSHKA — Claude web-searches real current codes on
+ *   • ALIEXPRESS / AMAZON / SHEIN (daily) + 4 ROTATION_STORES/day (24-store
+ *     pool, each ~every 6 days) — Claude web-searches real current codes on
  *     Dealabs/Ma-Reduc/Savoo/etc., REWRITES every offer with original
  *     French copy (no duplicate content), refreshes rows whose code already
  *     exists, inserts the new ones, and deletes the oldest codes beyond
@@ -48,12 +49,67 @@ const MAX_CODES = 12;           // code-type coupons per store, after rotation
 const MAX_BONS = 10;            // bon+cashback coupons per store, after rotation
 const NEW_EXPIRY_DAYS = 21;     // fresh offers expire → natural churn via cleanup
 
-const SEARCH_STORES: Array<{ slug: string; name: string; url: string }> = [
+type SearchStore = { slug: string; name: string; url: string };
+
+// TIER A — flagship stores refreshed EVERY day (highest search volume).
+const DAILY_STORES: SearchStore[] = [
   { slug: 'aliexpress', name: 'AliExpress', url: 'https://fr.aliexpress.com' },
   { slug: 'amazon', name: 'Amazon', url: 'https://www.amazon.fr' },
   { slug: 'shein', name: 'Shein', url: 'https://fr.shein.com' },
-  { slug: 'bershka', name: 'Bershka', url: 'https://www.bershka.com/fr' },
 ];
+
+// TIER B — high-intent stores refreshed on ROTATION (2026-09-07). Each Claude
+// web_search pass is ~40-90s; every store runs in parallel but Vercel caps the
+// route at 300s and Anthropic rate-limits burst concurrency, so we take
+// ROTATION_PER_DAY of these per run, indexed by day-of-year. With 24 stores and
+// 4/day each store gets fresh copy every 6 days — on top of the update-coupons
+// cron that still touches every store 4×/day.
+const ROTATION_STORES: SearchStore[] = [
+  { slug: 'zalando', name: 'Zalando', url: 'https://www.zalando.fr' },
+  { slug: 'cdiscount', name: 'Cdiscount', url: 'https://www.cdiscount.com' },
+  { slug: 'fnac', name: 'Fnac', url: 'https://www.fnac.com' },
+  { slug: 'decathlon', name: 'Decathlon', url: 'https://www.decathlon.fr' },
+  { slug: 'sephora', name: 'Sephora', url: 'https://www.sephora.fr' },
+  { slug: 'nike', name: 'Nike', url: 'https://www.nike.com/fr' },
+  { slug: 'adidas', name: 'Adidas', url: 'https://www.adidas.fr' },
+  { slug: 'asos', name: 'ASOS', url: 'https://www.asos.com/fr' },
+  { slug: 'zara', name: 'Zara', url: 'https://www.zara.com/fr' },
+  { slug: 'hm', name: 'H&M', url: 'https://www2.hm.com/fr_fr' },
+  { slug: 'bershka', name: 'Bershka', url: 'https://www.bershka.com/fr' },
+  { slug: 'la-redoute', name: 'La Redoute', url: 'https://www.laredoute.fr' },
+  { slug: 'darty', name: 'Darty', url: 'https://www.darty.com' },
+  { slug: 'boulanger', name: 'Boulanger', url: 'https://www.boulanger.com' },
+  { slug: 'booking', name: 'Booking.com', url: 'https://www.booking.com' },
+  { slug: 'uber-eats', name: 'Uber Eats', url: 'https://www.ubereats.com/fr' },
+  { slug: 'nocibe-fr', name: 'Nocibé', url: 'https://www.nocibe.fr' },
+  { slug: 'kiabi', name: 'Kiabi', url: 'https://www.kiabi.com' },
+  { slug: 'veepee', name: 'Veepee', url: 'https://www.veepee.fr' },
+  { slug: 'ldlc', name: 'LDLC', url: 'https://www.ldlc.com' },
+  { slug: 'back-market', name: 'Back Market', url: 'https://www.backmarket.fr' },
+  { slug: 'puma', name: 'Puma', url: 'https://eu.puma.com/fr' },
+  { slug: 'mango', name: 'Mango', url: 'https://shop.mango.com/fr' },
+  { slug: 'leclerc', name: 'E.Leclerc', url: 'https://www.e.leclerc' },
+];
+const ROTATION_PER_DAY = 4;
+
+function dayOfYear(d = new Date()): number {
+  const start = Date.UTC(d.getUTCFullYear(), 0, 0);
+  return Math.floor((d.getTime() - start) / 86_400_000);
+}
+
+/** Today's search set: all Tier A + a contiguous rotating window of Tier B.
+ *  `?slugs=a,b` overrides for manual/targeted runs. */
+function pickSearchStores(slugsParam: string | null): SearchStore[] {
+  const all = [...DAILY_STORES, ...ROTATION_STORES];
+  if (slugsParam) {
+    const want = new Set(slugsParam.split(',').map((s) => s.trim()).filter(Boolean));
+    return all.filter((s) => want.has(s.slug));
+  }
+  const n = ROTATION_STORES.length;
+  const offset = (dayOfYear() * ROTATION_PER_DAY) % n;
+  const rotation = Array.from({ length: Math.min(ROTATION_PER_DAY, n) }, (_, i) => ROTATION_STORES[(offset + i) % n]);
+  return [...DAILY_STORES, ...rotation];
+}
 
 const STORE_PAGE = (slug: string) => `https://www.lockcoupon.com/codes-promo/${slug}`;
 
@@ -409,6 +465,9 @@ export async function GET(request: Request) {
   }
 
   try {
+    const searchStores = pickSearchStores(searchParams.get('slugs'));
+    const skipTemu = searchParams.get('temu') === '0';
+
     // Purge globally-expired coupons first so rotation counts are honest.
     const today = new Date().toISOString().split('T')[0];
     const { data: expired } = await supabase
@@ -423,18 +482,19 @@ export async function GET(request: Request) {
     // sequential would blow past maxDuration with 4+ stores). Each store
     // only touches its own rows, so no write conflicts.
     const results: Array<Record<string, any>> = [];
-    results.push(await refreshTemu());
+    if (!skipTemu) results.push(await refreshTemu());
     const searchResults = await Promise.all(
-      SEARCH_STORES.map((cfg) => refreshSearchStore(cfg).catch((e: any) => ({ store: cfg.slug, error: e?.message || 'failed' })))
+      searchStores.map((cfg) => refreshSearchStore(cfg).catch((e: any) => ({ store: cfg.slug, error: e?.message || 'failed' })))
     );
     results.push(...searchResults);
 
     // Tell crawlers the flagship pages changed (same-day recrawl).
-    const storePages = ['temu', ...SEARCH_STORES.map((s) => s.slug)].map(STORE_PAGE);
+    const touched = [...(skipTemu ? [] : ['temu']), ...searchStores.map((s) => s.slug)];
+    const storePages = touched.map(STORE_PAGE);
     // Intent sub-pages included: rotation can 404 or revive them — IndexNow
     // must learn about dead links too (Bing SEO report, Aug 2026).
     const urls = [
-      ...storeUrlsWithIntents(['temu', ...SEARCH_STORES.map((s) => s.slug)]),
+      ...storeUrlsWithIntents(touched),
       `${STORE_PAGE('temu')}/nouveau-client`,
       `${STORE_PAGE('temu')}/livraison-gratuite`,
     ];
@@ -448,6 +508,7 @@ export async function GET(request: Request) {
       success: true,
       timestamp: new Date().toISOString(),
       expired_cleaned: expiredCleaned,
+      stores: touched,
       results,
       pinged: urls.length,
     });
