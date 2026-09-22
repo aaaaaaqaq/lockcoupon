@@ -59,8 +59,8 @@ const DAILY_STORES: SearchStore[] = [
 // TIER B — high-intent stores refreshed on ROTATION (2026-09-07). Each Claude
 // web_search pass is ~40-90s; every store runs in parallel but Vercel caps the
 // route at 300s and Anthropic rate-limits burst concurrency, so we take
-// ROTATION_PER_DAY of these per run, indexed by day-of-year. With 24 stores and
-// 4/day each store gets fresh copy every 6 days — on top of the update-coupons
+// ROTATION_PER_DAY of these per run, indexed by day-of-year. With 34 stores and
+// 4/day each store gets re-searched every ~8-9 days — on top of the update-coupons
 // cron that still touches every store 4×/day.
 const ROTATION_STORES: SearchStore[] = [
   { slug: 'zalando', name: 'Zalando', url: 'https://www.zalando.fr' },
@@ -87,6 +87,17 @@ const ROTATION_STORES: SearchStore[] = [
   { slug: 'puma', name: 'Puma', url: 'https://eu.puma.com/fr' },
   { slug: 'mango', name: 'Mango', url: 'https://shop.mango.com/fr' },
   { slug: 'leclerc', name: 'E.Leclerc', url: 'https://www.e.leclerc' },
+  // 2026-09-22 expansion — highest-volume newcomers
+  { slug: 'lidl', name: 'Lidl', url: 'https://www.lidl.fr' },
+  { slug: 'castorama', name: 'Castorama', url: 'https://www.castorama.fr' },
+  { slug: 'notino', name: 'Notino', url: 'https://www.notino.fr' },
+  { slug: 'lookfantastic', name: 'Lookfantastic', url: 'https://www.lookfantastic.fr' },
+  { slug: 'zooplus', name: 'Zooplus', url: 'https://www.zooplus.fr' },
+  { slug: 'deliveroo', name: 'Deliveroo', url: 'https://deliveroo.fr' },
+  { slug: 'hellofresh', name: 'HelloFresh', url: 'https://www.hellofresh.fr' },
+  { slug: 'picard', name: 'Picard', url: 'https://www.picard.fr' },
+  { slug: 'etsy', name: 'Etsy', url: 'https://www.etsy.com/fr' },
+  { slug: 'flixbus', name: 'FlixBus', url: 'https://www.flixbus.fr' },
 ];
 const ROTATION_PER_DAY = 4;
 
