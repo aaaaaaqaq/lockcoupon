@@ -55,6 +55,7 @@ const COVERS: Record<string, string[]> = {
 };
 
 const STORE_CAT: Record<string, string> = {
+  'castorama':'maison','lidl':'alimentation','action':'maison','gifi':'maison','kiko':'beaute','lookfantastic':'beaute','notino':'beaute','zooplus':'maison','wanimo':'maison','alltricks':'sport','okaidi':'mode','orchestra':'mode','ouigo':'voyage','flixbus':'voyage','deliveroo':'alimentation','just-eat':'alimentation','hellofresh':'alimentation','picard':'alimentation','nespresso':'maison','sezane':'mode','etsy':'marketplace','wish':'marketplace','douglas':'beaute','la-halle':'mode','bouygues-telecom':'high-tech',
   'shein':'mode','zara':'mode','hm':'mode','asos':'mode','mango':'mode','zalando':'mode',
   'la-redoute':'mode','kiabi':'mode','uniqlo':'mode','bershka':'mode','veepee':'mode',
   'prettylittlething':'mode','boohoo':'mode','etam':'mode','lacoste':'mode',
