@@ -61,6 +61,7 @@ export default function Footer() {
             <h3 className="text-white font-bold text-[14px] mb-3">Informations</h3>
             <div className="space-y-2">
               <Link href="/a-propos" className="block text-white/50 hover:text-white text-[13px] transition-colors">À propos</Link>
+              <Link href="/comment-nous-verifions" className="block text-white/50 hover:text-white text-[13px] transition-colors">Comment nous vérifions</Link>
               <Link href="/contact" className="block text-white/50 hover:text-white text-[13px] transition-colors">Contact</Link>
               <Link href="/politique-de-confidentialite" className="block text-white/50 hover:text-white text-[13px] transition-colors">Politique de confidentialité</Link>
               <Link href="/conditions-utilisation" className="block text-white/50 hover:text-white text-[13px] transition-colors">Conditions d&apos;utilisation</Link>

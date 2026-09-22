@@ -35,7 +35,7 @@ export default function AboutPage() {
 
             <h2 className="text-text-main text-[24px] font-bold mt-8 mb-3">Notre mission</h2>
             <p>
-              Chaque jour, notre équipe recherche, vérifie et met à jour les codes promo des plus grandes boutiques en ligne françaises et internationales. Nous nous assurons que chaque code publié sur notre site est fonctionnel et à jour. Les codes expirés sont automatiquement retirés pour vous garantir la meilleure expérience possible.
+              Chaque jour, nos outils relèvent les codes promo publiés par les boutiques et les agrégateurs français de référence, et notre équipe relit ceux qui n&apos;ont pas de source vérifiable. Les codes expirés sont automatiquement retirés. Certains liens sont affiliés : nous touchons une commission si vous achetez, sans surcoût pour vous et sans influence sur l&apos;ordre des offres.
             </p>
 
             <h2 className="text-text-main text-[24px] font-bold mt-8 mb-3">Comment ça marche ?</h2>
@@ -49,7 +49,7 @@ export default function AboutPage() {
 
             <h2 className="text-text-main text-[24px] font-bold mt-8 mb-3">Nos engagements qualité</h2>
             <p>
-              LockCoupon se distingue par la rigueur de sa vérification. Chaque code promo est testé manuellement ou automatiquement avant d&apos;être publié. Nous affichons le nombre d&apos;utilisations pour chaque offre, ce qui vous permet de choisir en toute transparence. Quand un code cesse de fonctionner, il est retiré de la liste lors de nos passages de vérification quotidiens.
+              Chaque code publié provient d&apos;une source identifiée (programme officiel du marchand, agrégateur français reconnu ou contribution relue) et affiche sa date de validité. Les offres expirées sont retirées automatiquement chaque matin. Nous n&apos;affichons pas de compteur d&apos;utilisations : nous ne disposons pas de cette donnée et préférons ne rien inventer. Le détail complet de notre méthode est public : <Link href="/comment-nous-verifions" className="text-primary hover:underline">Comment nous vérifions les codes promo</Link>.
             </p>
 
             <h2 className="text-text-main text-[24px] font-bold mt-8 mb-3">Nos chiffres</h2>

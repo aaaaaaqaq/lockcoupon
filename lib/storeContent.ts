@@ -124,10 +124,19 @@ export interface StoreStats {
   maxDiscount: string | null;
   totalUsage: number;
   month: string;
+  /** ISO date (YYYY-MM-DD) of the most recent coupon add/re-verification, null if no offers */
+  lastVerified: string | null;
+  /** French long-date label of lastVerified (falls back to today only when there are no offers) */
+  lastVerifiedLabel: string;
 }
 
 export function storeStats(coupons: Coupon[]): StoreStats {
   const best = bestDiscountLabel(coupons);
+  // Honest freshness: the newest coupon row (created_at = when our crons
+  // added/re-tested it). Never the render date (2026-09-22 fix).
+  const lastVerifiedIso = coupons.reduce<string | null>(
+    (max, c) => (c.created_at && (!max || c.created_at > max) ? c.created_at : max), null,
+  )?.split('T')[0] ?? null;
   return {
     offerCount: coupons.length,
     codeCount: coupons.filter((c) => c.type === 'code').length,
@@ -138,6 +147,8 @@ export function storeStats(coupons: Coupon[]): StoreStats {
     maxDiscount: best,
     totalUsage: coupons.reduce((s, c) => s + (c.usage_count || 0), 0),
     month: new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' }),
+    lastVerified: lastVerifiedIso,
+    lastVerifiedLabel: new Date(lastVerifiedIso ? `${lastVerifiedIso}T12:00:00Z` : Date.now()).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }),
   };
 }
 
@@ -222,8 +233,8 @@ export function storeFaqItems(store: Store, coupons: Coupon[]): FaqItem[] {
   ];
 
   const reliabilityAnswers = [
-    `Chaque code ${n} publié ici est testé par notre équipe, et les offres expirées sont retirées lors de nos passages de vérification quotidiens. Le compteur d\u2019utilisations affiché sur chaque offre vous indique celles qui fonctionnent le mieux en ce moment.`,
-    `Oui : nous vérifions les offres ${n} plusieurs fois par jour et supprimons celles qui n\u2019acceptent plus de commandes. ${s.totalUsage > 0 ? `Les offres de cette page ont déjà été utilisées ${s.totalUsage.toLocaleString('fr-FR')} fois par nos visiteurs.` : `Chaque offre affiche son statut de vérification et sa date de validité.`}`,
+    `Chaque code ${n} publié ici est testé par notre équipe, et les offres expirées sont retirées lors de nos passages de vérification quotidiens. Chaque offre indique sa date de validité et, quand elle est connue, la source où le code a été relevé.`,
+    `Oui : nous vérifions les offres ${n} plusieurs fois par jour et supprimons celles qui n\u2019acceptent plus de commandes. Chaque offre affiche son statut de vérification et sa date de validité.`,
     `Tous les codes ${n} de cette page passent par une vérification manuelle ou automatisée avant publication, puis des contrôles quotidiens. Si un code cesse de fonctionner entre deux contrôles, un autre code actif est généralement disponible juste en dessous.`,
   ];
 

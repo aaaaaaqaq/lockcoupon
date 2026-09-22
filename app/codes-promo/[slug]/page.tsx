@@ -81,8 +81,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const description = editorial
     ? editorial.metaDescription(stats)
     : stats.maxDiscount
-    ? `✅ ${stats.offerCount} offre${stats.offerCount > 1 ? 's' : ''} ${store.name} testée${stats.offerCount > 1 ? 's' : ''} et vérifiée${stats.offerCount > 1 ? 's' : ''} en ${month} ${year}${stats.codeCount > 0 ? ` dont ${stats.codeCount} code${stats.codeCount > 1 ? 's' : ''} promo` : ''} · Jusqu'à ${stats.maxDiscount} de réduction · Mis à jour aujourd'hui.`
-    : `✅ Codes promo ${store.name} vérifiés en ${month} ${year} · Offres testées et mises à jour aujourd'hui. Copiez votre code et économisez sur votre commande !`;
+    ? `✅ ${stats.offerCount} offre${stats.offerCount > 1 ? 's' : ''} ${store.name} testée${stats.offerCount > 1 ? 's' : ''} et vérifiée${stats.offerCount > 1 ? 's' : ''} en ${month} ${year}${stats.codeCount > 0 ? ` dont ${stats.codeCount} code${stats.codeCount > 1 ? 's' : ''} promo` : ''} · Jusqu'à ${stats.maxDiscount} de réduction · Dernière vérification le ${stats.lastVerifiedLabel}.`
+    : `✅ Codes promo ${store.name} vérifiés en ${month} ${year} · Dernière vérification le ${stats.lastVerifiedLabel}. Copiez votre code et économisez sur votre commande !`;
 
   const canonical = absoluteUrl(`/codes-promo/${params.slug}`);
 

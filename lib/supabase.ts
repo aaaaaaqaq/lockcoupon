@@ -133,9 +133,9 @@ export async function getCouponCountsByStore(): Promise<Record<string, number>> 
 /** Light coupon rows (store_id + text fields) — lets the sitemap apply the
  *  intent-page gate (≥2 offers matching the intent's filter) without N
  *  per-store queries. */
-export type CouponLight = Pick<Coupon, 'store_id' | 'title' | 'description'>;
+export type CouponLight = Pick<Coupon, 'store_id' | 'title' | 'description' | 'created_at'>;
 export async function getAllCouponsLight(): Promise<CouponLight[]> {
-  const data = await selectAllRows<CouponLight>('coupons', 'store_id,title,description');
+  const data = await selectAllRows<CouponLight>('coupons', 'store_id,title,description,created_at');
   return data ?? [];
 }
 

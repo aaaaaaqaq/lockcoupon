@@ -96,7 +96,7 @@ export async function GET(request: Request) {
       is_best: selectedOffers[i].is_best,
       is_exclusive: selectedOffers[i].is_exclusive,
       is_verified: true,
-      usage_count: Math.floor(Math.random() * 500) + 50,
+      usage_count: 0,
       created_at: new Date().toISOString(),
     }));
 

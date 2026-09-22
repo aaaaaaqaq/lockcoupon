@@ -1,3 +1,4 @@
+import { storeStats } from '@/lib/storeContent';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -34,7 +35,8 @@ export default async function TemuCadeauGratuitPage() {
   if (!store) notFound();
   const coupons = await getCouponsByStoreId(store.id);
   const m = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-  const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  // Honest freshness date = newest coupon row, not render time (2026-09-22).
+  const today = storeStats(coupons).lastVerifiedLabel;
 
   const faqSchema = {
     '@context': 'https://schema.org',
@@ -75,7 +77,7 @@ export default async function TemuCadeauGratuitPage() {
             <p className="text-white/50 text-[14px] md:text-[16px] max-w-lg mx-auto">
               Roue de bienvenue, parrainage, jeux de l&apos;appli : ce qui donne de VRAIS cadeaux, et comment les recevoir.
             </p>
-            <p className="text-white/40 text-[13px] mt-4">✅ Codes vérifiés le {today}</p>
+            <p className="text-white/40 text-[13px] mt-4">✅ Dernière vérification le {today}</p>
           </div>
         </section>
 

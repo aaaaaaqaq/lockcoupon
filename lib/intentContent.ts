@@ -301,7 +301,7 @@ export function intentSections(store: Store, intent: IntentDef, coupons: Coupon[
   sections.push({
     heading: `Des offres ${n} vérifiées, pas des promesses`,
     paragraphs: [
-      `Chaque offre de cette page est contrôlée par nos passages de vérification quotidiens : les codes expirés sont retirés, les nouveaux apparaissent en tête de liste avec leur date de validation.${s.totalUsage > 0 ? ` Les offres ${n} listées ici ont déjà été utilisées ${s.totalUsage.toLocaleString('fr-FR')} fois par nos visiteurs.` : ''} En cas de doute sur un code, sa fiche détaille les conditions : montant minimum, produits éligibles, date d'expiration.`,
+      `Chaque offre de cette page est contrôlée par nos passages de vérification quotidiens : les codes expirés sont retirés, les nouveaux apparaissent en tête de liste avec leur date de validation. En cas de doute sur un code, sa fiche détaille les conditions : montant minimum, produits éligibles, date d'expiration.`,
     ],
   });
 

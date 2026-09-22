@@ -43,6 +43,7 @@ function staticPages(baseUrl: string): MetadataRoute.Sitemap {
     { url: `${baseUrl}/codes-promo/shein/livraison-gratuite`, lastModified: now, changeFrequency: 'weekly', priority: 0.8 },
     { url: `${baseUrl}/codes-promo/amazon/prime-day`, lastModified: now, changeFrequency: 'daily', priority: 0.9 },
     { url: `${baseUrl}/a-propos`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
+    { url: `${baseUrl}/comment-nous-verifions`, lastModified: new Date('2026-09-22'), changeFrequency: 'monthly', priority: 0.5 },
     { url: `${baseUrl}/contact`, lastModified: now, changeFrequency: 'monthly', priority: 0.5 },
   ];
 }
@@ -101,10 +102,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   dailyStamp.setUTCHours(5, 30, 0, 0);
   if (dailyStamp.getTime() > Date.now()) dailyStamp.setUTCDate(dailyStamp.getUTCDate() - 1);
 
+  // 2026-09-22: lastmod = the store's newest coupon row (real content change),
+  // NOT a sitewide daily stamp — 98 pages "modified" every day was a churn
+  // signal Google can't trust. Falls back to dailyStamp only when no offers.
+  const storeLastMod = (storeId: string): Date => {
+    const rows = couponsByStore.get(storeId) || [];
+    let max: string | null = null;
+    for (const c of rows) if (c.created_at && (!max || c.created_at > max)) max = c.created_at;
+    return max ? new Date(max) : dailyStamp;
+  };
   const storeUrls = stores.map((store) => ({
     url: `${baseUrl}/codes-promo/${store.slug}`,
-    lastModified: dailyStamp,
-    changeFrequency: 'daily' as const,
+    lastModified: storeLastMod(store.id),
+    changeFrequency: 'weekly' as const,
     priority: 0.8,
   }));
 
@@ -122,8 +132,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       if (!intentAvailable(storeCoupons, intent) && !intentEvergreen(store.slug, intent.slug)) continue;
       intentUrls.push({
         url: `${baseUrl}/codes-promo/${store.slug}/${intent.slug}`,
-        lastModified: dailyStamp,
-        changeFrequency: 'daily' as const,
+        lastModified: storeLastMod(store.id),
+        changeFrequency: 'weekly' as const,
         priority: 0.7,
       });
     }

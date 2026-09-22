@@ -318,7 +318,7 @@ async function refreshEventCodes(ev: ShoppingEventInstance, storeSlug: string): 
       is_exclusive: false,
       is_verified: true,
       affiliate_url: getStoreUrl(store.slug, store.name),
-      usage_count: Math.floor(Math.random() * 300) + 30,
+      usage_count: 0,
       created_at: new Date().toISOString(),
     });
     if (!error) { inserted++; knownOffers.push(candidate); }

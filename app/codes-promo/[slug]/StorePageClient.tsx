@@ -15,7 +15,7 @@ import { CATEGORIES, getCategoriesForStore } from '@/lib/categories';
 import AnswerBox from '@/components/AnswerBox';
 import { storeFaqItems, storeAboutSections, storeTips, storeStats } from '@/lib/storeContent';
 import { getEditorial } from '@/lib/storeEditorial';
-import { IconCheckCircle, IconChart, IconFlame, IconSearch, IconClipboard, IconBook, IconTrophy, IconStore, IconNewspaper } from '@/components/icons';
+import { IconCheckCircle, IconChart, IconSearch, IconClipboard, IconBook, IconTrophy, IconStore, IconNewspaper } from '@/components/icons';
 
 interface StorePageClientProps {
   store: Store;
@@ -168,11 +168,8 @@ export default function StorePageClient({ store, coupons }: StorePageClientProps
 
         {/* Freshness signal */}
         <div className="max-w-[1200px] mx-auto px-4 pt-4 flex items-center gap-4 flex-wrap">
-          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconCheckCircle size={14} className="text-green-600" /> Codes vérifiés le {new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+          <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconCheckCircle size={14} className="text-green-600" /> Dernière vérification le {stats.lastVerifiedLabel}</p>
           <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconChart size={14} className="text-blue-500" /> {stats.offerCount} offre{stats.offerCount > 1 ? 's' : ''} active{stats.offerCount > 1 ? 's' : ''}</p>
-          {stats.totalUsage > 0 && (
-            <p className="flex items-center gap-1.5 text-muted text-[13px]"><IconFlame size={14} className="text-orange-500" /> {stats.totalUsage.toLocaleString('fr-FR')} utilisations</p>
-          )}
         </div>
 
         {/* Answer-first block — dated, self-contained, AI-search quotable */}

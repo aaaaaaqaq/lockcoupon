@@ -1,3 +1,4 @@
+import { storeStats } from '@/lib/storeContent';
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
@@ -17,7 +18,7 @@ export function generateMetadata(): Metadata {
   return {
     title: `Code Réduction Temu Valide — ${monthYearCap()}`,
     description:
-      'Code réduction Temu testé aujourd\u2019hui : nouveaux clients, clients existants, packs coupons. Pourquoi certains codes échouent et lesquels fonctionnent vraiment.',
+      'Code réduction Temu vérifié : nouveaux clients, clients existants, packs coupons. Pourquoi certains codes échouent et lesquels fonctionnent vraiment.',
     alternates: { canonical: 'https://www.lockcoupon.com/codes-promo/temu/code-reduction' },
     openGraph: {
       title: 'Code Réduction Temu — Codes testés et valides',
@@ -35,7 +36,8 @@ export default async function TemuCodeReductionPage() {
   if (!store) notFound();
   const coupons = await getCouponsByStoreId(store.id);
   const m = new Date().toLocaleString('fr-FR', { month: 'long', year: 'numeric' });
-  const today = new Date().toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  // Honest freshness date = newest coupon row, not render time (2026-09-22).
+  const today = storeStats(coupons).lastVerifiedLabel;
   const best = bestDiscountLabel(coupons);
   const codeCount = coupons.filter((c) => c.type === 'code').length;
 
@@ -78,7 +80,7 @@ export default async function TemuCodeReductionPage() {
             <p className="text-white/50 text-[14px] md:text-[16px] max-w-lg mx-auto">
               {codeCount > 0 ? `${codeCount} codes de réduction testés en caisse` : 'Les codes de réduction Temu testés en caisse'}{best ? `, jusqu'à ${best}` : ''} — avec la condition exacte de chacun.
             </p>
-            <p className="text-white/40 text-[13px] mt-4">✅ Codes vérifiés le {today}</p>
+            <p className="text-white/40 text-[13px] mt-4">✅ Dernière vérification le {today}</p>
           </div>
         </section>
 
@@ -187,7 +189,7 @@ export default async function TemuCodeReductionPage() {
                 { q: 'Pourquoi mon code est-il refusé ?', a: 'Vérifiez la famille du code : réservé nouveaux clients, palier de panier non atteint, ou exclusivité application. Ce sont les trois causes qui expliquent la quasi-totalité des refus.' },
                 { q: 'Peut-on cumuler plusieurs codes Temu ?', a: 'Un seul code promo par commande, mais il se cumule avec les coupons du compte (roue, packs) et les ventes flash. L\u2019application applique automatiquement la meilleure combinaison.' },
                 { q: 'Les codes influenceurs TikTok sont-ils fiables ?', a: 'Rarement : la plupart sont des liens de parrainage déguisés qui ne réduisent rien pour vous. Préférez les codes testés en caisse, avec conditions affichées, comme ceux de cette page.' },
-                { q: 'À quelle fréquence cette page est-elle mise à jour ?', a: `Plusieurs fois par jour : les codes expirés sont retirés et les nouveaux apparaissent en tête de liste. Dernière vérification : le ${today}.` },
+                { q: 'À quelle fréquence cette page est-elle mise à jour ?', a: `Quotidiennement : les codes expirés sont retirés et les nouveaux apparaissent en tête de liste. Dernière vérification : le ${today}.` },
               ].map((item, i) => (
                 <details key={i} className="bg-white border border-border rounded-xl overflow-hidden">
                   <summary className="px-5 py-4 text-text-main text-[15px] font-semibold cursor-pointer hover:bg-bg">{item.q}</summary>

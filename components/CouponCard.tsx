@@ -96,7 +96,7 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
               onClick={(e) => { e.stopPropagation(); setDetailsOpen(!detailsOpen); }}
               className="hover:text-text-main transition-colors flex items-center gap-1"
             >
-              Détails et commentaires ({coupon.usage_count || 0}) <span className="text-[10px]">{detailsOpen ? '▲' : '▼'}</span>
+              Détails et conditions <span className="text-[10px]">{detailsOpen ? '▲' : '▼'}</span>
             </button>
           </div>
 
@@ -105,7 +105,7 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
               {coupon.description ? (
                 <p>{coupon.description}</p>
               ) : (
-                <p>Ce code a été vérifié et fonctionne actuellement. Utilisé par {coupon.usage_count || 0} personnes.</p>
+                <p>Conditions non précisées par la source : testez le code dans votre panier avant de valider la commande.</p>
               )}
             </div>
           )}
@@ -126,9 +126,6 @@ export default function CouponCard({ coupon, onOpenPopup }: CouponCardProps) {
               </span>
             )}
           </button>
-          {(coupon.usage_count || 0) > 0 && (
-            <span className="text-muted text-[11px] mt-2">{coupon.usage_count} utilisés</span>
-          )}
         </div>
       </div>
     </div>

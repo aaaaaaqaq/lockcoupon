@@ -11,17 +11,15 @@ import { TEMU_AFFILIATE_URL, TEMU_CODES, TEMU_PINNED_CODES, OFFER_TEMPLATES } fr
  * flagship stores (Temu, AliExpress, Amazon, Shein, Bershka).
  *
  * Every run:
- *   • TEMU — wipes yesterday's code coupons, publishes 10 affiliate-pool
- *     codes with FRESH Claude-written titles/descriptions (never the same
- *     copy two days in a row; static OFFER_TEMPLATES as fallback).
+ *   • TEMU — keeps the 10 affiliate-pool code rows STABLE (ids/created_at
+ *     never reset); renews expiry when needed, refreshes copy at most every
+ *     3 days (2026-09-22 anti-churn rewrite; static OFFER_TEMPLATES fallback).
  *   • ALIEXPRESS / AMAZON / SHEIN (daily) + 4 ROTATION_STORES/day (24-store
  *     pool, each ~every 6 days) — Claude web-searches real current codes on
- *     Dealabs/Ma-Reduc/Savoo/etc., REWRITES every offer with original
- *     French copy (no duplicate content), refreshes rows whose code already
- *     exists, inserts the new ones, and deletes the oldest codes beyond
- *     MAX_CODES so the page visibly rotates.
- *   • Re-elects a single is_best offer per store, pings Google Indexing
- *     API + sitemap + IndexNow so crawlers see the change same-day.
+ *     Dealabs/Ma-Reduc/Savoo/etc., writes original French copy for NEW
+ *     offers, only extends validity of offers that already exist (no daily
+ *     rewrite), and deletes the oldest codes beyond MAX_CODES.
+ *   • Re-elects a single is_best offer per store, pings sitemap + IndexNow.
  *
  * Scheduled daily at 06:00 UTC in vercel.json (replaces the temu-codes
  * schedule — that route stays available for manual runs only; running both
@@ -195,7 +193,46 @@ async function refreshTemu(): Promise<Record<string, any>> {
     .from('stores').select('id, name, slug').eq('slug', 'temu').maybeSingle();
   if (error || !store) return { store: 'temu', error: 'store not found' };
 
-  // Fresh AI copy; fall back to the static template pool if generation fails.
+  // 2026-09-22 anti-churn rewrite (Google Aug-18 suppression): the old
+  // behaviour deleted ALL Temu codes and re-inserted 10 rows with new AI copy
+  // EVERY day → created_at reset daily, dateModified bumped daily, fake
+  // "10 offres ajoutées aujourd'hui" changelog, zero real change. Now:
+  //   • existing code rows are KEPT (created_at stable);
+  //   • only EXPIRED rows are replaced (with the same code, new expiry);
+  //   • copy is refreshed at most every TEMU_COPY_ROTATION_DAYS, and only
+  //     when there is a real reason (rotation window reached);
+  //   • missing pinned/pool codes are back-filled up to 10 rows.
+  const TEMU_COPY_ROTATION_DAYS = 3;
+  const TEMU_TARGET = 10;
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const { data: existingRows } = await supabase
+    .from('coupons')
+    .select('id, code, title, description, expiry_date, created_at, sort_order, discount_value, discount_type')
+    .eq('store_id', store.id).eq('type', 'code')
+    .order('sort_order', { ascending: true });
+  const existing = existingRows || [];
+
+  // Decide whether this run is a copy-rotation run. We key it on the day
+  // number so it is deterministic and independent of previous run success.
+  const rotationRun = dayOfYear() % TEMU_COPY_ROTATION_DAYS === 0;
+
+  // Renew expiry BEFORE the global purge would delete the row (the handler
+  // purges expired coupons before calling us) — a renewed row keeps its id
+  // and created_at, a purged+reinserted one would not.
+  const soon = new Date(); soon.setDate(soon.getDate() + 5);
+  const soonStr = soon.toISOString().split('T')[0];
+
+  const presentCodes = new Set(existing.map((r) => (r.code || '').toLowerCase()));
+  const missingPinned = TEMU_PINNED_CODES.map((c) => c.toLowerCase()).filter((c) => !presentCodes.has(c));
+  const expired = existing.filter((r) => r.expiry_date && r.expiry_date <= soonStr);
+  const slotsToFill = Math.max(0, TEMU_TARGET - existing.length) + missingPinned.length;
+
+  if (!rotationRun && expired.length === 0 && slotsToFill === 0) {
+    return { store: 'temu', action: 'noop', kept: existing.length, next_rotation_in_days: TEMU_COPY_ROTATION_DAYS - (dayOfYear() % TEMU_COPY_ROTATION_DAYS) };
+  }
+
+  // Fresh AI copy only when we actually need it; static templates as fallback.
   let offers: FreshCopy[] = await generateTemuCopy();
   let copySource = 'ai';
   if (offers.length === 0) {
@@ -210,45 +247,72 @@ async function refreshTemu(): Promise<Record<string, any>> {
     offers = uniq;
   }
 
-  // Rotate: delete ALL existing Temu code coupons, then publish today's batch.
-  const { data: existing } = await supabase
-    .from('coupons').select('id').eq('store_id', store.id).eq('type', 'code');
-  if (existing && existing.length > 0) {
-    await supabase.from('coupons').delete().in('id', existing.map((c) => c.id));
-  }
-
-  // Top 5 = pinned personal affiliate codes, always, in this exact order
-  // (only their copy is refreshed daily). Ranks 6+ rotate from the pool.
-  const pool = TEMU_CODES.filter((c) => !TEMU_PINNED_CODES.includes(c));
-  const codes = [
-    ...TEMU_PINNED_CODES,
-    ...pickRandom(pool, Math.max(0, offers.length - TEMU_PINNED_CODES.length)),
-  ].slice(0, offers.length);
   const expiry = new Date();
   expiry.setDate(expiry.getDate() + 30);
-  const rows = offers.map((offer, i) => ({
-    store_id: store.id,
-    title: offer.title,
-    code: codes[i].toLowerCase(),
-    sort_order: i + 1,
-    description: offer.description,
-    discount_value: offer.discount_value,
-    discount_type: offer.discount_type,
-    type: 'code' as const,
-    affiliate_url: TEMU_AFFILIATE_URL,
-    expiry_date: expiry.toISOString().split('T')[0],
-    is_best: i === 0,
-    is_exclusive: i % 2 === 0,
-    is_verified: true,
-    usage_count: Math.floor(Math.random() * 500) + 50,
-    created_at: new Date().toISOString(),
-  }));
+  const expiryStr = expiry.toISOString().split('T')[0];
 
-  const { data: inserted, error: insertError } = await supabase
-    .from('coupons').insert(rows).select('id');
-  if (insertError) return { store: 'temu', error: insertError.message, deleted: existing?.length || 0 };
+  let refreshed = 0, renewed = 0, inserted = 0, errors = 0;
 
-  return { store: 'temu', copy: copySource, deleted: existing?.length || 0, inserted: inserted?.length || 0 };
+  // 1) Existing rows: renew expiry if expired; refresh copy only on rotation runs.
+  //    Codes and created_at never change → no churn, honest changelog.
+  for (let i = 0; i < existing.length; i++) {
+    const row = existing[i];
+    const isExpired = !!row.expiry_date && row.expiry_date <= soonStr;
+    if (!rotationRun && !isExpired) continue;
+    const offer = offers[i % offers.length];
+    const patch: Record<string, any> = {};
+    if (isExpired) { patch.expiry_date = expiryStr; renewed++; }
+    if (rotationRun) {
+      patch.title = offer.title;
+      patch.description = offer.description;
+      patch.discount_value = offer.discount_value;
+      patch.discount_type = offer.discount_type;
+      refreshed++;
+    }
+    const { error: upErr } = await supabase.from('coupons').update(patch).eq('id', row.id);
+    if (upErr) errors++;
+  }
+
+  // 2) Back-fill missing rows (first run after this change, or pool drift).
+  if (slotsToFill > 0) {
+    const pool = TEMU_CODES.map((c) => c.toLowerCase()).filter((c) => !TEMU_PINNED_CODES.map((p) => p.toLowerCase()).includes(c) && !presentCodes.has(c));
+    const newCodes = [...missingPinned, ...pickRandom(pool, Math.max(0, slotsToFill - missingPinned.length))].slice(0, slotsToFill);
+    const startOrder = existing.length;
+    const rows = newCodes.map((code, i) => {
+      const offer = offers[(startOrder + i) % offers.length];
+      return {
+        store_id: store.id,
+        title: offer.title,
+        code,
+        sort_order: startOrder + i + 1,
+        description: offer.description,
+        discount_value: offer.discount_value,
+        discount_type: offer.discount_type,
+        type: 'code' as const,
+        affiliate_url: TEMU_AFFILIATE_URL,
+        expiry_date: expiryStr,
+        is_best: false,
+        is_exclusive: false,
+        is_verified: false, // affiliate-pool code, not independently re-tested
+        usage_count: 0,     // real counter only (no fabricated social proof)
+        created_at: new Date().toISOString(),
+      };
+    });
+    if (rows.length > 0) {
+      const { data: ins, error: insErr } = await supabase.from('coupons').insert(rows).select('id');
+      if (insErr) errors++; else inserted = ins?.length || 0;
+    }
+  }
+
+  // 3) Exactly one is_best: the first pinned code.
+  const { data: after } = await supabase.from('coupons').select('id, code, sort_order').eq('store_id', store.id).eq('type', 'code').order('sort_order', { ascending: true });
+  if (after && after.length > 0) {
+    const pinnedFirst = after.find((r) => (r.code || '').toLowerCase() === TEMU_PINNED_CODES[0]?.toLowerCase()) || after[0];
+    await supabase.from('coupons').update({ is_best: false }).eq('store_id', store.id).eq('is_best', true);
+    await supabase.from('coupons').update({ is_best: true }).eq('id', pinnedFirst.id);
+  }
+
+  return { store: 'temu', action: rotationRun ? 'copy-rotation' : 'maintenance', copy: copySource, kept: existing.length, refreshed, renewed, inserted, errors };
 }
 
 // ─── ALIEXPRESS / AMAZON: real codes + creative rewrite + rotation ───────
@@ -351,9 +415,10 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
     });
 
     if (dupIdx >= 0) {
+      // 2026-09-22: the deal is unchanged → do NOT rewrite its copy (that was
+      // pure daily churn). Only extend validity — the offer was re-found on a
+      // trusted aggregator today, which is a genuine re-verification.
       const { error: upErr } = await supabase.from('coupons').update({
-        title: offer.title,
-        description: offer.description,
         expiry_date: offer.expiry_date || defaultExpiryStr,
         is_verified: true,
       }).eq('id', existing[dupIdx].id);
@@ -404,7 +469,7 @@ async function refreshSearchStore(cfg: { slug: string; name: string; url: string
       is_exclusive: false,
       is_verified: true,
       affiliate_url: cfg.url,
-      usage_count: Math.floor(Math.random() * 300) + 30,
+      usage_count: 0,
       created_at: new Date().toISOString(),
     });
     if (insErr) errors++; else { inserted++; knownOffers.push(candidate); }
@@ -498,10 +563,13 @@ export async function GET(request: Request) {
       `${STORE_PAGE('temu')}/nouveau-client`,
       `${STORE_PAGE('temu')}/livraison-gratuite`,
     ];
+    // 2026-09-22: stopped daily Google Indexing API pings for coupon pages
+    // (API is officially JobPosting/BroadcastEvent-only; daily pings on
+    // rewritten pages = churn signal). Sitemap ping + IndexNow (Bing) stay.
+    void notifyGoogle; void storePages;
     await Promise.all([
       submitIndexNow(urls),
       pingSitemap(),
-      notifyGoogle(storePages),
     ]);
 
     return NextResponse.json({
